@@ -161,6 +161,8 @@ cython_debug/
 
 # Miscellaneous
 *.png
+*.gif
 *.pbm
 *.pil
 *.bdf
+temp.py
