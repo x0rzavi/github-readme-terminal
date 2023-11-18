@@ -166,3 +166,4 @@ cython_debug/
 *.pil
 *.bdf
 temp.py
+frames/
