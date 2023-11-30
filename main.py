@@ -6,14 +6,16 @@
 # [x] Delete lines prototype
 # [x] Typing prototype
 # [x] Scrolling prototype
+# [x] Scroll up cases prototype
 # Implementations
 # [x] Blinking cursor
 # [x] Delete lines
 # [x] Scrolling
 # [x] Typing simulation w/ speed
+# [x] Prompt
+# [] Scroll up cases
+# [] Fix quirky last line bug
 # [] Merge genText() and genMultiText()
-# [] Fix n then (n + 1) print config
-# [] Prompt
 # [] Realistic scrolling
 # [] Need cloneFrame() and replaceText() ?
 # [] Optimization + better code quality
@@ -59,11 +61,40 @@ showCursor = True
 
 def alterCursor():
     global cursor
-    if cursor is cursorOrig:
-        cursor = " "
-    else:
-        cursor = cursorOrig
+    cursor = " " if cursor is cursorOrig else cursorOrig
     ic("alterCursor():", cursor)  # debug
+
+
+def toggleShowCursor(choice: bool = None):
+    global showCursor
+    if choice is None:
+        showCursor = False if showCursor is True else True
+    elif choice is True:
+        showCursor = True
+    elif choice is False:
+        showCursor = False
+    ic("toggleShowCursor():", showCursor)  # debug
+
+
+def frameDebugLines(frame: Image.Image) -> Image.Image:
+    # checker box to debug
+    draw = ImageDraw.Draw(frame)
+    for i in range(numRows + 1):  # (n + 1) lines
+        x1 = xPad
+        x2 = width - xPad
+        y1 = y2 = yPad + i * (fontHeight + lineSpacing)
+        draw.line([(x1, y1), (x2, y2)], "yellow")
+        draw.text((0, y1), str(i + 1), "orange", font)  # row numbers
+    for i in range(numCols + 1):  # (n + 1) lines
+        x1 = x2 = xPad + i * fontWidth
+        y1 = yPad
+        y2 = height - yPad
+        draw.line([(x1, y1), (x2, y2)], "turquoise")
+    draw.line([(xPad, yPad), (width - xPad, yPad)], "red")  # top
+    draw.line([(xPad, yPad), (xPad, height - yPad)], "red")  # left
+    draw.line([(xPad, height - yPad), (width - xPad, height - yPad)], "red")  # bottom
+    draw.line([(width - xPad, yPad), (width - xPad, height - yPad)], "red")  # right
+    return frame
 
 
 def genFrame(frame: Image.Image = None) -> Image.Image:
@@ -71,24 +102,7 @@ def genFrame(frame: Image.Image = None) -> Image.Image:
     if frame is None:
         frame = Image.new("RGB", (width, height), bgColor)
         colInRow = {_ + 1: 1 for _ in range(numRows)}
-        # checker box to debug
-        # draw = ImageDraw.Draw(frame)
-        # for i in range(numRows + 1):  # (n + 1) lines
-        #     x1 = xPad
-        #     x2 = width - xPad
-        #     y1 = y2 = yPad + i * (fontHeight + lineSpacing)
-        #     draw.line([(x1, y1), (x2, y2)], "yellow")
-        # for i in range(numCols + 1):  # (n + 1) lines
-        #     x1 = x2 = xPad + i * fontWidth
-        #     y1 = yPad
-        #     y2 = height - yPad
-        #     draw.line([(x1, y1), (x2, y2)], "turquoise")
-        # draw.line([(xPad, yPad), (width - xPad, yPad)], "red")  # top
-        # draw.line([(xPad, yPad), (xPad, height - yPad)], "red")  # left
-        # draw.line(
-        #     [(xPad, height - yPad), (width - xPad, height - yPad)], "red"
-        # )  # bottom
-        # draw.line([(width - xPad, yPad), (width - xPad, height - yPad)], "red")  # right
+        frame = frameDebugLines(frame)
         cursorToBox(1, 1)  # initialize at box (1, 1)
         return frame
 
@@ -122,33 +136,50 @@ def cursorToBox(
 ) -> tuple:
     if rowNum < 1 or colNum < 1 or rowNum > numRows or colNum > numCols:
         raise ValueError
+    # elif rowNum > numRows:
+    #     ic("cursorToBox():", "rowNum exceeds max row number, using", numRows, "instead")
+    #     rowNum = numRows
     global currRow, currCol
-    maxRowNum = numRows - textNumLines + 1
-    maxColNum = numCols - textNumChars + 1
+    maxRowNum = numRows - textNumLines + 1  # maximum row that can be permitted
+    # maxColNum = numCols - textNumChars + 1 # maximum col that can be permitted
     minColNum = colInRow[rowNum]
-    if colNum > maxColNum:
-        ic(
-            "cursorToBox():",
-            textNumChars,
-            "chars cannot be accomodated at column",
-            colNum,
-        )
-    if rowNum > maxRowNum:
-        ic("cursorToBox():", textNumLines, "lines cannot be accomodated at row", rowNum)
-        ic("cursorToBox():", "need minimum rowNum", maxRowNum)
-        rowNum = maxRowNum
-        # exit(1) # debug
+    # if colNum > maxColNum:
+    #     ic(
+    #         "cursorToBox():",
+    #         textNumChars,
+    #         "cannot be accomodated at",
+    #         colNum,
+    #     )
 
-    if contin is False and colInRow[rowNum] != 1:
-        scrollTimes = textNumLines
-        scrollUp(scrollTimes)
-        colNum = 1
-    elif contin is True:
+    if contin is False:
+        for i in range(numRows, rowNum - 1, -1):
+            if colInRow[i] == 1:
+                firstBlankRow = i
+            else:
+                break
+        ic("cursorToBox():", firstBlankRow)
+
+        if rowNum > maxRowNum:
+            ic("cursorToBox():", textNumLines, "cannot be accomodated at", rowNum)
+            ic("cursorToBox():", "maximum possible", maxRowNum)
+            if firstBlankRow > maxRowNum:
+                scrollTimes = textNumLines - (numRows - firstBlankRow) - 1
+            ic("cursorToBox():", scrollTimes)
+            scrollUp(scrollTimes)
+            # rowNum = currRow
+            rowNum = maxRowNum
+            # exit() # debug
+
+        elif firstBlankRow > rowNum:
+            scrollTimes = firstBlankRow - rowNum
+            ic("cursorToBox():", scrollTimes)
+            scrollUp(scrollTimes)
+    else:
         if colNum < minColNum:
             ic(
                 "cursorToBox():",
                 textNumChars,
-                "chars cannot be accomodated at column",
+                "cannot be accomodated at",
                 colNum,
             )
             colNum = colInRow[rowNum]
@@ -171,8 +202,8 @@ def genText(
         draw.text((x1, y1), text, txtColor, font)
         currCol += len(text)
         colInRow[currRow] = currCol
-        # if currRow != numRows: currRow += 1; currCol = colInRow[currRow] # end up cursor one line below
-        ic("genText():", currRow, currCol, colInRow)  # debug
+        # if currRow != numRows: currRow += 1; currCol = colInRow[currRow] # move cursor one line below; except on last line
+        ic("genText():", currRow, currCol)  # debug
 
         for _ in range(count):
             if showCursor:
@@ -213,10 +244,13 @@ def genMultiText(
             currCol += len(line)
             colInRow[currRow] = currCol
             if currRow != numRows:
-                currRow += 1  # end up cursor one line below
+                currRow += 1  # move cursor one line below; except on last line
                 currCol = colInRow[currRow]
                 # rowNum = currRow # new rowNum for next iteration
-            ic("genMultiText():", currRow, currCol, colInRow)  # debug
+            ic("genMultiText():", currRow, currCol)  # debug
+
+        cloneFrame(frame, 1)
+        genPrompt(currRow, 1, 1)
 
         for _ in range(count):
             if showCursor:
@@ -231,6 +265,14 @@ def genMultiText(
                 )
                 frame.paste(blankBoxImage, (cx1, cy1))
                 alterCursor()
+
+
+def genPrompt(rowNum: int, colNum: int, count: int = 1):
+    global showCursor
+    origCursorState = showCursor
+    toggleShowCursor(True)
+    genText("x0rzavi@github ~> ", rowNum, colNum, count, False)
+    showCursor = origCursorState
 
 
 # def replaceText(text: str, rowNum: int, colNum: int, count: int = 1) -> None:
@@ -258,11 +300,11 @@ def genTypingText(
         cursorToBox(rowNum, colNum, 1, 1, contin)
     if speed == 1 or speed == 2 or speed == 3:
         for char in text:
-            genText(char, rowNum, currCol, True, speed)
+            genText(char, rowNum, colInRow[rowNum], True, speed)
     else:
         for char in text:
             count = random.choice([1, 2, 3])
-            genText(char, rowNum, currCol, True, count)
+            genText(char, rowNum, colInRow[rowNum], True, count)
 
 
 def scrollUp(count: int = 1) -> None:
@@ -273,7 +315,6 @@ def scrollUp(count: int = 1) -> None:
         )  # make room for 1 extra line (fontHeight + lineSpacing)
         frame = Image.new("RGB", (width, height), bgColor)
         frame.paste(croppedFrame, (0, 0))
-        # currCol = colInRow[currRow] # useless as currCol is shifted up
         currRow -= 1  # move cursor to where it was
 
         keys = list(colInRow.keys())
@@ -281,7 +322,7 @@ def scrollUp(count: int = 1) -> None:
         shiftedValues = values[1:] + [1]
         shiftedDict = dict(zip(keys, shiftedValues))
         colInRow = shiftedDict
-        ic("scrollUp():", currRow, currCol, colInRow)
+        ic("scrollUp():", currRow, currCol)
 
 
 def deleteRow(rowNum: int) -> None:
@@ -294,81 +335,88 @@ def deleteRow(rowNum: int) -> None:
     frame.paste(blankLineImage, (0, y1))
 
 
-# TEST BED
-showCursor = False
-frame = genFrame(None)  # initial blank frame
-genText("", 1, 1, False, 5)
-genText("Starting GIF OS ", 1, 1, 5, False)
-genTypingText(".....", 1, 1, True)
-for i in range(0x0, 0x40000000, 0x7FFFFFF):
-    deleteRow(2)
-    genText("Memory Check: {}".format(i), 2, 1)
-cloneFrame(frame, 5)
-deleteRow(2)
-genText("Memory Check: 1048576KB OK", 2, 1, 5)
+## TEST BED
+# toggleShowCursor(False)
+# frame = genFrame(None)  # initial blank frame
+# genText("", 1, 1, False, 5)
+# genText("Starting GIF OS ", 1, 1, 5, False)
+# genTypingText(".....", 1, 1, True)
+# for i in range(0x0, 0x40000000, 0x7FFFFFF):
+#     deleteRow(2)
+#     genText("Memory Check: {}".format(i), 2, 1)
+# cloneFrame(frame, 5)
+# deleteRow(2)
+# genText("Memory Check: 1048576KB OK", 2, 1, 5)
+#
+# toggleShowCursor(True)
+# showCursor = True
+# frame = genFrame(None)
+# genText("", 1, 1, 5)
+# toggleShowCursor(False)
+# genText("Enter username: ", 1, 1, 5)
+# toggleShowCursor(True)
+# genTypingText("x0rzavi", 1, 1, True)
+# cloneFrame(frame, 5)
+# toggleShowCursor(True)
+# genText("", 2, 1, 5)
+# toggleShowCursor(False)
+# genText("Enter password: ", 2, 1, 5)
+# toggleShowCursor(True)
+# genTypingText("*********", 2, 1, True)
+# genText("", 3, 1, 5)
+# genText("Coded by x0rzavi :D", numRows, 1, 10)
+# cloneFrame(frame, 2)
 
-showCursor = True
 frame = genFrame(None)
-genText("", 1, 1, 5)
-showCursor = False
-genText("Enter username: ", 1, 1, 5)
-showCursor = True
-genTypingText("x0rzavi", 1, 1, True)
-cloneFrame(frame, 5)
-showCursor = True
-genText("", 2, 1, 5)
-showCursor = False
-genText("Enter password: ", 2, 1, 5)
-showCursor = True
-genTypingText("*********", 2, 1, True)
-genText("", 3, 1, 5)
-genText("Coded by x0rzavi :D", numRows, 1, 10)
-cloneFrame(frame, 2)
+toggleShowCursor(True)
+genPrompt(1, 1, 1)
+genTypingText("fastfetch", 1, 1, True, 1)
+genText("", currRow + 1, 1, 1)
+lines1 = """                  -`                     x0rzavi@WIN-X0RZAVI
+                 .o+`                    -------------------
+                `ooo/                    OS: Arch Linux x86_64
+               `+oooo:                   Host: Windows Subsystem for Linux - Arch
+              `+oooooo:                  Kernel: 5.15.133.1-microsoft-standard-WSL2
+              -+oooooo+:                 Uptime: 12 hours, 2 mins
+            `/:-:++oooo+:                Packages: 503 (pacman)
+           `/++++/+++++++:               Shell: zsh 5.9
+          `/++++++++++++++:              Display (westonrdp): 1920x1080 @ 60Hz
+         `/+++ooooooooooooo/`            WM: WSLg (Wayland)
+        ./ooosssso++osssssso+`           Terminal: tmux 3.3a
+       .oossssso-````/ossssss+`          CPU: AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx (8) @ 2.10 GHz
+      -osssssso.      :ssssssso.         GPU: AMD Radeon(TM) Vega 8 Graphics (1.99 GiB) [Integrated]
+     :osssssss/        osssso+++.        Memory: 1.12 GiB / 6.75 GiB (17%)
+    /ossssssss/        +ssssooo/-        Swap: 0 B / 2.00 GiB (0%)
+  `/ossssso+/:-        -:/+osssso+-      Disk (/): 5.00 GiB / 1006.85 GiB (0%) - ext4
+ `+sso+:-`                 `.-/+oso:     Disk (/mnt/c): 85.88 GiB / 200.75 GiB (43%) - 9p
+`++:.                           `-/+/    Disk (/mnt/d): 224.03 GiB / 931.50 GiB (24%) - 9p
+.`                                 `/    Local IP (eth0): 172.22.214.187/20 *
+                                         Battery: 100% [Full]"""
+genMultiText(lines1, currRow, 1, 1)
+genTypingText("ll -p", currRow, 1, True, 1)
+lines2 = """total 204K
+drwxr-xr-x 2 x0rzavi x0rzavi 4.0K Nov 28 12:20 frames/
+drwxr-xr-x 8 x0rzavi x0rzavi 4.0K Nov 27 11:36 .git/
+-rw-r--r-- 1 x0rzavi x0rzavi 3.1K Nov 18 15:20 .gitignore
+-rw-r--r-- 1 x0rzavi x0rzavi 106K Nov 17 12:10 gohufont-uni-14.bdf
+-rw-r--r-- 1 x0rzavi x0rzavi 1.3K Nov 17 12:10 gohufont-uni-14.pbm
+-rw-r--r-- 1 x0rzavi x0rzavi 5.1K Nov 17 12:10 gohufont-uni-14.pil
+-rw-r--r-- 1 x0rzavi x0rzavi 1.1K Nov 17 11:51 LICENSE
+-rw-r--r-- 1 x0rzavi x0rzavi  14K Nov 28 13:27 main.py
+drwxr-xr-x 3 x0rzavi x0rzavi 4.0K Nov 26 10:18 .mypy_cache/
+-rw-r--r-- 1 x0rzavi x0rzavi  26K Nov 28 12:20 output.gif
+-rw-r--r-- 1 x0rzavi x0rzavi  13K Nov 24 10:15 temp.py
+drwxr-xr-x 5 x0rzavi x0rzavi 4.0K Nov 17 12:05 venv/"""
+genMultiText(lines2, currRow + 1, 1, 1)
+
 
 # frame = genFrame(None)
-# genMultiText("github-terminal-magic on main\n$> ", 1, 1, 5)
-# genTypingText("fastfetch", 2, 1, True)
-# multiLines1 = """                  -`                     x0rzavi@WIN-X0RZAVI
-#                  .o+`                    -------------------
-#                 `ooo/                    OS: Arch Linux x86_64
-#                `+oooo:                   Host: Windows Subsystem for Linux - Arch
-#               `+oooooo:                  Kernel: 5.15.133.1-microsoft-standard-WSL2
-#               -+oooooo+:                 Uptime: 12 hours, 2 mins
-#             `/:-:++oooo+:                Packages: 503 (pacman)
-#            `/++++/+++++++:               Shell: zsh 5.9
-#           `/++++++++++++++:              Display (westonrdp): 1920x1080 @ 60Hz
-#          `/+++ooooooooooooo/`            WM: WSLg (Wayland)
-#         ./ooosssso++osssssso+`           Terminal: tmux 3.3a
-#        .oossssso-````/ossssss+`          CPU: AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx (8) @ 2.10 GHz
-#       -osssssso.      :ssssssso.         GPU: AMD Radeon(TM) Vega 8 Graphics (1.99 GiB) [Integrated]
-#      :osssssss/        osssso+++.        Memory: 1.12 GiB / 6.75 GiB (17%)
-#     /ossssssss/        +ssssooo/-        Swap: 0 B / 2.00 GiB (0%)
-#   `/ossssso+/:-        -:/+osssso+-      Disk (/): 5.00 GiB / 1006.85 GiB (0%) - ext4
-#  `+sso+:-`                 `.-/+oso:     Disk (/mnt/c): 85.88 GiB / 200.75 GiB (43%) - 9p
-# `++:.                           `-/+/    Disk (/mnt/d): 224.03 GiB / 931.50 GiB (24%) - 9p
-# .`                                 `/    Local IP (eth0): 172.22.214.187/20 *
-#                                          Battery: 100% [Full]
-#                                          Locale: en_US.UTF-8"""
-# genText(multiLines1, currRow, 15)
-
-# genText("github-terminal-magic on main\n$> ", currRow, 15)
-# genText(multiLines1 + "\ngithub-terminal-magic on main\n$> ", 3, 15)
-# genTypingText("ll -p", currRow, True)
-# multiLines2 = """total 176K
-# drwxr-xr-x 2 x0rzavi x0rzavi 4.0K Nov 19 00:10 frames/
-# drwxr-xr-x 8 x0rzavi x0rzavi 4.0K Nov 18 22:22 .git/
-# -rw-r--r-- 1 x0rzavi x0rzavi 3.1K Nov 18 15:20 .gitignore
-# -rw-r--r-- 1 x0rzavi x0rzavi 106K Nov 17 12:10 gohufont-uni-14.bdf
-# -rw-r--r-- 1 x0rzavi x0rzavi 1.3K Nov 17 12:10 gohufont-uni-14.pbm
-# -rw-r--r-- 1 x0rzavi x0rzavi 5.1K Nov 17 12:10 gohufont-uni-14.pil
-# -rw-r--r-- 1 x0rzavi x0rzavi 1.1K Nov 17 11:51 LICENSE
-# -rw-r--r-- 1 x0rzavi x0rzavi 7.9K Nov 19 00:13 main.py"""
-# genText(multiLines2, currRow, 1)
-# multiLines3 = """drwxr-xr-x 3 x0rzavi x0rzavi 4.0K Nov 18 21:35 .mypy_cache/
-# -rw-r--r-- 1 x0rzavi x0rzavi  20K Nov 19 00:10 output.gif
-# -rw-r--r-- 1 x0rzavi x0rzavi  511 Nov 18 21:01 temp.py
-# drwxr-xr-x 5 x0rzavi x0rzavi 4.0K Nov 17 12:05 venv/"""
-# genText(multiLines3, currRow, 15)
+# lines2 = ["line1", "line2"]
+# lines3 = ["|line1", "|line2", "|line3"]
+# lines4 = ["line1", "line2", "line3", "line4"]
+# lines5 = ["line1", "line2", "line3", "line4", "line5"]
+# lines10 = ["|line1", "|line2", "|line3", "|line4", "|line5", "|line6", "|line7", "|line8", "|line9", "|line10"]
+# genMultiText(lines10, 20, 1)
 
 os.system(
     "ffmpeg -hide_banner -loglevel error -r {fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif".format(
