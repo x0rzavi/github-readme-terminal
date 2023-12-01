@@ -167,3 +167,4 @@ cython_debug/
 *.bdf
 temp.py
 frames/
+.vscode
