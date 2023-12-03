@@ -1,13 +1,12 @@
 # TODO
 # [x] Try not to manipulate currRow manually
-# [] Realistic scrolling
-# [] Merge genText() and genMultiText()
+# [] Optimization + better code quality - classes
 # [] Need cloneFrame() and replaceText() ?
-# [] Optimization + better code quality
+# [] Merge genText() and genMultiText()
 # [] Config file
 # [] Theming
 # [] Scriptable input file
-# [] Remove debug statements
+# [] Remove debug statements/optional debug mode
 # [] GIF maker implementation
 # [] Test cases
 
@@ -48,18 +47,13 @@ showCursor = True
 
 def alterCursor():
     global cursor
-    cursor = " " if cursor is cursorOrig else cursorOrig
+    cursor = cursorOrig if cursor != cursorOrig else " "
     ic("alterCursor():", cursor)  # debug
 
 
 def toggleShowCursor(choice: bool = None):
     global showCursor
-    if choice is None:
-        showCursor = False if showCursor is True else True
-    elif choice is True:
-        showCursor = True
-    elif choice is False:
-        showCursor = False
+    showCursor = not showCursor if choice is None else choice
     ic("toggleShowCursor():", showCursor)  # debug
 
 
@@ -106,14 +100,6 @@ def cloneFrame(frame: Image.Image, count: int = 1) -> Image.Image:
     return frame
 
 
-def getCoords(rowNum: int, colNum: int) -> tuple:
-    x1 = xPad + (colNum - 1) * fontWidth
-    y1 = yPad + (rowNum - 1) * (fontHeight + lineSpacing)
-    x2 = xPad + colNum * fontWidth
-    y2 = yPad + rowNum * (fontHeight + lineSpacing)
-    return x1, y1, x2, y2
-
-
 def cursorToBox(
     rowNum: int,
     colNum: int,
@@ -128,15 +114,7 @@ def cursorToBox(
         rowNum = numRows
     global currRow, currCol
     maxRowNum = numRows - textNumLines + 1  # maximum row that can be permitted
-    # maxColNum = numCols - textNumChars + 1 # maximum col that can be permitted
     minColNum = colInRow[rowNum]
-    # if colNum > maxColNum:
-    #     ic(
-    #         "cursorToBox():",
-    #         textNumChars,
-    #         "cannot be accomodated at",
-    #         colNum,
-    #     )
 
     if contin is False:
         numBlankRows = 0
@@ -153,6 +131,8 @@ def cursorToBox(
             ic("cursorToBox():", textNumLines, "cannot be accomodated at", rowNum)
             ic("cursorToBox():", "maximum possible", maxRowNum)
             if firstBlankRow < maxRowNum:  # needed ?????
+                ic("NEEDED!") # debug
+                exit(1)
                 scrollTimes = textNumLines - numBlankRows
                 ic("cursorToBox():", scrollTimes)
                 scrollUp(scrollTimes)
@@ -175,7 +155,12 @@ def cursorToBox(
             colNum = colInRow[rowNum]
     currRow, currCol = rowNum, colNum
     ic("cursorToBox():", currRow, currCol)  # debug
-    return getCoords(rowNum, colNum)
+
+    x1 = xPad + (colNum - 1) * fontWidth
+    y1 = yPad + (rowNum - 1) * (fontHeight + lineSpacing)
+    x2 = xPad + colNum * fontWidth
+    y2 = yPad + rowNum * (fontHeight + lineSpacing)
+    return x1, y1, x2, y2
 
 
 def genText(
@@ -199,7 +184,7 @@ def genText(
                 cx1, cy1, _, _ = cursorToBox(
                     currRow, currCol, 1, 1, contin=True
                 )  # no unnecessary scroll
-                draw.text((cx1, cy1), cursor, txtColor, font)
+                draw.text((cx1, cy1), str(cursor), txtColor, font)
             genFrame(frame)
             if showCursor:
                 blankBoxImage = Image.new(
@@ -210,9 +195,19 @@ def genText(
 
 
 def genMultiText(
-    text: str | list, rowNum: int, colNum: int, count: int = 1, contin: bool = False
+    text: str | list,
+    rowNum: int,
+    colNum: int,
+    count: int = 1,
+    prompt: bool = True,
+    contin: bool = False,
 ) -> None:
+    if prompt and contin:
+        ic("genMultiText():", "both prompt and contin can't be True")  # debug
+        exit(1)
+
     global frame, currRow, currCol, colInRow
+
     if isinstance(text, str):
         textLines = text.splitlines()
         textNumLines = len(textLines)
@@ -233,15 +228,16 @@ def genMultiText(
             colInRow[currRow] = currCol
             ic("genMultiText():", currRow, currCol)  # debug
 
-        cloneFrame(frame, 1)  # wait a bit before printing new prompt
-        genPrompt(currRow + 1, 1, 1)  # next to currRow
+        if prompt:
+            cloneFrame(frame, 1)  # wait a bit before printing new prompt
+            genPrompt(currRow + 1, 1, 1)  # next to currRow
 
         for _ in range(count):
             if showCursor:
                 cx1, cy1, _, _ = cursorToBox(
                     currRow, currCol, 1, 1, contin=True
                 )  # no unnecessary scroll
-                draw.text((cx1, cy1), cursor, txtColor, font)
+                draw.text((cx1, cy1), str(cursor), txtColor, font)
             genFrame(frame)
             if showCursor:
                 blankBoxImage = Image.new(
@@ -284,11 +280,11 @@ def genTypingText(
         cursorToBox(rowNum, colNum, 1, 1, contin)
     if speed == 1 or speed == 2 or speed == 3:
         for char in text:
-            genText(char, rowNum, colInRow[rowNum], True, speed)
+            genText(char, rowNum, colInRow[rowNum], speed, True)
     else:
         for char in text:
             count = random.choice([1, 2, 3])
-            genText(char, rowNum, colInRow[rowNum], True, count)
+            genText(char, rowNum, colInRow[rowNum], count, True)
 
 
 def scrollUp(count: int = 1) -> None:
@@ -322,12 +318,14 @@ def deleteRow(rowNum: int) -> None:
 ## TEST BED
 # toggleShowCursor(False)
 # frame = genFrame(None)  # initial blank frame
-# genText("", 1, 1, False, 5)
+# genText("", 1, 1, 5, False)
 # genText("Starting GIF OS ", 1, 1, 5, False)
 # genTypingText(".....", 1, 1, True)
 # for i in range(0x0, 0x40000000, 0x7FFFFFF):
+#     if i < 0x20000000:
+#         cloneFrame(frame, 2)
 #     deleteRow(2)
-#     genText("Memory Check: {}".format(i), 2, 1)
+#     genText(f"Memory Check: {i}", 2, 1)
 # cloneFrame(frame, 5)
 # deleteRow(2)
 # genText("Memory Check: 1048576KB OK", 2, 1, 5)
@@ -392,30 +390,29 @@ def deleteRow(rowNum: int) -> None:
 # -rw-r--r-- 1 x0rzavi x0rzavi  13K Nov 24 10:15 temp.py
 # drwxr-xr-x 5 x0rzavi x0rzavi 4.0K Nov 17 12:05 venv/"""
 # genMultiText(lines2, currRow, 1, 1)
-
-frame = genFrame(None)
-lines2 = ["line1", "line2"]
-lines3 = ["|line1", "|line2", "|line3"]
-lines4 = ["line1", "line2", "line3", "line4"]
-lines5 = ["line1", "line2", "line3", "line4", "line5"]
-lines10 = [
-    "|line1",
-    "|line2",
-    "|line3",
-    "|line4",
-    "|line5",
-    "|line6",
-    "|line7",
-    "|line8",
-    "|line9",
-    "|line10",
-]
-# genMultiText(lines2, 20, 1, 15)
+#
+# frame = genFrame(None)
+# lines2 = ["line1", "line2"]
+# lines3 = ["|line1", "|line2", "|line3"]
+# lines4 = ["line1", "line2", "line3", "line4"]
+# lines5 = ["line1", "line2", "line3", "line4", "line5"]
+# lines10 = [
+#     "|line1",
+#     "|line2",
+#     "|line3",
+#     "|line4",
+#     "|line5",
+#     "|line6",
+#     "|line7",
+#     "|line8",
+#     "|line9",
+#     "|line10",
+# ]
+# genMultiText(lines10, 1, 1, 10)
+# genMultiText(lines2, 4, 1, 10, True, True)
 # genMultiText(lines3, 21, 1, 15)
-genMultiText(lines3, 3, 1, 15)
+# genMultiText(lines3, 3, 1, 15)
 
 os.system(
-    "ffmpeg -hide_banner -loglevel error -r {fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif".format(
-        fps=fps, folderName=folderName
-    )
+    f"ffmpeg -hide_banner -loglevel error -r {fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
 )  # debug
