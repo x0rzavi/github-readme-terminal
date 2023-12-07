@@ -162,11 +162,8 @@ cython_debug/
 # Miscellaneous
 *.png
 *.gif
-*.pbm
-*.pil
-*.bdf
-*.ttf
 temp.py
 temp/
 frames/
+fonts/
 .vscode
