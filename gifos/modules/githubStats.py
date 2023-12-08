@@ -1,11 +1,13 @@
 # TODO
 # [x] Language list
 # [x] Rank
+# [x] Ignore repo
+# [x] Count total commits from all time
+# [] Optimize code
 # [] Optimize API calls
 # [] Catch errors
-# [] Count total commits from all time
 # [] Retry on error
-# [] Ignore repo
+
 from icecream import ic
 from dotenv import load_dotenv
 import os
@@ -14,8 +16,6 @@ from .calcRank import calcRank
 
 load_dotenv()
 githubToken = os.getenv("GITHUB_TOKEN")
-endPoint = "https://api.github.com/graphql"
-headers = {"Authorization": f"bearer {githubToken}"}
 
 
 def fetchRepoStats(username: str, repoEndCursor: str = None) -> dict:
@@ -33,6 +33,7 @@ def fetchRepoStats(username: str, repoEndCursor: str = None) -> dict:
             ) {
                 totalCount
                 nodes {
+                    name
                     isFork
                     stargazerCount
                     languages(
@@ -42,7 +43,7 @@ def fetchRepoStats(username: str, repoEndCursor: str = None) -> dict:
                         edges {
                             node {
                                 name
-                                color
+                                # color
                             }
                             size
                         }
@@ -63,6 +64,8 @@ def fetchRepoStats(username: str, repoEndCursor: str = None) -> dict:
         }
     }
     """
+    endPoint = "https://api.github.com/graphql"
+    headers = {"Authorization": f"bearer {githubToken}"}
     variables = {"username": username, "repoEndCursor": repoEndCursor}
 
     response = requests.post(
@@ -94,6 +97,9 @@ def fetchUserStats(username: str) -> dict:
                 totalCount
             }
             contributionsCollection {
+                # contributionCalendar {
+                #     totalContributions
+                # }
                 totalCommitContributions
                 restrictedContributionsCount
                 totalPullRequestReviewContributions
@@ -117,6 +123,8 @@ def fetchUserStats(username: str) -> dict:
         }
     }
     """
+    endPoint = "https://api.github.com/graphql"
+    headers = {"Authorization": f"bearer {githubToken}"}
     variables = {"username": username}
 
     response = requests.post(
@@ -133,7 +141,30 @@ def fetchUserStats(username: str) -> dict:
         ic("Error!", response.status_code)
 
 
-def calcUserStats(username: str) -> dict:
+"""
+Reference: https://github.com/anuraghazra/github-readme-stats/blob/23472f40e81170ba452c38a99abc674db0000ce6/src/fetchers/stats-fetcher.js#L170
+"""
+
+
+def fetchTotalCommits(username: str) -> int:
+    url = f"https://api.github.com/search/commits?q=author:{username}"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/vnd.github.cloak-preview",
+        "Authorization": f"token {githubToken}",
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        jsonObj = response.json()
+        totalCommitsAllTime = jsonObj["total_count"]
+        return totalCommitsAllTime
+    else:
+        ic("Error!", response.status_code)
+
+
+def calcUserStats(
+    username: str, ignoreRepos: list = None, includeAllCommits: bool = False
+) -> dict:
     repoEndCursor = None
     totalStargazers = 0
     languagesDict = {}
@@ -143,14 +174,20 @@ def calcUserStats(username: str) -> dict:
         if repoStats:
             repos = repoStats["nodes"]
             for repo in repos:
-                totalStargazers += repo["stargazerCount"]
-                if not repo["isFork"]:
-                    languages = repo["languages"]["edges"]
-                    for language in languages:
-                        if language["node"]["name"] in languagesDict:
-                            languagesDict[language["node"]["name"]] += language["size"]
-                        else:
-                            languagesDict[language["node"]["name"]] = language["size"]
+                ignoreRepos = ignoreRepos if ignoreRepos is not None else []
+                if repo["name"] not in ignoreRepos:
+                    totalStargazers += repo["stargazerCount"]
+                    if not repo["isFork"]:
+                        languages = repo["languages"]["edges"]
+                        for language in languages:
+                            if language["node"]["name"] in languagesDict:
+                                languagesDict[language["node"]["name"]] += language[
+                                    "size"
+                                ]
+                            else:
+                                languagesDict[language["node"]["name"]] = language[
+                                    "size"
+                                ]
             if repoStats["pageInfo"]["hasNextPage"]:
                 repoEndCursor = repoStats["pageInfo"]["endCursor"]
             else:
@@ -172,6 +209,7 @@ def calcUserStats(username: str) -> dict:
     userDetails["accountName"] = userStats["name"]
     userDetails["totalFollowers"] = userStats["followers"]["totalCount"]
     userDetails["totalStargazers"] = totalStargazers
+    userDetails["totalCommitsAllTime"] = fetchTotalCommits(username)
     userDetails["totalCommitsLastYear"] = (
         userStats["contributionsCollection"]["restrictedContributionsCount"]
         + userStats["contributionsCollection"]["totalCommitContributions"]
@@ -193,14 +231,25 @@ def calcUserStats(username: str) -> dict:
         "totalCount"
     ]
     userDetails["languagesSorted"] = languagesSorted[:6]  # top 6 languages
-    userDetails["userRank"] = calcRank(
-        False,
-        userDetails["totalCommitsLastYear"],
-        userDetails["totalPullRequestsMade"],
-        userDetails["totalIssues"],
-        userDetails["totalPullRequestsReviewed"],
-        userDetails["totalStargazers"],
-        userDetails["totalFollowers"],
-    )
+    if includeAllCommits:
+        userDetails["userRank"] = calcRank(
+            True,
+            userDetails["totalCommitsAllTime"],
+            userDetails["totalPullRequestsMade"],
+            userDetails["totalIssues"],
+            userDetails["totalPullRequestsReviewed"],
+            userDetails["totalStargazers"],
+            userDetails["totalFollowers"],
+        )
+    else:
+        userDetails["userRank"] = calcRank(
+            False,
+            userDetails["totalCommitsLastYear"],
+            userDetails["totalPullRequestsMade"],
+            userDetails["totalIssues"],
+            userDetails["totalPullRequestsReviewed"],
+            userDetails["totalStargazers"],
+            userDetails["totalFollowers"],
+        )
 
     return userDetails

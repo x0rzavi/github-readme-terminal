@@ -1,5 +1,5 @@
 from gifos.gifos import Terminal
-from gifos.modules.githubStats import calcUserStats
+from gifos.modules.githubStats import calcUserStats, fetchTotalCommits
 from dotenv import load_dotenv
 from icecream import ic
 from PIL import ImageFont
@@ -107,13 +107,15 @@ def main():
     # t.genMultiText(lines2, 25, 1, 5, True)
     # t.genMultiText(lines3, 21, 1, 1, False)
     # t.genMultiText(lines3, 3, 1, 1, False)
-    userDetails = calcUserStats("anuraghazra")
-    t.genText(userDetails["accountName"] + "'s Github Stats", 1, 1)
-    t.genText(
-        "Total Commits (Last Year): " + str(userDetails["totalCommitsLastYear"]), 2, 1
-    )
-
-    t.genGif()
+    ignoreRepos = ["archiso-zfs", "archiso-zfs-archive"]
+    userDetails = calcUserStats("x0rzavi", ignoreRepos=ignoreRepos, includeAllCommits=True)
+    ic(userDetails)
+    # t.genText(userDetails["accountName"] + "'s Github Stats", 1, 1)
+    # t.genText(
+    #     "Total Commits (Last Year): " + str(userDetails["totalCommitsLastYear"]), 2, 1
+    # )
+    #
+    # t.genGif()
 
 
 if __name__ == "__main__":
