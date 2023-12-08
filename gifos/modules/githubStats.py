@@ -1,6 +1,6 @@
 # TODO
 # [x] Language list
-# [] Rank
+# [x] Rank
 # [] Optimize API calls
 # [] Catch errors
 # [] Count total commits from all time
@@ -10,6 +10,7 @@ from icecream import ic
 from dotenv import load_dotenv
 import os
 import requests
+from .calcRank import calcRank
 
 load_dotenv()
 githubToken = os.getenv("GITHUB_TOKEN")
@@ -30,6 +31,7 @@ def fetchRepoStats(username: str, repoEndCursor: str = None) -> dict:
                 orderBy: { field: STARGAZERS, direction: DESC }
                 ownerAffiliations: OWNER
             ) {
+                totalCount
                 nodes {
                     isFork
                     stargazerCount
@@ -82,7 +84,10 @@ def fetchUserStats(username: str) -> dict:
     query userInfo($username: String!) {
         user(login: $username) {
             name
-            repositoriesContributedTo(
+            followers (first: 1) {
+                totalCount
+            }
+            repositoriesContributedTo (
                 first: 1
                 contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]
             ) {
@@ -165,20 +170,37 @@ def calcUserStats(username: str) -> dict:
     userStats = fetchUserStats(username)
     userDetails = {}
     userDetails["accountName"] = userStats["name"]
+    userDetails["totalFollowers"] = userStats["followers"]["totalCount"]
+    userDetails["totalStargazers"] = totalStargazers
     userDetails["totalCommitsLastYear"] = (
         userStats["contributionsCollection"]["restrictedContributionsCount"]
         + userStats["contributionsCollection"]["totalCommitContributions"]
     )
     userDetails["totalPullRequestsMade"] = userStats["pullRequests"]["totalCount"]
-    userDetails["totalPullRequestsMerged"] = userStats["mergedPullRequests"]["totalCount"]
+    userDetails["totalPullRequestsMerged"] = userStats["mergedPullRequests"][
+        "totalCount"
+    ]
     userDetails["pullRequestsMergePercentage"] = round(
-        (userDetails["totalPullRequestsMerged"] / userDetails["totalPullRequestsMade"]) * 100, 2
+        (userDetails["totalPullRequestsMerged"] / userDetails["totalPullRequestsMade"])
+        * 100,
+        2,
     )
     userDetails["totalPullRequestsReviewed"] = userStats["contributionsCollection"][
         "totalPullRequestReviewContributions"
     ]
     userDetails["totalIssues"] = userStats["issues"]["totalCount"]
-    userDetails["totalRepoContributions"] = userStats["repositoriesContributedTo"]["totalCount"]
-    userDetails["languagesSorted"] = languagesSorted[:6]
-    
+    userDetails["totalRepoContributions"] = userStats["repositoriesContributedTo"][
+        "totalCount"
+    ]
+    userDetails["languagesSorted"] = languagesSorted[:6]  # top 6 languages
+    userDetails["userRank"] = calcRank(
+        False,
+        userDetails["totalCommitsLastYear"],
+        userDetails["totalPullRequestsMade"],
+        userDetails["totalIssues"],
+        userDetails["totalPullRequestsReviewed"],
+        userDetails["totalStargazers"],
+        userDetails["totalFollowers"],
+    )
+
     return userDetails
