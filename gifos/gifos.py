@@ -6,6 +6,7 @@
 # [] Merge genText() and genMultiText()
 # [] Config file
 # [] Theming
+# [] Rich text - atleast highlights
 # [] Scriptable input file
 # [] Remove debug statements/optional debug mode
 # [] Documentation
@@ -22,7 +23,6 @@ os.system("rm -fr ./frame* ./output*")  # debug
 baseName = "frame_"
 folderName = "./frames/"
 os.mkdir(folderName)
-fps = 10.0
 
 
 class Terminal:
@@ -32,7 +32,7 @@ class Terminal:
         height: int,
         xPad: int,
         yPad: int,
-        font: ImageFont.ImageFont,
+        font: ImageFont.ImageFont | ImageFont.FreeTypeFont,
         debug: bool = False,
     ) -> None:
         if debug:
@@ -60,6 +60,8 @@ class Terminal:
         self.cursor = "_"
         self.cursorOrig = self.cursor
         self.showCursor = True
+        self.blinkCursor = True
+        self.fps = 10.0
         self.prompt = "x0rzavi@github ~> "
         self.frame = self.__genFrame()
 
@@ -70,6 +72,10 @@ class Terminal:
     def toggleShowCursor(self, choice: bool = None):
         self.showCursor = not self.showCursor if choice is None else choice
         ic(self.showCursor)  # debug
+
+    def toggleBlinkCursor(self, choice: bool = None):
+        self.blinkCursor = not self.blinkCursor if choice is None else choice
+        ic(self.blinkCursor)  # debug
 
     def __frameDebugLines(self, frame: Image.Image) -> Image.Image:
         # checker box to debug
@@ -220,7 +226,8 @@ class Terminal:
                         self.bgColor,
                     )
                     self.frame.paste(blankBoxImage, (cx1, cy1))
-                    self.__alterCursor()
+                    if self.blinkCursor:
+                        self.__alterCursor()
 
     def genMultiText(
         self,
@@ -285,7 +292,8 @@ class Terminal:
                         self.bgColor,
                     )
                     self.frame.paste(blankBoxImage, (cx1, cy1))
-                    self.__alterCursor()
+                    if self.blinkCursor:
+                        self.__alterCursor()
 
     def genPrompt(self, rowNum: int, colNum: int, count: int = 1):
         origCursorState = self.showCursor
@@ -340,10 +348,9 @@ class Terminal:
         self.frame.paste(blankLineImage, (0, y1))
         ic(f"Deleted row {rowNum}")
 
-    @staticmethod
-    def genGif() -> None:
+    def genGif(self) -> None:
         os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
+            f"ffmpeg -hide_banner -loglevel error -r {self.fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
         )
         ic.enable()
         ic("Generated output.gif")  # debug

@@ -1,15 +1,24 @@
 from gifos.gifos import Terminal
+from gifos.modules.githubStats import calcUserStats
+from dotenv import load_dotenv
+from icecream import ic
+# import os
 from PIL import ImageFont
-import os
 
-os.system("rm -fr ./frame* ./output*")  # debug
-fontFile = "./fonts/gohufont-uni-14.pil"
+# load_dotenv()
+
+# fontFile = "./fonts/ter-u14n.pil"
+fontFile = "./fonts/cherry-13-r.pil"
+# fontFile = "./fonts/CozetteVector.otf"
 font = ImageFont.load(fontFile)  # bitmap monospaced font
+# font = ImageFont.truetype(fontFile, 17)
 
 
 def main():
     ## TEST BED
-    t = Terminal(640, 480, 15, 15, font)
+    t = Terminal(640, 480, 15, 15, font, True)
+    t.toggleBlinkCursor(False)
+    t.fps = 15
     t.toggleShowCursor(False)
     t.genText("", 1, 1, 5, False)
     t.genText("Starting GIF OS ", 1, 1, 5, False)
@@ -71,7 +80,7 @@ drwxr-xr-x 2 x0rzavi x0rzavi 4.0K Dec  1 10:24 .vscode/"""
     t.genMultiText(lines2, t.currRow + 1, 1, 10)
     t.genTypingText("cat rc.conf", t.currRow, 1, True)
     lines3 = r"""set preview_images true
-    set preview_images_method ueberzug"""
+set preview_images_method ueberzug"""
     t.genMultiText(lines3, t.currRow + 1, 1, 10)
 
     # lines2 = ["line1", "line2"]
@@ -101,4 +110,5 @@ drwxr-xr-x 2 x0rzavi x0rzavi 4.0K Dec  1 10:24 .vscode/"""
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    ic(calcUserStats("x0rzavi"))
