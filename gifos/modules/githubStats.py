@@ -3,6 +3,7 @@
 # [x] Rank
 # [x] Ignore repo
 # [x] Count total commits from all time
+# [] Colors
 # [] Optimize code
 # [] Optimize API calls
 # [] Catch errors

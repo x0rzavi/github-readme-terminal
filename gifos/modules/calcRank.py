@@ -1,5 +1,5 @@
 """
-Reference: https://github.com/anuraghazra/github-readme-stats/blob/master/src/calculateRank.js
+Reference: https://github.com/anuraghazra/github-readme-stats/blob/23472f40e81170ba452c38a99abc674db0000ce6/src/calculateRank.js
 """
 
 

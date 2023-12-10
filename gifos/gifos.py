@@ -1,6 +1,10 @@
 # TODO
 # [x] Need blinking for multiline on next line
 # [x] Not blinking if have to scroll on last line only if prompt is true; but individually working
+# [x] Remove debug statements/optional debug mode
+# [] Refactor deleteRow() code
+# [] Handle truetype non monospace fonts
+# [] Handle multiple fonts effectively
 # [] **** Appropriate number of lines to scroll with prompt
 # [] Optimization + better code quality
 # [] Merge genText() and genMultiText()
@@ -8,7 +12,6 @@
 # [] Theming
 # [] Rich text - atleast highlights
 # [] Scriptable input file
-# [] Remove debug statements/optional debug mode
 # [] Documentation
 # [] GIF maker implementation
 # [] Test cases
@@ -51,7 +54,14 @@ class Terminal:
         self.currCol = 0
         self.fontWidth = self.font.getbbox("W")[2]
         self.fontHeight = self.font.getbbox("H")[3]
-        self.lineSpacing = 4
+        if self.fontHeight <= 20: # needs to be formulated
+            self.lineSpacing = 4
+        elif self.fontHeight > 20 and self.fontHeight <= 40:
+            self.lineSpacing = 14
+        elif self.fontHeight > 40 and self.fontHeight <= 60:
+            self.lineSpacing = 24
+        else:
+            self.lineSpacing = 15
         self.numRows = (self.height - 2 * self.yPad) // (
             self.fontHeight + self.lineSpacing
         )
@@ -61,7 +71,7 @@ class Terminal:
         self.cursorOrig = self.cursor
         self.showCursor = True
         self.blinkCursor = True
-        self.fps = 10.0
+        self.fps = 20.0
         self.prompt = "x0rzavi@github ~> "
         self.frame = self.__genFrame()
 
@@ -226,7 +236,9 @@ class Terminal:
                         self.bgColor,
                     )
                     self.frame.paste(blankBoxImage, (cx1, cy1))
-                    if self.blinkCursor:
+                    if (
+                        self.blinkCursor and self.frameCount % (self.fps // 3) == 0
+                    ):  # alter cursor such that blinks every one-third second
                         self.__alterCursor()
 
     def genMultiText(
@@ -292,7 +304,9 @@ class Terminal:
                         self.bgColor,
                     )
                     self.frame.paste(blankBoxImage, (cx1, cy1))
-                    if self.blinkCursor:
+                    if (
+                        self.blinkCursor and self.frameCount % (self.fps // 3) == 0
+                    ):  # alter cursor such that blinks every one-third second
                         self.__alterCursor()
 
     def genPrompt(self, rowNum: int, colNum: int, count: int = 1):
