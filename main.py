@@ -10,10 +10,11 @@ from PIL import ImageFont
 # load_dotenv()
 
 # fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
-fontFileTruetype = "./fonts/orange-kid.regular.otf"
+# fontFileTruetype = "./fonts/orange-kid.regular.otf"
+fontFileTruetype = "./fonts/IosevkaNerdFont-Medium.ttf"
 fontFileBitmap = "./fonts/cherry-13-r.pil"
 
-fontTruetype = ImageFont.truetype(fontFileTruetype, size=50)  # truetype font
+fontTruetype = ImageFont.truetype(fontFileTruetype, size=35)  # truetype font
 fontBitmap = ImageFont.load(fontFileBitmap)  # bitmap monospaced font
 
 
@@ -118,12 +119,13 @@ def main():
     #     "Total Commits (Last Year): " + str(userDetails["totalCommitsLastYear"]), 2, 1
     # )
 
-    lines = textEffects.textDecodeEffectLines("GIF OS", 2)
+    t.setFont(fontBitmap)
+    t.setFps(10)
+    lines = textEffects.textDecodeEffectLines("GOODBYE WORLD!", 3)
     t.toggleShowCursor(False)
     for line in lines:
         t.deleteRow(5)
         t.genText(line, 5, 1)
-    t.cloneFrame(20)
     t.genGif()
 
 

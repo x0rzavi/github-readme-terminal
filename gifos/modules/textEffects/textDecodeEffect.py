@@ -1,3 +1,5 @@
+# TODO
+# [] resource intensive when 3 chars need to be chosen from large pool
 import random
 
 
@@ -44,6 +46,7 @@ def generatePatternLines(
 
 
 def textDecodeEffectLines(inputText: str, multiplier: int) -> list:
+    linesList = []
     charsList = ["<", ">", "/", "*", " "]
 
     def randomReplace():
@@ -62,13 +65,13 @@ def textDecodeEffectLines(inputText: str, multiplier: int) -> list:
         for _ in range(multiplier):
             linesList.append(inputText)
 
-    linesList = generatePatternLines(len(inputText), 3, multiplier)
-    linesList += generatePatternLines(
-        len(inputText), ((len(inputText) - 3) // 2), multiplier
-    )
-    linesList += generatePatternLines(
-        len(inputText), ((len(inputText) - 3) // 2) * 2, multiplier
-    )
+    # linesList += generatePatternLines(len(inputText), 3, multiplier)
+    # linesList += generatePatternLines(
+    #     len(inputText), ((len(inputText) - 3) // 2), multiplier
+    # )
+    # linesList += generatePatternLines(
+    #     len(inputText), ((len(inputText) - 3) // 2) * 2, multiplier
+    # )
     for i in range(len(inputText)):  # for each char
         for _ in range(multiplier):
             outputText = generatePatternLines(len(inputText), len(inputText), 1)

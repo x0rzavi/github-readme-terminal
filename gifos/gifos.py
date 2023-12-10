@@ -2,10 +2,9 @@
 # [x] Need blinking for multiline on next line
 # [x] Not blinking if have to scroll on last line only if prompt is true; but individually working
 # [x] Remove debug statements/optional debug mode
-# [] Refactor deleteRow() code
-# [] Handle truetype non monospace fonts
+# [] Formulate line spacing
 # [] Handle multiple fonts effectively
-# [] **** Appropriate number of lines to scroll with prompt
+# [] Handle truetype non monospace fonts
 # [] Optimization + better code quality
 # [] Merge genText() and genMultiText()
 # [] Config file
@@ -42,82 +41,92 @@ class Terminal:
             ic.configureOutput(includeContext=True)
         else:
             ic.disable()
-        self.width = width
-        self.height = height
-        self.xPad = xPad
-        self.yPad = yPad
-        self.font = font
+        self.__width = width
+        self.__height = height
+        self.__xPad = xPad
+        self.__yPad = yPad
+        self.__font = font
         self.bgColor = "#181825"
         self.txtColor = "#cdd6f4"
-        self.frameCount = 0
+        self.__frameCount = 0
         self.currRow = 0
         self.currCol = 0
-        self.fontWidth = self.font.getbbox("W")[2]
-        self.fontHeight = self.font.getbbox("H")[3]
-        if self.fontHeight <= 20: # needs to be formulated
-            self.lineSpacing = 4
-        elif self.fontHeight > 20 and self.fontHeight <= 40:
-            self.lineSpacing = 14
-        elif self.fontHeight > 40 and self.fontHeight <= 60:
-            self.lineSpacing = 24
+        self.__fontWidth = self.__font.getbbox("W")[2]
+        self.__fontHeight = self.__font.getbbox("H")[3]
+        if self.__fontHeight <= 20:  # needs to be formulated
+            self.__lineSpacing = 4
+        elif self.__fontHeight > 20 and self.__fontHeight <= 40:
+            self.__lineSpacing = 14
+        elif self.__fontHeight > 40 and self.__fontHeight <= 60:
+            self.__lineSpacing = 24
         else:
-            self.lineSpacing = 15
-        self.numRows = (self.height - 2 * self.yPad) // (
-            self.fontHeight + self.lineSpacing
+            self.__lineSpacing = 15
+        self.numRows = (self.__height - 2 * self.__yPad) // (
+            self.__fontHeight + self.__lineSpacing
         )
-        self.numCols = (self.width - 2 * self.xPad) // (self.fontWidth)
-        self.colInRow = {_ + 1: 1 for _ in range(self.numRows)}
-        self.cursor = "_"
-        self.cursorOrig = self.cursor
-        self.showCursor = True
-        self.blinkCursor = True
-        self.fps = 20.0
+        self.numCols = (self.__width - 2 * self.__xPad) // (self.__fontWidth)
+        self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
+        self.__cursor = "_"
+        self.__cursorOrig = self.__cursor
+        self.__showCursor = True
+        self.__blinkCursor = True
+        self.__fps = 20.0
         self.prompt = "x0rzavi@github ~> "
-        self.frame = self.__genFrame()
+        self.__frame = self.__genFrame()
 
-    def __alterCursor(self):
-        self.cursor = self.cursorOrig if self.cursor != self.cursorOrig else " "
-        ic(self.cursor)  # debug
+    def setLineSpacing(self, lineSpacing: int) -> None:
+        self.__lineSpacing = lineSpacing
 
-    def toggleShowCursor(self, choice: bool = None):
-        self.showCursor = not self.showCursor if choice is None else choice
-        ic(self.showCursor)  # debug
+    def setFont(self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont) -> None:
+        self.__font = font
+        ic(self.__font)  # debug
 
-    def toggleBlinkCursor(self, choice: bool = None):
-        self.blinkCursor = not self.blinkCursor if choice is None else choice
-        ic(self.blinkCursor)  # debug
+    def setFps(self, fps: float) -> None:
+        self.__fps = fps
+
+    def __alterCursor(self) -> None:
+        self.__cursor = self.__cursorOrig if self.__cursor != self.__cursorOrig else " "
+        ic(self.__cursor)  # debug
+
+    def toggleShowCursor(self, choice: bool = None) -> None:
+        self.__showCursor = not self.__showCursor if choice is None else choice
+        ic(self.__showCursor)  # debug
+
+    def toggleBlinkCursor(self, choice: bool = None) -> None:
+        self.__blinkCursor = not self.__blinkCursor if choice is None else choice
+        ic(self.__blinkCursor)  # debug
 
     def __frameDebugLines(self, frame: Image.Image) -> Image.Image:
         # checker box to debug
         draw = ImageDraw.Draw(frame)
         for i in range(self.numRows + 1):  # (n + 1) lines
-            x1 = self.xPad
-            x2 = self.width - self.xPad
-            y1 = y2 = self.yPad + i * (self.fontHeight + self.lineSpacing)
+            x1 = self.__xPad
+            x2 = self.__width - self.__xPad
+            y1 = y2 = self.__yPad + i * (self.__fontHeight + self.__lineSpacing)
             draw.line([(x1, y1), (x2, y2)], "yellow")
-            draw.text((0, y1), str(i + 1), "orange", self.font)  # row numbers
+            draw.text((0, y1), str(i + 1), "orange", self.__font)  # row numbers
         for i in range(self.numCols + 1):  # (n + 1) lines
-            x1 = x2 = self.xPad + i * self.fontWidth
-            y1 = self.yPad
-            y2 = self.height - self.yPad
+            x1 = x2 = self.__xPad + i * self.__fontWidth
+            y1 = self.__yPad
+            y2 = self.__height - self.__yPad
             draw.line([(x1, y1), (x2, y2)], "turquoise")
         draw.line(
-            [(self.xPad, self.yPad), (self.width - self.xPad, self.yPad)], "red"
+            [(self.__xPad, self.__yPad), (self.__width - self.__xPad, self.__yPad)], "red"
         )  # top
         draw.line(
-            [(self.xPad, self.yPad), (self.xPad, self.height - self.yPad)], "red"
+            [(self.__xPad, self.__yPad), (self.__xPad, self.__height - self.__yPad)], "red"
         )  # left
         draw.line(
             [
-                (self.xPad, self.height - self.yPad),
-                (self.width - self.xPad, self.height - self.yPad),
+                (self.__xPad, self.__height - self.__yPad),
+                (self.__width - self.__xPad, self.__height - self.__yPad),
             ],
             "red",
         )  # bottom
         draw.line(
             [
-                (self.width - self.xPad, self.yPad),
-                (self.width - self.xPad, self.height - self.yPad),
+                (self.__width - self.__xPad, self.__yPad),
+                (self.__width - self.__xPad, self.__height - self.__yPad),
             ],
             "red",
         )  # right
@@ -125,24 +134,24 @@ class Terminal:
 
     def __genFrame(self, frame: Image.Image = None) -> Image.Image:
         if frame is None:
-            frame = Image.new("RGB", (self.width, self.height), self.bgColor)
-            self.colInRow = {_ + 1: 1 for _ in range(self.numRows)}
+            frame = Image.new("RGB", (self.__width, self.__height), self.bgColor)
+            self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
             # frame = self.__frameDebugLines(frame)
             self.cursorToBox(1, 1)  # initialize at box (1, 1)
             return frame
-        self.frameCount += 1
-        fileName = baseName + str(self.frameCount) + ".png"
+        self.__frameCount += 1
+        fileName = baseName + str(self.__frameCount) + ".png"
         frame.save(folderName + fileName, "PNG")
-        ic(self.frameCount)  # debug
+        ic(self.__frameCount)  # debug
         return frame
 
     def clearFrame(self) -> None:
-        self.frame = self.__genFrame()
+        self.__frame = self.__genFrame()
         ic("Frame cleared")
 
     def cloneFrame(self, count: int = 1) -> None:
         for _ in range(count):
-            self.frame = self.__genFrame(self.frame)
+            self.__frame = self.__genFrame(self.__frame)
         ic(f"Frame cloned {count} times")
 
     def cursorToBox(
@@ -161,13 +170,13 @@ class Terminal:
             )
             rowNum = self.numRows
         maxRowNum = self.numRows - textNumLines + 1  # maximum row that can be permitted
-        minColNum = self.colInRow[rowNum]
+        minColNum = self.__colInRow[rowNum]
 
         if contin is False:
             numBlankRows = 0
             firstBlankRow = self.numRows + 1  # all rows are filled
             for i in range(self.numRows, rowNum - 1, -1):
-                if self.colInRow[i] == 1:
+                if self.__colInRow[i] == 1:
                     firstBlankRow = i
                     numBlankRows += 1
                 else:
@@ -194,14 +203,14 @@ class Terminal:
         else:
             if colNum < minColNum:
                 ic(f"{textNumChars} chars cannot be accomodated at column {colNum}")
-                colNum = self.colInRow[rowNum]
+                colNum = self.__colInRow[rowNum]
         self.currRow, self.currCol = rowNum, colNum
         ic(self.currRow, self.currCol)  # debug
 
-        x1 = self.xPad + (colNum - 1) * self.fontWidth
-        y1 = self.yPad + (rowNum - 1) * (self.fontHeight + self.lineSpacing)
-        x2 = self.xPad + colNum * self.fontWidth
-        y2 = self.yPad + rowNum * (self.fontHeight + self.lineSpacing)
+        x1 = self.__xPad + (colNum - 1) * self.__fontWidth
+        y1 = self.__yPad + (rowNum - 1) * (self.__fontHeight + self.__lineSpacing)
+        x2 = self.__xPad + colNum * self.__fontWidth
+        y2 = self.__yPad + rowNum * (self.__fontHeight + self.__lineSpacing)
         return x1, y1, x2, y2
 
     def genText(
@@ -213,31 +222,31 @@ class Terminal:
         else:
             textNumChars = len(text)
             x1, y1, _, _ = self.cursorToBox(rowNum, colNum, 1, textNumChars, contin)
-            draw = ImageDraw.Draw(self.frame)
-            draw.text((x1, y1), text, self.txtColor, self.font)
+            draw = ImageDraw.Draw(self.__frame)
+            draw.text((x1, y1), text, self.txtColor, self.__font)
             self.currCol += len(text)
-            self.colInRow[self.currRow] = self.currCol
+            self.__colInRow[self.currRow] = self.currCol
             ic(self.currRow, self.currCol)  # debug
 
             for _ in range(count):
-                if self.showCursor:
+                if self.__showCursor:
                     cx1, cy1, _, _ = self.cursorToBox(
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
-                    draw.text((cx1, cy1), str(self.cursor), self.txtColor, self.font)
-                self.__genFrame(self.frame)
-                if self.showCursor:
+                    draw.text((cx1, cy1), str(self.__cursor), self.txtColor, self.__font)
+                self.__genFrame(self.__frame)
+                if self.__showCursor:
                     cx1, cy1, _, _ = self.cursorToBox(
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
                     blankBoxImage = Image.new(
                         "RGB",
-                        (self.fontWidth, self.fontHeight + self.lineSpacing),
+                        (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
                         self.bgColor,
                     )
-                    self.frame.paste(blankBoxImage, (cx1, cy1))
+                    self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
-                        self.blinkCursor and self.frameCount % (self.fps // 3) == 0
+                        self.__blinkCursor and self.__frameCount % (self.__fps // 3) == 0
                     ):  # alter cursor such that blinks every one-third second
                         self.__alterCursor()
 
@@ -273,10 +282,10 @@ class Terminal:
                 x1, y1, _, _ = self.cursorToBox(
                     rowNum + i, colNum, 1, textNumChars, contin
                 )
-                draw = ImageDraw.Draw(self.frame)
-                draw.text((x1, y1), line, self.txtColor, self.font)
+                draw = ImageDraw.Draw(self.__frame)
+                draw.text((x1, y1), line, self.txtColor, self.__font)
                 self.currCol += len(line)
-                self.colInRow[self.currRow] = self.currCol
+                self.__colInRow[self.currRow] = self.currCol
                 ic(self.currRow, self.currCol)  # debug
             self.cursorToBox(self.currRow + 1, 1, 1, 1, False)  # move down by 1 row
 
@@ -286,34 +295,34 @@ class Terminal:
                     self.currRow, 1, 1
                 )  # generate prompt right after printed text, i.e. 1 line below
 
-            draw = ImageDraw.Draw(self.frame)
+            draw = ImageDraw.Draw(self.__frame)
             for _ in range(count):
-                if self.showCursor:
+                if self.__showCursor:
                     cx1, cy1, _, _ = self.cursorToBox(
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
-                    draw.text((cx1, cy1), str(self.cursor), self.txtColor, self.font)
-                self.__genFrame(self.frame)
-                if self.showCursor:
+                    draw.text((cx1, cy1), str(self.__cursor), self.txtColor, self.__font)
+                self.__genFrame(self.__frame)
+                if self.__showCursor:
                     cx1, cy1, _, _ = self.cursorToBox(
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
                     blankBoxImage = Image.new(
                         "RGB",
-                        (self.fontWidth, self.fontHeight + self.lineSpacing),
+                        (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
                         self.bgColor,
                     )
-                    self.frame.paste(blankBoxImage, (cx1, cy1))
+                    self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
-                        self.blinkCursor and self.frameCount % (self.fps // 3) == 0
+                        self.__blinkCursor and self.__frameCount % (self.__fps // 3) == 0
                     ):  # alter cursor such that blinks every one-third second
                         self.__alterCursor()
 
-    def genPrompt(self, rowNum: int, colNum: int, count: int = 1):
-        origCursorState = self.showCursor
+    def genPrompt(self, rowNum: int, colNum: int, count: int = 1) -> None:
+        origCursorState = self.__showCursor
         self.toggleShowCursor(True)
         self.genText(self.prompt, rowNum, colNum, count, False)
-        self.showCursor = origCursorState
+        self.__showCursor = origCursorState
 
     def genTypingText(
         self, text: str, rowNum: int, colNum: int, contin: bool = False, speed: int = 0
@@ -327,57 +336,57 @@ class Terminal:
             self.cursorToBox(rowNum, colNum, 1, 1, contin)
         if speed == 1 or speed == 2 or speed == 3:
             for char in text:
-                self.genText(char, rowNum, self.colInRow[rowNum], speed, True)
+                self.genText(char, rowNum, self.__colInRow[rowNum], speed, True)
         else:
             for char in text:
                 count = random.choice([1, 2, 3])
-                self.genText(char, rowNum, self.colInRow[rowNum], count, True)
+                self.genText(char, rowNum, self.__colInRow[rowNum], count, True)
 
     def scrollUp(self, count: int = 1) -> None:
         for _ in range(count):
-            croppedFrame = self.frame.crop(
-                (0, self.fontHeight + self.lineSpacing, self.width, self.height)
-            )  # make room for 1 extra line (fontHeight + lineSpacing)
-            self.frame = Image.new("RGB", (self.width, self.height), self.bgColor)
-            self.frame.paste(croppedFrame, (0, 0))
+            croppedFrame = self.__frame.crop(
+                (0, self.__fontHeight + self.__lineSpacing, self.__width, self.__height)
+            )  # make room for 1 extra line (__fontHeight + __lineSpacing)
+            self.__frame = Image.new("RGB", (self.__width, self.__height), self.bgColor)
+            self.__frame.paste(croppedFrame, (0, 0))
             self.currRow -= 1  # move cursor to where it was
 
-            keys = list(self.colInRow.keys())
-            values = list(self.colInRow.values())
+            keys = list(self.__colInRow.keys())
+            values = list(self.__colInRow.values())
             shiftedValues = values[1:] + [1]
             shiftedDict = dict(zip(keys, shiftedValues))
-            self.colInRow = shiftedDict
+            self.__colInRow = shiftedDict
             ic(self.currRow, self.currCol)
 
     def deleteRow(self, rowNum: int) -> None:
         _, y1, _, _ = self.cursorToBox(
             rowNum, 1, 1, 1, True
         )  # continue = True; do not scroll up
-        self.colInRow[rowNum] = 1
+        self.__colInRow[rowNum] = 1
         blankLineImage = Image.new(
             "RGB",
-            (self.width - self.xPad, self.fontHeight + self.lineSpacing),
+            (self.__width - self.__xPad, self.__fontHeight + self.__lineSpacing),
             self.bgColor,
         )
-        self.frame.paste(blankLineImage, (0, y1))
+        self.__frame.paste(blankLineImage, (0, y1))
         ic(f"Deleted row {rowNum}")
 
     def genGif(self) -> None:
         os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {self.fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
+            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
         )
         ic.enable()
         ic("Generated output.gif")  # debug
 
 
 # def replaceText(text: str, rowNum: int, colNum: int, count: int = 1) -> None:
-#     global frame
+#     global __frame
 #     chars = 0
 #     for _ in text:
 #         chars += 1
 #     layerImage = Image.new(
-#         "RGB", (chars * fontWidth, fontHeight + lineSpacing), bgColor
+#         "RGB", (chars * __fontWidth, __fontHeight + __lineSpacing), bgColor
 #     )
 #     x1, y1, _, _ = cursorToBox(rowNum, colNum)
-#     frame.paste(layerImage, (x1, y1))
+#     __frame.paste(layerImage, (x1, y1))
 #     genText(text, rowNum, colNum, count)
