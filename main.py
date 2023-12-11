@@ -1,7 +1,7 @@
+from PIL import ImageFont
 from gifos.gifos import Terminal
 from gifos.modules import helpers
 from gifos.modules import textEffects
-from PIL import ImageFont
 
 
 fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
@@ -108,6 +108,7 @@ def main():
     t.toggleHighlight()
     t.genPrompt(1)
     t.toggleHighlight()
+    t.cloneFrame(10)
     t.genTypingText("statsfetch -u x0rzavi", 1, contin=True)
     t.genMultiText(userDetailsLines, 2, prompt=False)
     t.toggleHighlight()
@@ -116,6 +117,7 @@ def main():
     t.genText("", t.currRow, count=100, contin=True)
 
     t.genGif()
+    helpers.uploadImage("output.gif", 3600)
 
 
 if __name__ == "__main__":

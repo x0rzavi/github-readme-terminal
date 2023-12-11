@@ -1,3 +1,4 @@
-from .calcRank import calcRank
-from .githubStats import calcUserStats
 from .calcAge import calcAge
+from .calcRank import calcRank
+from .imgbbUpload import uploadImage
+from .githubStats import calcUserStats

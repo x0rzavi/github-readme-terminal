@@ -1,2 +1,2 @@
-from .textScrambleEffect import textScrambleEffectLines
 from .textDecodeEffect import textDecodeEffectLines
+from .textScrambleEffect import textScrambleEffectLines

@@ -14,10 +14,10 @@
 # [] GIF maker implementation
 # [] Test cases
 
-from PIL import Image, ImageDraw, ImageFont
+import os  # debug
 import random
 from icecream import ic
-import os  # debug
+from PIL import Image, ImageDraw, ImageFont
 
 os.system("rm -fr ./frame* ./output*")  # debug
 
@@ -405,7 +405,9 @@ class Terminal:
         os.system(
             f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
         )
-        print(f"INFO: Generated GIF approximately {round(self.__frameCount / self.__fps, 2)}s long")
+        print(
+            f"INFO: Generated GIF approximately {round(self.__frameCount / self.__fps, 2)}s long"
+        )
 
 
 # def replaceText(text: str, rowNum: int, colNum: int, count: int = 1) -> None:
