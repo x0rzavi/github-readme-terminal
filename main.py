@@ -1,131 +1,120 @@
 from gifos.gifos import Terminal
 from gifos.modules import helpers
 from gifos.modules import textEffects
-
-# from dotenv import load_dotenv
 from PIL import ImageFont
 
-# import os
 
-# load_dotenv()
+fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
+# fontFileTruetype = "./fonts/SpaceMonoNerdFontMono-Bold.ttf"
+fontFileBitmap = "./fonts/ter-u14n.pil"
+# fontFileBitmap = "./fonts/cherry-13-r.pil"
 
-# fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
-# fontFileTruetype = "./fonts/orange-kid.regular.otf"
-fontFileTruetype = "./fonts/IosevkaNerdFont-Medium.ttf"
-fontFileBitmap = "./fonts/cherry-13-r.pil"
-
-fontTruetype = ImageFont.truetype(fontFileTruetype, size=35)  # truetype font
+fontTruetype = ImageFont.truetype(fontFileTruetype, size=66)  # truetype font
 fontBitmap = ImageFont.load(fontFileBitmap)  # bitmap monospaced font
 
 
 def main():
-    ## TEST BED
-    t = Terminal(640, 480, 15, 15, fontTruetype)
-    # t.toggleBlinkCursor(True)
-    #     t.fps = 15
-    #     t.toggleShowCursor(False)
-    #     t.genText("", 1, 1, 5, False)
-    #     t.genText("Starting GIF OS ", 1, 1, 5, False)
-    #     t.genTypingText(".....", 1, 1, True)
-    #     for i in range(0x0, 0x40000000, 0x7FFFFFF):
-    #         if i < 0x20000000:
-    #             t.cloneFrame(2)
-    #         t.deleteRow(2)
-    #         t.genText(f"Memory Check: {i}", 2, 1)
-    #     t.cloneFrame(5)
-    #     t.deleteRow(2)
-    #     t.genText("Memory Check: 1048576KB OK", 2, 1, 5)
-    #
-    #     t.clearFrame()
-    #     t.toggleShowCursor(True)
-    #     t.genText("", 1, 1, 5)
-    #     t.toggleShowCursor(False)
-    #     t.genText("Enter username: ", 1, 1, 5)
-    #     t.toggleShowCursor(True)
-    #     t.genTypingText("x0rzavi", 1, 1, True)
-    #     t.cloneFrame(5)
-    #     t.toggleShowCursor(True)
-    #     t.genText("", 2, 1, 5)
-    #     t.toggleShowCursor(False)
-    #     t.genText("Enter password: ", 2, 1, 5)
-    #     t.toggleShowCursor(True)
-    #     t.genTypingText("*********", 2, 1, True)
-    #     t.genText("", 3, 1, 5)
-    #     t.genText("Coded by x0rzavi :D", t.numRows, 1, 10)
-    #     t.cloneFrame(2)
-    #
-    #     t.clearFrame()
-    #     t.toggleShowCursor(True)
-    #     t.genPrompt(1, 1, 1)
-    #     t.genTypingText("fastfetch", 1, 1, True)
-    #     lines1 = r"""       /\        x0rzavi@WIN-X0RZAVI
-    #      /  \
-    #     /\   \      OS: Arch Linux x86_64
-    #    /      \     Kernel: Linux 5.15.133.1-microsoft-standard-WSL2
-    #   /   ,,   \    Uptime: 2 hours, 42 minutes
-    #  /   |  |  -\   Packages: 494 (pacman)
-    # /_-''    ''-_\  Shell: zsh 5.9
-    #                 CPU: AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx (8) @ 2.096MHz"""
-    #     t.genMultiText(lines1, t.currRow + 1, 1, 10)
-    #     t.genTypingText("ll -p", t.currRow, 1, True)
-    #     lines2 = r"""total 180K
-    # drwxr-xr-x 2 x0rzavi x0rzavi 4.0K Dec  3 15:05 frames/
-    # drwxr-xr-x 8 x0rzavi x0rzavi 4.0K Dec  3 10:48 .git/
-    # -rw-r--r-- 1 x0rzavi x0rzavi 3.1K Dec  1 11:16 .gitignore
-    # -rw-r--r-- 1 x0rzavi x0rzavi 106K Nov 17 12:10 gohufont-uni-14.bdf
-    # -rw-r--r-- 1 x0rzavi x0rzavi 1.3K Nov 17 12:10 gohufont-uni-14.pbm
-    # -rw-r--r-- 1 x0rzavi x0rzavi 5.1K Nov 17 12:10 gohufont-uni-14.pil
-    # -rw-r--r-- 1 x0rzavi x0rzavi 1.1K Nov 17 11:51 LICENSE
-    # -rw-r--r-- 1 x0rzavi x0rzavi  16K Dec  3 15:05 main.py
-    # drwxr-xr-x 3 x0rzavi x0rzavi 4.0K Dec  3 15:04 .mypy_cache/
-    # -rw-r--r-- 1 x0rzavi x0rzavi  13K Nov 24 10:15 temp.py
-    # drwxr-xr-x 5 x0rzavi x0rzavi 4.0K Nov 17 12:05 venv/
-    # drwxr-xr-x 2 x0rzavi x0rzavi 4.0K Dec  1 10:24 .vscode/"""
-    #     t.genMultiText(lines2, t.currRow + 1, 1, 10)
-    #     t.genTypingText("cat rc.conf", t.currRow, 1, True)
-    #     lines3 = r"""set preview_images true
-    # set preview_images_method ueberzug"""
-    #     t.genMultiText(lines3, t.currRow + 1, 1, 10)
+    t = Terminal(640, 480, 15, 15, fontBitmap)
+    t.setFps(15)
 
-    # lines2 = ["line1", "line2"]
-    # lines3 = ["|line1", "|line2", "|line3"]
-    # lines4 = ["line1", "line2", "line3", "line4"]
-    # lines5 = ["line1", "line2", "line3", "line4", "line5"]
-    # lines10 = [
-    #     "|line1",
-    #     "|line2",
-    #     "|line3",
-    #     "|line4",
-    #     "|line5",
-    #     "|line6",
-    #     "|line7",
-    #     "|line8",
-    #     "|line9",
-    #     "|line10",
-    # ]
-    # t.genMultiText(lines10, 1, 1, 1)
-    # t.genMultiText(lines10, 11, 1, 1)
-    # t.genMultiText(lines10, 21, 1, 1)
-    # t.genMultiText(lines10, 25, 1, 1)
-    # t.genMultiText(lines2, 25, 1, 5, True)
-    # t.genMultiText(lines3, 21, 1, 1, False)
-    # t.genMultiText(lines3, 3, 1, 1, False)
+    t.genText("", 1, count=20)
+    t.toggleShowCursor(False)
+    t.genText("GIF_OS Modular BIOS v1.0.11", 1)
+    t.genText("Copyright (C) 2023, X0rzAvi Softwares Inc.", 2)
+    t.toggleHighlight()
+    t.genText("GitHub Profile ReadMe Terminal, Rev 1011", 4)
+    t.toggleHighlight()
+    t.genText("Krypton(tm) GIFCPU - 250Hz", 6)
+    t.genText("Press DEL to enter SETUP, ESC to cancel Memory Test", t.numRows)
+    for i in range(0, 65653, 7168):  # 64K Memory
+        t.deleteRow(7)
+        if i < 30000:
+            t.genText(
+                f"Memory Test: {i}", 7, count=2, contin=True
+            )  # slow down upto a point
+        else:
+            t.genText(f"Memory Test: {i}", 7, contin=True)
+    t.deleteRow(7)
+    t.genText("Memory Test: 64KB OK", 7, count=10, contin=True)
+    t.genText("", 11, count=10, contin=True)
 
-    # ignoreRepos = ["archiso-zfs", "archiso-zfs-archive"]
-    # userDetails = helpers.calcUserStats("x0rzavi", ignoreRepos, True)
-    # print(userDetails)
-    # t.genText(userDetails["accountName"] + "'s Github Stats", 1, 1)
-    # t.genText(
-    #     "Total Commits (Last Year): " + str(userDetails["totalCommitsLastYear"]), 2, 1
-    # )
+    t.clearFrame()
+    t.genText("Initiating Boot Sequence ", 1, contin=True)
+    t.genTypingText(".....", 1, contin=True)
+    t.setFont(fontTruetype)
+    # t.toggleShowCursor(True)
+    osLogoText = "GIF OS"
+    midRow = (t.numRows + 1) // 2
+    midCol = (t.numCols - len(osLogoText) + 1) // 2
+    effectLines = textEffects.textScrambleEffectLines(
+        osLogoText, 4, includeSpecial=False
+    )
+    t.toggleHighlight()
+    for effectLine in effectLines:
+        t.deleteRow(midRow)
+        t.genText(effectLine, midRow, midCol + 1)
+    t.toggleHighlight()
 
     t.setFont(fontBitmap)
-    t.setFps(10)
-    lines = textEffects.textDecodeEffectLines("GOODBYE WORLD!", 3)
+    t.setTxtColor()
+    t.clearFrame()
+    t.cloneFrame(5)
     t.toggleShowCursor(False)
-    for line in lines:
-        t.deleteRow(5)
-        t.genText(line, 5, 1)
+    t.genText("GIF OS v1.0.11 (tty1)", 1, count=5)
+    t.genText("login: ", 3, count=5)
+    t.toggleShowCursor(True)
+    t.genTypingText("x0rzavi", 3, contin=True)
+    t.genText("", 4, count=5)
+    t.toggleShowCursor(False)
+    t.genText("password: ", 4, count=5)
+    t.toggleShowCursor(True)
+    t.genTypingText("*********", 4, contin=True)
+    t.toggleShowCursor(False)
+    t.genText("Last login: Sun Dec  12 00:18:39 on tty1", 6)
+    t.toggleHighlight()
+    t.genPrompt(7, count=5)
+    t.toggleHighlight()
+    t.toggleShowCursor(True)
+    t.genTypingText("clear", 7, contin=True)
+
+    ignoreRepos = ["archiso-zfs", "archiso-zfs-archive"]
+    gitUserDetails = helpers.calcUserStats("x0rzavi", ignoreRepos, True)
+    userAge = helpers.calcAge(26, 7, 2002)
+    t.clearFrame()
+    topLanguages = [lang[0] for lang in gitUserDetails["languagesSorted"]]
+    userDetailsLines = rf"""
+    x0rzavi@GitHub
+    -------------------
+    OS:     Arch Linux, Gentoo Linux, Windows 11, Android 14
+    Host:   Netaji Subhash Engineering College #NSEC
+    Kernel: Computer Science & Engineering #CSE
+    Uptime: {userAge[0]} years, {userAge[1]} months, {userAge[2]} days
+    IDE:    neovim, VSCode
+
+    Contact:
+    -------------------
+    Email:  x0rzavi@gmail.com
+    LinkedIn: avishek-sen-x0rzavi
+
+    GitHub Stats:
+    -------------------
+    Total Stars Earned: {gitUserDetails['totalStargazers']}
+    Total Commits: {gitUserDetails['totalCommitsAllTime']}
+    Total PRs: {gitUserDetails['totalPullRequestsMade']} | Merged PR%: {gitUserDetails['pullRequestsMergePercentage']}
+    Total Contributions: {gitUserDetails['totalRepoContributions']}
+    Top Languages: {', '.join(topLanguages[:5])}
+    User Rating: {gitUserDetails['userRank']['level']}
+    """
+    t.toggleHighlight()
+    t.genPrompt(1)
+    t.toggleHighlight()
+    t.genTypingText("statsfetch -u x0rzavi", 1, contin=True)
+    t.genMultiText(userDetailsLines, 2, prompt=False)
+    t.toggleHighlight()
+    t.genPrompt(t.currRow)
+    t.toggleHighlight()
+    t.genText("", t.currRow, count=100, contin=True)
+
     t.genGif()
 
 

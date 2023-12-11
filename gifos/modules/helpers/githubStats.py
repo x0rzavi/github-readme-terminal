@@ -1,15 +1,11 @@
 # TODO
-# [x] Language list
-# [x] Rank
-# [x] Ignore repo
-# [x] Count total commits from all time
-# [] Colors
+# [] Language colors
+# [] Profile image ascii art
 # [] Optimize code
 # [] Optimize API calls
 # [] Catch errors
 # [] Retry on error
 
-from icecream import ic
 from dotenv import load_dotenv
 import os
 import requests
@@ -76,11 +72,14 @@ def fetchRepoStats(username: str, repoEndCursor: str = None) -> dict:
     if response.status_code == 200:
         jsonObj = response.json()
         if "errors" in jsonObj:
-            ic("Error!", jsonObj["errors"])
+            print(f"ERROR: {jsonObj['errors']}")
+            return
         else:
+            print(f"INFO: Repository details fetched for {username}")
             return jsonObj["data"]["user"]["repositories"]
     else:
-        ic("Error!", response.status_code)
+        print(f"ERROR: {response.status_code}")
+        return
 
 
 def fetchUserStats(username: str) -> dict:
@@ -135,11 +134,14 @@ def fetchUserStats(username: str) -> dict:
     if response.status_code == 200:
         jsonObj = response.json()
         if "errors" in jsonObj:
-            ic("Error!", jsonObj["errors"])
+            print(f"ERROR: {jsonObj['errors']}")
+            return
         else:
+            print(f"INFO: User details fetched for {username}")
             return jsonObj["data"]["user"]
     else:
-        ic("Error!", response.status_code)
+        print(f"ERROR: {response.status_code}")
+        return
 
 
 """
@@ -158,9 +160,11 @@ def fetchTotalCommits(username: str) -> int:
     if response.status_code == 200:
         jsonObj = response.json()
         totalCommitsAllTime = jsonObj["total_count"]
+        print(f"INFO: Total commits fetched for {username}")
         return totalCommitsAllTime
     else:
-        ic("Error!", response.status_code)
+        print(f"ERROR: {response.status_code}")
+        return
 
 
 def calcUserStats(
@@ -206,51 +210,55 @@ def calcUserStats(
     )
 
     userStats = fetchUserStats(username)
-    userDetails = {}
-    userDetails["accountName"] = userStats["name"]
-    userDetails["totalFollowers"] = userStats["followers"]["totalCount"]
-    userDetails["totalStargazers"] = totalStargazers
-    userDetails["totalCommitsAllTime"] = fetchTotalCommits(username)
-    userDetails["totalCommitsLastYear"] = (
-        userStats["contributionsCollection"]["restrictedContributionsCount"]
-        + userStats["contributionsCollection"]["totalCommitContributions"]
-    )
-    userDetails["totalPullRequestsMade"] = userStats["pullRequests"]["totalCount"]
-    userDetails["totalPullRequestsMerged"] = userStats["mergedPullRequests"][
-        "totalCount"
-    ]
-    userDetails["pullRequestsMergePercentage"] = round(
-        (userDetails["totalPullRequestsMerged"] / userDetails["totalPullRequestsMade"])
-        * 100,
-        2,
-    )
-    userDetails["totalPullRequestsReviewed"] = userStats["contributionsCollection"][
-        "totalPullRequestReviewContributions"
-    ]
-    userDetails["totalIssues"] = userStats["issues"]["totalCount"]
-    userDetails["totalRepoContributions"] = userStats["repositoriesContributedTo"][
-        "totalCount"
-    ]
-    userDetails["languagesSorted"] = languagesSorted[:6]  # top 6 languages
-    if includeAllCommits:
-        userDetails["userRank"] = calcRank(
-            True,
-            userDetails["totalCommitsAllTime"],
-            userDetails["totalPullRequestsMade"],
-            userDetails["totalIssues"],
-            userDetails["totalPullRequestsReviewed"],
-            userDetails["totalStargazers"],
-            userDetails["totalFollowers"],
+    if userStats:
+        userDetails = {}
+        userDetails["accountName"] = userStats["name"]
+        userDetails["totalFollowers"] = userStats["followers"]["totalCount"]
+        userDetails["totalStargazers"] = totalStargazers
+        userDetails["totalCommitsAllTime"] = fetchTotalCommits(username)
+        userDetails["totalCommitsLastYear"] = (
+            userStats["contributionsCollection"]["restrictedContributionsCount"]
+            + userStats["contributionsCollection"]["totalCommitContributions"]
         )
-    else:
-        userDetails["userRank"] = calcRank(
-            False,
-            userDetails["totalCommitsLastYear"],
-            userDetails["totalPullRequestsMade"],
-            userDetails["totalIssues"],
-            userDetails["totalPullRequestsReviewed"],
-            userDetails["totalStargazers"],
-            userDetails["totalFollowers"],
+        userDetails["totalPullRequestsMade"] = userStats["pullRequests"]["totalCount"]
+        userDetails["totalPullRequestsMerged"] = userStats["mergedPullRequests"][
+            "totalCount"
+        ]
+        userDetails["pullRequestsMergePercentage"] = round(
+            (
+                userDetails["totalPullRequestsMerged"]
+                / userDetails["totalPullRequestsMade"]
+            )
+            * 100,
+            2,
         )
+        userDetails["totalPullRequestsReviewed"] = userStats["contributionsCollection"][
+            "totalPullRequestReviewContributions"
+        ]
+        userDetails["totalIssues"] = userStats["issues"]["totalCount"]
+        userDetails["totalRepoContributions"] = userStats["repositoriesContributedTo"][
+            "totalCount"
+        ]
+        userDetails["languagesSorted"] = languagesSorted[:6]  # top 6 languages
+        if includeAllCommits:
+            userDetails["userRank"] = calcRank(
+                True,
+                userDetails["totalCommitsAllTime"],
+                userDetails["totalPullRequestsMade"],
+                userDetails["totalIssues"],
+                userDetails["totalPullRequestsReviewed"],
+                userDetails["totalStargazers"],
+                userDetails["totalFollowers"],
+            )
+        else:
+            userDetails["userRank"] = calcRank(
+                False,
+                userDetails["totalCommitsLastYear"],
+                userDetails["totalPullRequestsMade"],
+                userDetails["totalIssues"],
+                userDetails["totalPullRequestsReviewed"],
+                userDetails["totalStargazers"],
+                userDetails["totalFollowers"],
+            )
 
-    return userDetails
+        return userDetails
