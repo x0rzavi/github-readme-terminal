@@ -1,7 +1,7 @@
 from PIL import ImageFont
 from gifos.gifos import Terminal
-from gifos.modules import helpers
-from gifos.modules import textEffects
+from gifos import utils
+from gifos import effects
 
 
 fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
@@ -46,8 +46,8 @@ def main():
     osLogoText = "GIF OS"
     midRow = (t.numRows + 1) // 2
     midCol = (t.numCols - len(osLogoText) + 1) // 2
-    effectLines = textEffects.textScrambleEffectLines(
-        osLogoText, 4, includeSpecial=False
+    effectLines = effects.textScrambleEffectLines(
+        osLogoText, 3, includeSpecial=False
     )
     t.toggleHighlight()
     for effectLine in effectLines:
@@ -60,7 +60,9 @@ def main():
     t.clearFrame()
     t.cloneFrame(5)
     t.toggleShowCursor(False)
+    t.toggleHighlight()
     t.genText("GIF OS v1.0.11 (tty1)", 1, count=5)
+    t.toggleHighlight()
     t.genText("login: ", 3, count=5)
     t.toggleShowCursor(True)
     t.genTypingText("x0rzavi", 3, contin=True)
@@ -78,14 +80,14 @@ def main():
     t.genTypingText("clear", 7, contin=True)
 
     ignoreRepos = ["archiso-zfs", "archiso-zfs-archive"]
-    gitUserDetails = helpers.calcUserStats("x0rzavi", ignoreRepos, True)
-    userAge = helpers.calcAge(26, 7, 2002)
+    gitUserDetails = utils.calcUserStats("x0rzavi", ignoreRepos, True)
+    userAge = utils.calcAge(26, 7, 2002)
     t.clearFrame()
     topLanguages = [lang[0] for lang in gitUserDetails["languagesSorted"]]
     userDetailsLines = rf"""
     x0rzavi@GitHub
     -------------------
-    OS:     Arch Linux, Gentoo Linux, Windows 11, Android 14
+    OS:     Arch/Gentoo Linux, Windows 11, Android 14
     Host:   Netaji Subhash Engineering College #NSEC
     Kernel: Computer Science & Engineering #CSE
     Uptime: {userAge[0]} years, {userAge[1]} months, {userAge[2]} days
@@ -98,17 +100,18 @@ def main():
 
     GitHub Stats:
     -------------------
+    User Rating: {gitUserDetails['userRank']['level']}
     Total Stars Earned: {gitUserDetails['totalStargazers']}
     Total Commits: {gitUserDetails['totalCommitsAllTime']}
     Total PRs: {gitUserDetails['totalPullRequestsMade']} | Merged PR%: {gitUserDetails['pullRequestsMergePercentage']}
     Total Contributions: {gitUserDetails['totalRepoContributions']}
     Top Languages: {', '.join(topLanguages[:5])}
-    User Rating: {gitUserDetails['userRank']['level']}
     """
     t.toggleHighlight()
     t.genPrompt(1)
     t.toggleHighlight()
     t.cloneFrame(10)
+    t.toggleShowCursor(True)
     t.genTypingText("statsfetch -u x0rzavi", 1, contin=True)
     t.genMultiText(userDetailsLines, 2, prompt=False)
     t.toggleHighlight()
@@ -117,7 +120,7 @@ def main():
     t.genText("", t.currRow, count=100, contin=True)
 
     t.genGif()
-    helpers.uploadImage("output.gif", 3600)
+    utils.uploadImage("output.gif", 129600) # 1.5 days expiration
 
 
 if __name__ == "__main__":
