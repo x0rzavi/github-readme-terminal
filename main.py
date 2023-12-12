@@ -83,27 +83,27 @@ def main():
     t.clearFrame()
     topLanguages = [lang[0] for lang in gitUserDetails.languagesSorted]
     userDetailsLines = rf"""
-    x0rzavi@GitHub
+    \x1b[91mx0rzavi@GitHub\x1b[39m
     -------------------
-    OS:     Arch/Gentoo Linux, Windows 11, Android 14
-    Host:   Netaji Subhash Engineering College #NSEC
-    Kernel: Computer Science & Engineering #CSE
-    Uptime: {userAge.years} years, {userAge.months} months, {userAge.days} days
-    IDE:    neovim, VSCode
+    \x1b[94mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
+    \x1b[94mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
+    \x1b[94mKernel: \x1b[93mComputer Science & Engineering #CSE
+    \x1b[94mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
+    \x1b[94mIDE:    \x1b[93mneovim, VSCode
 
-    Contact:
+    \x1b[91mContact:\x1b[39m
     -------------------
-    Email:  x0rzavi@gmail.com
-    LinkedIn: avishek-sen-x0rzavi
+    \x1b[94mEmail:  \x1b[93mx0rzavi@gmail.com
+    \x1b[94mLinkedIn: \x1b[93mavishek-sen-x0rzavi
 
-    GitHub Stats:
+    \x1b[91mGitHub Stats:\x1b[39m
     -------------------
-    User Rating: {gitUserDetails.userRank.level}
-    Total Stars Earned: {gitUserDetails.totalStargazers}
-    Total Commits: {gitUserDetails.totalCommitsAllTime}
-    Total PRs: {gitUserDetails.totalPullRequestsMade} | Merged PR%: {gitUserDetails.pullRequestsMergePercentage}
-    Total Contributions: {gitUserDetails.totalRepoContributions}
-    Top Languages: {', '.join(topLanguages[:5])}
+    \x1b[94mUser Rating: \x1b[93m{gitUserDetails.userRank.level}
+    \x1b[94mTotal Stars Earned: \x1b[93m{gitUserDetails.totalStargazers}
+    \x1b[94mTotal Commits (2023): \x1b[93m{gitUserDetails.totalCommitsLastYear}
+    \x1b[94mTotal PRs: \x1b[93m{gitUserDetails.totalPullRequestsMade}\x1b[39m | \x1b[94mMerged PR%: \x1b[93m{gitUserDetails.pullRequestsMergePercentage}
+    \x1b[94mTotal Contributions: \x1b[93m{gitUserDetails.totalRepoContributions}
+    \x1b[94mTop Languages: \x1b[93m{', '.join(topLanguages[:5])}\x1b[39m
     """
     t.toggleHighlight()
     t.genPrompt(1)
@@ -111,7 +111,7 @@ def main():
     t.cloneFrame(10)
     t.toggleShowCursor(True)
     t.genTypingText("statsfetch -u x0rzavi", 1, contin=True)
-    t.genMultiText(userDetailsLines, 2, prompt=False)
+    t.genRichText(userDetailsLines, 2)
     t.toggleHighlight()
     t.genPrompt(t.currRow)
     t.toggleHighlight()

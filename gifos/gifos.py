@@ -1,12 +1,8 @@
 # TODO
-# [x] Remove debug statements/optional debug mode
-# [x] Refactor deleteRow() code
-# [x] Handle multiple fonts effectively
-# [x] Handle truetype non monospace fonts
+# [x] PROTOTYPE: Rich text - atleast highlights - different colors
 # [] Hardcode highlighted prompt
-# [] Rich text - atleast highlights - different colors
 # [] Optimization + better code quality
-# [] Merge genText() and genMultiText()
+# [] Merge genText() + genMultiText() + genRichText()
 # [] Config file
 # [] Theming
 # [] Scriptable input file
@@ -15,9 +11,11 @@
 # [] Test cases
 
 import os  # debug
+import re
 import random
 from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
+from .utils.convertAnsiEscape import convertAnsiEscape
 
 os.system("rm -fr ./frame* ./output*")  # debug
 
@@ -48,7 +46,6 @@ class Terminal:
         self.__frameCount = 0
         self.currRow = 0
         self.currCol = 0
-        self.__lineSpacing = 4
         self.setFont(font)
         self.__cursor = "_"
         self.__cursorOrig = self.__cursor
@@ -61,19 +58,20 @@ class Terminal:
     def setTxtColor(self, txtColor: str = "#F2F4F5") -> None:  # rework later
         self.txtColor = txtColor
 
-    def toggleHighlight(self) -> None:
+    def toggleHighlight(self) -> None:  # rework later
         self.setTxtColor("#7FC8D8") if self.txtColor == "#F2F4F5" else self.setTxtColor(
             "#F2F4F5"
         )
 
     def setFont(self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont) -> None:
+        self.__lineSpacing = 4
         self.__font = font
-        if self.__checkMonospaceFont(font)[0]:
+        if self.__checkMonospaceFont(font)["check"]:
             self.__fontWidth = self.__font.getbbox("W")[
                 2
             ]  # empirically widest character
         else:
-            self.__fontWidth = self.__checkMonospaceFont(font)[1]
+            self.__fontWidth = self.__checkMonospaceFont(font)["avgWidth"]
         self.__fontHeight = self.__font.getbbox(r"|(/QMW")[
             3
         ]  # empirically tallest characters
@@ -98,10 +96,10 @@ class Terminal:
 
     def __checkMonospaceFont(
         self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont
-    ) -> tuple:
+    ) -> dict:
         widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
         avgWidth = int(round(sum(widths) / len(widths), 0))
-        return max(widths) == min(widths), avgWidth
+        return {"check": max(widths) == min(widths), "avgWidth": avgWidth}
 
     def __alterCursor(self) -> None:
         self.__cursor = self.__cursorOrig if self.__cursor != self.__cursorOrig else " "
@@ -365,6 +363,89 @@ class Terminal:
             for char in text:
                 count = random.choice([1, 2, 3])
                 self.genText(char, rowNum, self.__colInRow[rowNum], count, True)
+
+    def genRichText(
+        self,
+        text: str | list,
+        rowNum: int,
+        colNum: int = 1,
+        count: int = 1,
+        # prompt: bool = True,
+        contin: bool = False,
+    ) -> None:
+        # if prompt and contin:
+        #     ic("Both prompt and contin can't be simultaneously True")  # debug
+        #     exit(1)
+
+        if isinstance(text, str):
+            textLines = text.splitlines()
+            textNumLines = len(textLines)
+        else:
+            textLines = text
+            textNumLines = len(text)
+
+        if textNumLines == 1:
+            ic("Not for single line texts")  # debug
+        else:
+            # if prompt:
+            #     ic("Initialized position") # debug
+            #     self.cursorToBox(rowNum, colNum, textNumLines + 2, 1, False)
+            for i in range(textNumLines):
+                line = textLines[i]
+                pattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
+                words = [word for word in re.split(pattern, line) if word]
+                for word in words:
+                    if word.startswith("\x1b[") or word.startswith("\\x1b["):
+                        codes = (
+                            word.lstrip("\x1b[").lstrip("\\x1b[").rstrip("m").split(";")
+                        )
+                        for code in codes:
+                            codeInfo = convertAnsiEscape.get(code)
+                            if codeInfo and codeInfo["op"] == "txtColor":
+                                self.setTxtColor(codeInfo["color"])
+                    else:
+                        textNumChars = len(word)
+                        x1, y1, _, _ = self.cursorToBox(
+                            rowNum + i, colNum, 1, textNumChars, True
+                        )
+                        draw = ImageDraw.Draw(self.__frame)
+                        draw.text((x1, y1), word, self.txtColor, self.__font)
+                        self.currCol += len(word)
+                        self.__colInRow[self.currRow] = self.currCol
+                        ic(self.currRow, self.currCol)  # debug
+            self.cursorToBox(self.currRow + 1, 1, 1, 1, False)  # move down by 1 row
+
+            # if prompt:
+            #     self.cloneFrame(1)  # wait a bit before printing new prompt
+            #     self.genPrompt(
+            #         self.currRow, 1, 1
+            #     )  # generate prompt right after printed text, i.e. 1 line below
+
+            draw = ImageDraw.Draw(self.__frame)
+            for _ in range(count):
+                if self.__showCursor:
+                    cx1, cy1, _, _ = self.cursorToBox(
+                        self.currRow, self.currCol, 1, 1, contin=True
+                    )  # no unnecessary scroll
+                    draw.text(
+                        (cx1, cy1), str(self.__cursor), self.txtColor, self.__font
+                    )
+                self.__genFrame(self.__frame)
+                if self.__showCursor:
+                    cx1, cy1, _, _ = self.cursorToBox(
+                        self.currRow, self.currCol, 1, 1, contin=True
+                    )  # no unnecessary scroll
+                    blankBoxImage = Image.new(
+                        "RGB",
+                        (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
+                        self.bgColor,
+                    )
+                    self.__frame.paste(blankBoxImage, (cx1, cy1))
+                    if (
+                        self.__blinkCursor
+                        and self.__frameCount % (self.__fps // 3) == 0
+                    ):  # alter cursor such that blinks every one-third second
+                        self.__alterCursor()
 
     def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
         origCursorState = self.__showCursor
