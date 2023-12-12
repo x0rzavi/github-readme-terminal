@@ -24,7 +24,7 @@ def main():
     t.toggleHighlight()
     t.genText("GitHub Profile ReadMe Terminal, Rev 1011", 4)
     t.toggleHighlight()
-    t.genText("Krypton(tm) GIFCPU - 250Hz", 6)
+    t.genText("Krypton(tm) XT250A GIFCPU - 250Hz", 6)
     t.genText("Press DEL to enter SETUP, ESC to cancel Memory Test", t.numRows)
     for i in range(0, 65653, 7168):  # 64K Memory
         t.deleteRow(7)
@@ -46,9 +46,7 @@ def main():
     osLogoText = "GIF OS"
     midRow = (t.numRows + 1) // 2
     midCol = (t.numCols - len(osLogoText) + 1) // 2
-    effectLines = effects.textScrambleEffectLines(
-        osLogoText, 3, includeSpecial=False
-    )
+    effectLines = effects.textScrambleEffectLines(osLogoText, 3, includeSpecial=False)
     t.toggleHighlight()
     for effectLine in effectLines:
         t.deleteRow(midRow)
@@ -80,17 +78,17 @@ def main():
     t.genTypingText("clear", 7, contin=True)
 
     ignoreRepos = ["archiso-zfs", "archiso-zfs-archive"]
-    gitUserDetails = utils.calcUserStats("x0rzavi", ignoreRepos, True)
+    gitUserDetails = utils.fetchGithubStats("x0rzavi", ignoreRepos, True)
     userAge = utils.calcAge(26, 7, 2002)
     t.clearFrame()
-    topLanguages = [lang[0] for lang in gitUserDetails["languagesSorted"]]
+    topLanguages = [lang[0] for lang in gitUserDetails.languagesSorted]
     userDetailsLines = rf"""
     x0rzavi@GitHub
     -------------------
     OS:     Arch/Gentoo Linux, Windows 11, Android 14
     Host:   Netaji Subhash Engineering College #NSEC
     Kernel: Computer Science & Engineering #CSE
-    Uptime: {userAge[0]} years, {userAge[1]} months, {userAge[2]} days
+    Uptime: {userAge.years} years, {userAge.months} months, {userAge.days} days
     IDE:    neovim, VSCode
 
     Contact:
@@ -100,11 +98,11 @@ def main():
 
     GitHub Stats:
     -------------------
-    User Rating: {gitUserDetails['userRank']['level']}
-    Total Stars Earned: {gitUserDetails['totalStargazers']}
-    Total Commits: {gitUserDetails['totalCommitsAllTime']}
-    Total PRs: {gitUserDetails['totalPullRequestsMade']} | Merged PR%: {gitUserDetails['pullRequestsMergePercentage']}
-    Total Contributions: {gitUserDetails['totalRepoContributions']}
+    User Rating: {gitUserDetails.userRank.level}
+    Total Stars Earned: {gitUserDetails.totalStargazers}
+    Total Commits: {gitUserDetails.totalCommitsAllTime}
+    Total PRs: {gitUserDetails.totalPullRequestsMade} | Merged PR%: {gitUserDetails.pullRequestsMergePercentage}
+    Total Contributions: {gitUserDetails.totalRepoContributions}
     Top Languages: {', '.join(topLanguages[:5])}
     """
     t.toggleHighlight()
@@ -120,7 +118,8 @@ def main():
     t.genText("", t.currRow, count=100, contin=True)
 
     t.genGif()
-    utils.uploadImage("output.gif", 129600) # 1.5 days expiration
+    image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
+    print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
 
 
 if __name__ == "__main__":

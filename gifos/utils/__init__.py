@@ -1,6 +1,6 @@
 from .calcAge import calcAge
-from .calcRank import calcRank
-from .imgbbUpload import uploadImage
-from .githubStats import calcUserStats
+from .uploadImgBB import uploadImgBB
+from .calcGithubRank import calcGithubRank
+from .fetchGithubStats import fetchGithubStats
 
-__all__ = ["calcAge", "calcRank", "uploadImage", "calcUserStats"]
+__all__ = ["calcAge", "uploadImgBB", "calcGithubRank", "fetchGithubStats"]

@@ -1,6 +1,7 @@
 """
 Reference: https://github.com/anuraghazra/github-readme-stats/blob/23472f40e81170ba452c38a99abc674db0000ce6/src/calculateRank.js
 """
+from .schemas.githubUserRank import githubUserRank
 
 
 def exponentialCdf(x):
@@ -11,7 +12,7 @@ def logNormalCdf(x):
     return x / (1 + x)
 
 
-def calcRank(
+def calcGithubRank(
     allCommits: bool,
     commits: int,
     prs: int,
@@ -19,7 +20,7 @@ def calcRank(
     reviews: int,
     stars: int,
     followers: int,
-) -> dict:
+) -> githubUserRank:
     COMMITS_MEDIAN = 1000 if allCommits else 250
     COMMITS_WEIGHT = 2
     PRS_MEDIAN = 50
@@ -59,4 +60,5 @@ def calcRank(
     level = LEVELS[
         next((i for i, t in enumerate(THRESHOLDS) if rank * 100 <= t), len(LEVELS) - 1)
     ]
-    return {"level": level, "percentile": round(rank * 100, 2)}
+    percentile = round(rank * 100, 2)
+    return githubUserRank(level, percentile)
