@@ -1,4 +1,3 @@
-from PIL import ImageFont
 from gifos.gifos import Terminal
 from gifos import utils
 from gifos import effects
@@ -9,12 +8,9 @@ fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
 fontFileBitmap = "./fonts/ter-u14n.pil"
 # fontFileBitmap = "./fonts/cherry-13-r.pil"
 
-fontTruetype = ImageFont.truetype(fontFileTruetype, size=66)  # truetype font
-fontBitmap = ImageFont.load(fontFileBitmap)  # bitmap monospaced font
-
 
 def main():
-    t = Terminal(640, 480, 15, 15, fontBitmap)
+    t = Terminal(640, 480, 15, 15, fontFileBitmap)
     t.setFps(15)
 
     t.genText("", 1, count=20)
@@ -41,7 +37,7 @@ def main():
     t.clearFrame()
     t.genText("Initiating Boot Sequence ", 1, contin=True)
     t.genTypingText(".....", 1, contin=True)
-    t.setFont(fontTruetype)
+    t.setFont(fontFileTruetype, 66)
     # t.toggleShowCursor(True)
     osLogoText = "GIF OS"
     midRow = (t.numRows + 1) // 2
@@ -53,7 +49,7 @@ def main():
         t.genText(effectLine, midRow, midCol + 1)
     t.toggleHighlight()
 
-    t.setFont(fontBitmap)
+    t.setFont(fontFileBitmap)
     t.setTxtColor()
     t.clearFrame()
     t.cloneFrame(5)
@@ -83,7 +79,7 @@ def main():
     t.clearFrame()
     topLanguages = [lang[0] for lang in gitUserDetails.languagesSorted]
     userDetailsLines = rf"""
-    \x1b[40;91mx0rzavi@GitHub\x1b[39;49m
+    \x1b[96;100mx0rzavi@GitHub\x1b[0m
     -------------------
     \x1b[94;mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
     \x1b[94mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
@@ -91,19 +87,19 @@ def main():
     \x1b[94mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
     \x1b[94mIDE:    \x1b[93mneovim, VSCode
 
-    \x1b[91mContact:\x1b[39m
+    \x1b[96;100mContact:\x1b[0m
     -------------------
     \x1b[94mEmail:  \x1b[93mx0rzavi@gmail.com
     \x1b[94mLinkedIn: \x1b[93mavishek-sen-x0rzavi
 
-    \x1b[91mGitHub Stats:\x1b[39m
+    \x1b[96;100mGitHub Stats:\x1b[0m
     -------------------
     \x1b[94mUser Rating: \x1b[93m{gitUserDetails.userRank.level}
     \x1b[94mTotal Stars Earned: \x1b[93m{gitUserDetails.totalStargazers}
     \x1b[94mTotal Commits (2023): \x1b[93m{gitUserDetails.totalCommitsLastYear}
-    \x1b[94mTotal PRs: \x1b[93m{gitUserDetails.totalPullRequestsMade}\x1b[39m | \x1b[94mMerged PR%: \x1b[93m{gitUserDetails.pullRequestsMergePercentage}
+    \x1b[94mTotal PRs: \x1b[93m{gitUserDetails.totalPullRequestsMade}\x1b[0m | \x1b[94mMerged PR%: \x1b[93m{gitUserDetails.pullRequestsMergePercentage}
     \x1b[94mTotal Contributions: \x1b[93m{gitUserDetails.totalRepoContributions}
-    \x1b[94mTop Languages: \x1b[93m{', '.join(topLanguages[:5])}\x1b[39m
+    \x1b[94mTop Languages: \x1b[93m{', '.join(topLanguages[:5])}\x1b[0m
     """
     t.toggleHighlight()
     t.genPrompt(1)

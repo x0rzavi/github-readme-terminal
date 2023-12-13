@@ -1,8 +1,7 @@
 # TODO
-# [x] PROTOTYPE: Rich text - atleast highlights - different colors
-# [x] Handle changing bgColor - frame manipulation
+# [x] Handle dynamic font size
+# [] Configure prompt option
 # [] Support all ANSI escape sequence forms
-# [] Handle dynamic font size
 # [] Hardcode highlighted prompt
 # [] Optimization + better code quality
 # [] Merge genText() + genMultiText() + genRichText()
@@ -16,7 +15,6 @@
 import os  # debug
 import re
 import random
-from textwrap import fill
 from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
@@ -35,7 +33,8 @@ class Terminal:
         height: int,
         xPad: int,
         yPad: int,
-        font: ImageFont.ImageFont | ImageFont.FreeTypeFont,
+        fontFile: str,
+        fontSize: int = 16,
         debug: bool = False,
     ) -> None:
         ic.configureOutput(includeContext=True)
@@ -50,7 +49,9 @@ class Terminal:
         self.__frameCount = 0
         self.currRow = 0
         self.currCol = 0
-        self.setFont(font)
+        self.__fontFile = fontFile
+        self.__fontSize = fontSize
+        self.setFont(self.__fontFile, self.__fontSize)
         self.__cursor = "_"
         self.__cursorOrig = self.__cursor
         self.__showCursor = True
@@ -71,25 +72,43 @@ class Terminal:
             "#7FC8D8"
         ) if self.__txtColor == "#F2F4F5" else self.setTxtColor("#F2F4F5")
 
-    def setFont(self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont) -> None:
-        self.__lineSpacing = 4
-        self.__font = font
-        if self.__checkMonospaceFont(font)["check"]:
-            self.__fontWidth = self.__font.getbbox("W")[
-                2
-            ]  # empirically widest character
-        else:
-            self.__fontWidth = self.__checkMonospaceFont(font)["avgWidth"]
-        self.__fontHeight = self.__font.getbbox(r"|(/QMW")[
-            3
-        ]  # empirically tallest characters
-        self.numRows = (self.__height - 2 * self.__yPad) // (
-            self.__fontHeight + self.__lineSpacing
-        )
-        self.numCols = (self.__width - 2 * self.__xPad) // (self.__fontWidth)
-        self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
-        # self.clearFrame()
-        ic(self.__font)  # debug
+    def __checkFontType(
+        self, fontFile: str, fontSize: int
+    ) -> ImageFont.ImageFont | ImageFont.FreeTypeFont | None:
+        try:
+            font = ImageFont.truetype(fontFile, fontSize)
+            return font
+        except OSError:
+            pass
+
+        try:
+            print(f"INFO: {fontFile} is BitMap. Ignoring size {fontSize}")
+            font = ImageFont.load(fontFile)
+            return font
+        except OSError:
+            print(f"ERROR: unknown font {fontFile}")
+            return None
+
+    def setFont(self, fontFile: str, fontSize: int = 16) -> None:
+        self.__font = self.__checkFontType(fontFile, fontSize)
+        if self.__font:
+            self.__lineSpacing = 4
+            if self.__checkMonospaceFont(self.__font)["check"]:
+                self.__fontWidth = self.__font.getbbox("W")[
+                    2
+                ]  # empirically widest character
+            else:
+                self.__fontWidth = self.__checkMonospaceFont(self.__font)["avgWidth"]
+            self.__fontHeight = self.__font.getbbox(r"|(/QMW")[
+                3
+            ]  # empirically tallest characters
+            self.numRows = (self.__height - 2 * self.__yPad) // (
+                self.__fontHeight + self.__lineSpacing
+            )
+            self.numCols = (self.__width - 2 * self.__xPad) // (self.__fontWidth)
+            self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
+            # self.clearFrame()
+            ic(self.__font)  # debug
 
     def setFps(self, fps: float) -> None:
         self.__fps = fps
@@ -397,23 +416,29 @@ class Terminal:
             self.cursorToBox(
                 rowNum, colNum, textNumLines, 1, contin
             )  # initialize position
+            pattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
             for i in range(textNumLines):
                 line = textLines[i]
-                pattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
                 words = [word for word in re.split(pattern, line) if word]
                 for word in words:
-                    if word.startswith("\x1b[") or word.startswith("\\x1b["):
+                    if word.startswith(("\x1b[", "\\x1b[")):
                         codes = (
                             word.lstrip("\x1b[").lstrip("\\x1b[").rstrip("m").split(";")
                         )
                         for code in codes:
-                            codeInfo = convertAnsiEscape.convert(code)
-                            if codeInfo and codeInfo.op == "txtColor":
-                                self.setTxtColor(codeInfo.data)
+                            if code == "0":  # reset with default
+                                self.setTxtColor()
+                                self.setBgColor()
                                 continue
-                            if codeInfo and codeInfo.op == "bgColor":
-                                self.setBgColor(codeInfo.data)
-                                continue
+                            else:
+                                codeInfo = convertAnsiEscape.convert(code)
+                                if codeInfo:
+                                    if codeInfo.op == "txtColor":
+                                        self.setTxtColor(codeInfo.data)
+                                        continue
+                                    if codeInfo.op == "bgColor":
+                                        self.setBgColor(codeInfo.data)
+                                        continue
                     else:
                         textNumChars = len(word)
                         x1, y1, _, _ = self.cursorToBox(
