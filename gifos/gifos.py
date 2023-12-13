@@ -39,19 +39,21 @@ class Terminal:
         debug: bool = False,
     ) -> None:
         ic.configureOutput(includeContext=True)
-        if not debug:
-            ic.disable()
         self.__width = width
         self.__height = height
         self.__xPad = xPad
         self.__yPad = yPad
-        self.__bgColor = self.__prevBgColor = self.__defBgColor = "#101415"
+        self.__fontFile = fontFile
+        self.__fontSize = fontSize
+        self.__debug = debug
+        if not self.__debug:
+            ic.disable()
+
+        self.__bgColor = self.__defBgColor = "#101415"
         self.__txtColor = "#F2F4F5"
         self.__frameCount = 0
         self.currRow = 0
         self.currCol = 0
-        self.__fontFile = fontFile
-        self.__fontSize = fontSize
         self.setFont(self.__fontFile, self.__fontSize)
         self.__cursor = "_"
         self.__cursorOrig = self.__cursor
@@ -177,7 +179,8 @@ class Terminal:
         if frame is None:
             frame = Image.new("RGB", (self.__width, self.__height), self.__bgColor)
             self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
-            frame = self.__frameDebugLines(frame)
+            if self.__debug:
+                frame = self.__frameDebugLines(frame)
             self.cursorToBox(1, 1)  # initialize at box (1, 1)
             return frame
         self.__frameCount += 1
@@ -227,7 +230,7 @@ class Terminal:
             if rowNum > maxRowNum:
                 ic(f"{textNumLines} lines cannot be accomodated at {rowNum}")
                 ic(f"Maximum possible is {maxRowNum}")
-                if firstBlankRow < maxRowNum:  # needed ?????
+                if firstBlankRow < maxRowNum:  # needed ?
                     ic("NEEDED!")  # debug
                     exit(1)
                     scrollTimes = textNumLines - numBlankRows
