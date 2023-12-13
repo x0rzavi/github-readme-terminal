@@ -1,12 +1,8 @@
 # TODO
-# [x] Fix multiline to 25 in genRichText()
-# [x] Fix cursorToBox() contin=True with multiline at different positions
-# [x] Merge genText() + genMultiText() + genRichText()
-# [x] Hardcode highlighted prompt
-# [] Configure prompt option
-# [] Support all ANSI escape sequence forms
+# [] Prompt configuration option
 # [] Theming
 # [] Config file
+# [] Support all ANSI escape sequence forms
 # [] Optimization + better code quality
 # [] Scriptable input file
 # [] Documentation
@@ -257,7 +253,7 @@ class Terminal:
         y2 = self.__yPad + rowNum * (self.__fontHeight + self.__lineSpacing)
         return x1, y1, x2, y2
 
-    def genRichText(
+    def genText(
         self,
         text: str | list,
         rowNum: int,
@@ -374,13 +370,13 @@ class Terminal:
             self.cursorToBox(rowNum, colNum, 1, 1, contin)
         if speed == 1 or speed == 2 or speed == 3:
             for char in text:
-                self.genRichText(
+                self.genText(
                     char, rowNum, self.__colInRow[rowNum], speed, False, True
                 )
         else:
             for char in text:
                 count = random.choice([1, 2, 3])
-                self.genRichText(
+                self.genText(
                     char, rowNum, self.__colInRow[rowNum], count, False, True
                 )
 
@@ -388,7 +384,7 @@ class Terminal:
         self.cloneFrame(1)  # wait a bit before printing new prompt
         origCursorState = self.__showCursor
         self.toggleShowCursor(True)
-        self.genRichText(
+        self.genText(
             self.prompt, rowNum, colNum, count, False, False
         )  # generate prompt right after printed text, i.e. 1 line below
         self.__showCursor = origCursorState

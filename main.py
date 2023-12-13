@@ -5,40 +5,41 @@ from gifos import effects
 
 fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
 # fontFileTruetype = "./fonts/SpaceMonoNerdFontMono-Bold.ttf"
-fontFileBitmap = "./fonts/ter-u14n.pil"
+# fontFileBitmap = "./fonts/ter-u14n.pil"
 # fontFileBitmap = "./fonts/cherry-13-r.pil"
+fontFileBitmap = "./fonts/gohufont-uni-14.pil"
 
 
 def main():
     t = Terminal(640, 480, 15, 15, fontFileBitmap)
     t.setFps(15)
 
-    t.genRichText("", 1, count=20)
+    t.genText("", 1, count=20)
     t.toggleShowCursor(False)
-    t.genRichText("GIF_OS Modular BIOS v1.0.11", 1)
-    t.genRichText("Copyright (C) 2023, \x1b[91mX0rzAvi Softwares Inc.\x1b[0m", 2)
-    t.genRichText("\x1b[94mGitHub Profile ReadMe Terminal, Rev 1011\x1b[0m", 4)
-    t.genRichText("Krypton(tm) GIFCPU - 250Hz", 6)
-    t.genRichText(
+    t.genText("GIF_OS Modular BIOS v1.0.11", 1)
+    t.genText("Copyright (C) 2023, \x1b[91mX0rzAvi Softwares Inc.\x1b[0m", 2)
+    t.genText("\x1b[94mGitHub Profile ReadMe Terminal, Rev 1011\x1b[0m", 4)
+    t.genText("Krypton(tm) GIFCPU - 250Hz", 6)
+    t.genText(
         "Press \x1b[94mDEL\x1b[0m to enter SETUP, \x1b[94mESC\x1b[0m to cancel Memory Test",
         t.numRows,
     )
     for i in range(0, 65653, 7168):  # 64K Memory
         t.deleteRow(7)
         if i < 30000:
-            t.genRichText(
+            t.genText(
                 f"Memory Test: {i}", 7, count=2, contin=True
             )  # slow down upto a point
         else:
-            t.genRichText(f"Memory Test: {i}", 7, contin=True)
+            t.genText(f"Memory Test: {i}", 7, contin=True)
     t.deleteRow(7)
-    t.genRichText("Memory Test: 64KB OK", 7, count=10, contin=True)
-    t.genRichText("", 11, count=10, contin=True)
+    t.genText("Memory Test: 64KB OK", 7, count=10, contin=True)
+    t.genText("", 11, count=10, contin=True)
 
     t.clearFrame()
-    t.genRichText("Initiating Boot Sequence ", 1, contin=True)
+    t.genText("Initiating Boot Sequence ", 1, contin=True)
     t.genTypingText(".....", 1, contin=True)
-    t.genRichText("\x1b[96m", 1, contin=True)  # buffer to be removed
+    t.genText("\x1b[96m", 1, contin=True)  # buffer to be removed
     t.setFont(fontFileTruetype, 66)
     # t.toggleShowCursor(True)
     osLogoText = "GIF OS"
@@ -47,23 +48,23 @@ def main():
     effectLines = effects.textScrambleEffectLines(osLogoText, 3, includeSpecial=False)
     for effectLine in effectLines:
         t.deleteRow(midRow)
-        t.genRichText(effectLine, midRow, midCol + 1)
+        t.genText(effectLine, midRow, midCol + 1)
 
     t.setFont(fontFileBitmap)
     t.clearFrame()
     t.cloneFrame(5)
     t.toggleShowCursor(False)
-    t.genRichText("\x1b[93mGIF OS v1.0.11 (tty1)\x1b[0m", 1, count=5)
-    t.genRichText("login: ", 3, count=5)
+    t.genText("\x1b[93mGIF OS v1.0.11 (tty1)\x1b[0m", 1, count=5)
+    t.genText("login: ", 3, count=5)
     t.toggleShowCursor(True)
     t.genTypingText("x0rzavi", 3, contin=True)
-    t.genRichText("", 4, count=5)
+    t.genText("", 4, count=5)
     t.toggleShowCursor(False)
-    t.genRichText("password: ", 4, count=5)
+    t.genText("password: ", 4, count=5)
     t.toggleShowCursor(True)
     t.genTypingText("*********", 4, contin=True)
     t.toggleShowCursor(False)
-    t.genRichText("Last login: Sun Dec  12 00:18:39 on tty1", 6)
+    t.genText("Last login: Sun Dec  13 22:55:39 on tty1", 6)
     t.genPrompt(7, count=5)
     t.toggleShowCursor(True)
     t.genTypingText("clear", 7, contin=True)
@@ -76,7 +77,7 @@ def main():
     userDetailsLines = rf"""
     \x1b[96;100mx0rzavi@GitHub\x1b[0m
     -------------------
-    \x1b[94;mOS:    \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
+    \x1b[94mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 13
     \x1b[94mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
     \x1b[94mKernel: \x1b[93mComputer Science & Engineering #CSE
     \x1b[94mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
@@ -100,9 +101,9 @@ def main():
     t.cloneFrame(10)
     t.toggleShowCursor(True)
     t.genTypingText("statsfetch -u x0rzavi", 1, contin=True)
-    t.genRichText(userDetailsLines, 2)
+    t.genText(userDetailsLines, 2)
     t.genPrompt(t.currRow)
-    t.genRichText("", t.currRow, count=100, contin=True)
+    t.genText("", t.currRow, count=100, contin=True)
 
     t.genGif()
     # image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
