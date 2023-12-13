@@ -3,6 +3,6 @@ from dataclasses import dataclass
 
 @dataclass
 class ansiEscape:
-    __slots__ = ["data", "op"]
+    __slots__ = ["data", "oper"]
     data: str
-    op: str
+    oper: str

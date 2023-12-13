@@ -113,7 +113,7 @@ def main():
     t.toggleHighlight()
     t.genText("", t.currRow, count=100, contin=True)
 
-    # t.genGif()
+    t.genGif()
     # image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
     # print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
 

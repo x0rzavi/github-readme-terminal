@@ -8,7 +8,7 @@ load_dotenv()
 imgbbToken = os.getenv("IMGBB_API_KEY")
 
 
-def uploadImgBB(fileName: str, expiration: int = None):
+def uploadImgBB(fileName: str, expiration: int = None) -> imgbbImage:
     if expiration is None:
         pass
     elif expiration < 60 or expiration > 15552000:

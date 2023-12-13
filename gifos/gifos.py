@@ -1,12 +1,13 @@
 # TODO
-# [x] Handle dynamic font size
+# [x] Fix multiline to 25 in genRichText()
+# [x] Fix cursorToBox() contin=True with multiline at different positions
+# [x] Merge genText() + genMultiText() + genRichText()
+# [x] Hardcode highlighted prompt
 # [] Configure prompt option
 # [] Support all ANSI escape sequence forms
-# [] Hardcode highlighted prompt
-# [] Optimization + better code quality
-# [] Merge genText() + genMultiText() + genRichText()
-# [] Config file
 # [] Theming
+# [] Config file
+# [] Optimization + better code quality
 # [] Scriptable input file
 # [] Documentation
 # [] GIF maker implementation
@@ -44,7 +45,7 @@ class Terminal:
         self.__height = height
         self.__xPad = xPad
         self.__yPad = yPad
-        self.__bgColor = self.__prevBgColor = "#101415"
+        self.__bgColor = self.__prevBgColor = self.__defBgColor = "#101415"
         self.__txtColor = "#F2F4F5"
         self.__frameCount = 0
         self.currRow = 0
@@ -57,20 +58,14 @@ class Terminal:
         self.__showCursor = True
         self.__blinkCursor = True
         self.__fps = 20.0
-        self.prompt = "x0rzavi@github ~> "
+        self.prompt = "\x1b[0;94mx0rzavi\x1b[0m@\x1b[0;93mdeadbeef ~> \x1b[0m"
         self.__frame = self.__genFrame()
 
     def setTxtColor(self, txtColor: str = "#F2F4F5") -> None:  # rework later
         self.__txtColor = txtColor
 
     def setBgColor(self, bgColor: str = "#101415") -> None:  # rework later
-        self.__prevBgColor = self.__bgColor
         self.__bgColor = bgColor
-
-    def toggleHighlight(self) -> None:  # rework later
-        self.setTxtColor(
-            "#7FC8D8"
-        ) if self.__txtColor == "#F2F4F5" else self.setTxtColor("#F2F4F5")
 
     def __checkFontType(
         self, fontFile: str, fontSize: int
@@ -82,7 +77,7 @@ class Terminal:
             pass
 
         try:
-            print(f"INFO: {fontFile} is BitMap. Ignoring size {fontSize}")
+            print(f"WARNING: {fontFile} is BitMap - Ignoring size {fontSize}")
             font = ImageFont.load(fontFile)
             return font
         except OSError:
@@ -132,6 +127,14 @@ class Terminal:
         self.__cursor = self.__cursorOrig if self.__cursor != self.__cursorOrig else " "
         ic(self.__cursor)  # debug
 
+    def __checkMultiline(self, text: str | list) -> bool:  # make local to genText() ?
+        if isinstance(text, list):
+            if len(text) <= 1:
+                return False
+        elif isinstance(text, str):
+            return "\n" in text
+        return True
+
     def __frameDebugLines(self, frame: Image.Image) -> Image.Image:
         # checker box to debug
         draw = ImageDraw.Draw(frame)
@@ -174,7 +177,7 @@ class Terminal:
         if frame is None:
             frame = Image.new("RGB", (self.__width, self.__height), self.__bgColor)
             self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
-            # frame = self.__frameDebugLines(frame)
+            frame = self.__frameDebugLines(frame)
             self.cursorToBox(1, 1)  # initialize at box (1, 1)
             return frame
         self.__frameCount += 1
@@ -287,7 +290,7 @@ class Terminal:
                     blankBoxImage = Image.new(
                         "RGB",
                         (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.__bgColor,
+                        self.__defBgColor,
                     )
                     self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
@@ -333,7 +336,7 @@ class Terminal:
                 self.currCol += len(line)
                 self.__colInRow[self.currRow] = self.currCol
                 ic(self.currRow, self.currCol)  # debug
-            self.cursorToBox(self.currRow + 1, 1, 1, 1, False)  # move down by 1 row
+            self.cursorToBox(self.currRow + 1, 1, 1, 1, contin)  # move down by 1 row
 
             if prompt:
                 self.cloneFrame(1)  # wait a bit before printing new prompt
@@ -358,7 +361,7 @@ class Terminal:
                     blankBoxImage = Image.new(
                         "RGB",
                         (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.__bgColor,
+                        self.__defBgColor,
                     )
                     self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
@@ -396,12 +399,12 @@ class Terminal:
         rowNum: int,
         colNum: int = 1,
         count: int = 1,
-        # prompt: bool = True,
+        prompt: bool = False,
         contin: bool = False,
     ) -> None:
-        # if prompt and contin:
-        #     ic("Both prompt and contin can't be simultaneously True")  # debug
-        #     exit(1)
+        if prompt and contin:  # why ?
+            print("ERROR: Both prompt and contin can't be simultaneously True")  # debug
+            exit(1)
 
         if isinstance(text, str):
             textLines = text.splitlines()
@@ -410,90 +413,93 @@ class Terminal:
             textLines = text
             textNumLines = len(text)
 
-        if textNumLines == 1:
-            ic("Not for single line texts")  # debug
-        else:
+        ansiPattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
+        for i in range(textNumLines):  # for each line
             self.cursorToBox(
-                rowNum, colNum, textNumLines, 1, contin
-            )  # initialize position
-            pattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
-            for i in range(textNumLines):
-                line = textLines[i]
-                words = [word for word in re.split(pattern, line) if word]
-                for word in words:
-                    if word.startswith(("\x1b[", "\\x1b[")):
-                        codes = (
-                            word.lstrip("\x1b[").lstrip("\\x1b[").rstrip("m").split(";")
-                        )
-                        for code in codes:
-                            if code == "0":  # reset with default
-                                self.setTxtColor()
-                                self.setBgColor()
-                                continue
-                            else:
-                                codeInfo = convertAnsiEscape.convert(code)
-                                if codeInfo:
-                                    if codeInfo.op == "txtColor":
-                                        self.setTxtColor(codeInfo.data)
-                                        continue
-                                    if codeInfo.op == "bgColor":
-                                        self.setBgColor(codeInfo.data)
-                                        continue
-                    else:
-                        textNumChars = len(word)
-                        x1, y1, _, _ = self.cursorToBox(
-                            rowNum + i, colNum, 1, textNumChars, True
-                        )
-                        draw = ImageDraw.Draw(self.__frame)
-                        if (
-                            self.__prevBgColor != self.__bgColor
-                        ):  # reduce unnecessary operations
-                            rx1, ry1, rx2, ry2 = draw.textbbox(
-                                (x1, y1), word, self.__font
-                            )  # change bgColor
-                            draw.rectangle((rx1, ry1, rx2, ry2), self.__bgColor)
-                        draw.text((x1, y1), word, self.__txtColor, self.__font)
-                        self.currCol += len(word)
-                        self.__colInRow[self.currRow] = self.currCol
-                        ic(self.currRow, self.currCol)  # debug
-            self.cursorToBox(self.currRow + 1, 1, 1, 1, False)  # move down by 1 row
+                rowNum + i,
+                colNum,
+                1,
+                1,
+                contin,
+            )  # initialize position to check contin for each line
 
-            # if prompt:
-            #     self.cloneFrame(1)  # wait a bit before printing new prompt
-            #     self.genPrompt(
-            #         self.currRow, 1, 1
-            #     )  # generate prompt right after printed text, i.e. 1 line below
+            line = textLines[i]  # single line
+            words = [word for word in re.split(ansiPattern, line) if word]
+            for word in words:  # for each word in line
+                if word.startswith(("\x1b[", "\\x1b[")):  # if ansi escape sequence
+                    codes = word.lstrip("\x1b[").lstrip("\\x1b[").rstrip("m").split(";")
+                    for code in codes:
+                        if code == "0":  # reset to default
+                            self.setTxtColor()
+                            self.setBgColor()
+                            continue
+                        else:
+                            codeInfo = convertAnsiEscape.convert(code)
+                            if codeInfo:
+                                if codeInfo.oper == "txtColor":
+                                    self.setTxtColor(codeInfo.data)
+                                    continue
+                                if codeInfo.oper == "bgColor":
+                                    self.setBgColor(codeInfo.data)
+                                    continue
+                else:  # if normal word
+                    textNumChars = len(word)
+                    x1, y1, _, _ = self.cursorToBox(
+                        rowNum + i,
+                        colNum,
+                        1,
+                        textNumChars,
+                        True,  # contin=True since words in same line
+                    )
+                    draw = ImageDraw.Draw(self.__frame)
+                    rx1, ry1, rx2, ry2 = draw.textbbox(
+                        (x1, y1), word, self.__font
+                    )  # change bgColor
+                    draw.rectangle((rx1, ry1, rx2, ry2), self.__bgColor)
+                    draw.text((x1, y1), word, self.__txtColor, self.__font)
+                    self.currCol += len(word)
+                    self.__colInRow[self.currRow] = self.currCol
+                    ic(self.currRow, self.currCol)  # debug
+        if self.__checkMultiline(textLines):
+            self.cursorToBox(
+                self.currRow + 1, 1, 1, 1, contin
+            )  # move down by 1 row only if multiline
 
-            draw = ImageDraw.Draw(self.__frame)
-            for _ in range(count):
-                if self.__showCursor:
-                    cx1, cy1, _, _ = self.cursorToBox(
-                        self.currRow, self.currCol, 1, 1, contin=True
-                    )  # no unnecessary scroll
-                    draw.text(
-                        (cx1, cy1), str(self.__cursor), self.__txtColor, self.__font
-                    )
-                self.__genFrame(self.__frame)
-                if self.__showCursor:
-                    cx1, cy1, _, _ = self.cursorToBox(
-                        self.currRow, self.currCol, 1, 1, contin=True
-                    )  # no unnecessary scroll
-                    blankBoxImage = Image.new(
-                        "RGB",
-                        (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.__bgColor,
-                    )
-                    self.__frame.paste(blankBoxImage, (cx1, cy1))
-                    if (
-                        self.__blinkCursor
-                        and self.__frameCount % (self.__fps // 3) == 0
-                    ):  # alter cursor such that blinks every one-third second
-                        self.__alterCursor()
+        if prompt and self.__checkMultiline(
+            textLines
+        ):  # only generate prompt if multiline
+            self.genPrompt(self.currRow, 1, 1)
+
+        draw = ImageDraw.Draw(self.__frame)
+        for _ in range(count):
+            if self.__showCursor:
+                cx1, cy1, _, _ = self.cursorToBox(
+                    self.currRow, self.currCol, 1, 1, contin=True
+                )  # no unnecessary scroll
+                draw.text((cx1, cy1), str(self.__cursor), self.__txtColor, self.__font)
+            self.__genFrame(self.__frame)
+            if self.__showCursor:
+                cx1, cy1, _, _ = self.cursorToBox(
+                    self.currRow, self.currCol, 1, 1, contin=True
+                )  # no unnecessary scroll
+                blankBoxImage = Image.new(
+                    "RGB",
+                    (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
+                    self.__defBgColor,
+                )
+                self.__frame.paste(blankBoxImage, (cx1, cy1))
+                if (
+                    self.__blinkCursor and self.__frameCount % (self.__fps // 3) == 0
+                ):  # alter cursor such that blinks every one-third second
+                    self.__alterCursor()
 
     def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
+        self.cloneFrame(1)  # wait a bit before printing new prompt
         origCursorState = self.__showCursor
         self.toggleShowCursor(True)
-        self.genText(self.prompt, rowNum, colNum, count, False)
+        self.genRichText(
+            self.prompt, rowNum, colNum, count, False, False
+        )  # generate prompt right after printed text, i.e. 1 line below
         self.__showCursor = origCursorState
 
     def scrollUp(self, count: int = 1) -> None:
@@ -502,7 +508,7 @@ class Terminal:
                 (0, self.__fontHeight + self.__lineSpacing, self.__width, self.__height)
             )  # make room for 1 extra line (__fontHeight + __lineSpacing)
             self.__frame = Image.new(
-                "RGB", (self.__width, self.__height), self.__bgColor
+                "RGB", (self.__width, self.__height), self.__defBgColor
             )
             self.__frame.paste(croppedFrame, (0, 0))
             self.currRow -= 1  # move cursor to where it was

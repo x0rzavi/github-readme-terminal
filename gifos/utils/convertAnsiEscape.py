@@ -1,3 +1,4 @@
+# Colorscheme reference: https://github.com/rxyhn/yoru#art--colorscheme
 from .schemas.ansiEscape import ansiEscape
 
 
@@ -50,10 +51,10 @@ class convertAnsiEscape:
     def convert(cls, escapeCode) -> ansiEscape:
         txtColor = cls.ANSI_ESCAPE_MAP_FG_COLOR.get(escapeCode)
         if txtColor:
-            return ansiEscape(data=txtColor, op="txtColor")
+            return ansiEscape(data=txtColor, oper="txtColor")
 
         bgColor = cls.ANSI_ESCAPE_MAP_BG_COLOR.get(escapeCode)
         if bgColor:
-            return ansiEscape(data=bgColor, op="bgColor")
+            return ansiEscape(data=bgColor, oper="bgColor")
 
         return None
