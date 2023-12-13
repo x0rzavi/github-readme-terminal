@@ -257,145 +257,6 @@ class Terminal:
         y2 = self.__yPad + rowNum * (self.__fontHeight + self.__lineSpacing)
         return x1, y1, x2, y2
 
-    def genText(
-        self,
-        text: str,
-        rowNum: int,
-        colNum: int = 1,
-        count: int = 1,
-        contin: bool = False,
-    ) -> None:
-        textNumLines = len(text.splitlines())
-        if textNumLines > 1:
-            ic("Not for multiline texts")  # debug
-        else:
-            textNumChars = len(text)
-            x1, y1, _, _ = self.cursorToBox(rowNum, colNum, 1, textNumChars, contin)
-            draw = ImageDraw.Draw(self.__frame)
-            draw.text((x1, y1), text, self.__txtColor, self.__font)
-            self.currCol += len(text)
-            self.__colInRow[self.currRow] = self.currCol
-            ic(self.currRow, self.currCol)  # debug
-
-            for _ in range(count):
-                if self.__showCursor:
-                    cx1, cy1, _, _ = self.cursorToBox(
-                        self.currRow, self.currCol, 1, 1, contin=True
-                    )  # no unnecessary scroll
-                    draw.text(
-                        (cx1, cy1), str(self.__cursor), self.__txtColor, self.__font
-                    )
-                self.__genFrame(self.__frame)
-                if self.__showCursor:
-                    cx1, cy1, _, _ = self.cursorToBox(
-                        self.currRow, self.currCol, 1, 1, contin=True
-                    )  # no unnecessary scroll
-                    blankBoxImage = Image.new(
-                        "RGB",
-                        (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.__defBgColor,
-                    )
-                    self.__frame.paste(blankBoxImage, (cx1, cy1))
-                    if (
-                        self.__blinkCursor
-                        and self.__frameCount % (self.__fps // 3) == 0
-                    ):  # alter cursor such that blinks every one-third second
-                        self.__alterCursor()
-
-    def genMultiText(
-        self,
-        text: str | list,
-        rowNum: int,
-        colNum: int = 1,
-        count: int = 1,
-        prompt: bool = True,
-        contin: bool = False,
-    ) -> None:
-        if prompt and contin:
-            ic("Both prompt and contin can't be simultaneously True")  # debug
-            exit(1)
-
-        if isinstance(text, str):
-            textLines = text.splitlines()
-            textNumLines = len(textLines)
-        else:
-            textLines = text
-            textNumLines = len(text)
-
-        if textNumLines == 1:
-            ic("Not for single line texts")  # debug
-        else:
-            # if prompt:
-            #     ic("Initialized position") # debug
-            #     self.cursorToBox(rowNum, colNum, textNumLines + 2, 1, False)
-            for i in range(textNumLines):
-                line = textLines[i]
-                textNumChars = len(line)
-                x1, y1, _, _ = self.cursorToBox(
-                    rowNum + i, colNum, 1, textNumChars, contin
-                )
-                draw = ImageDraw.Draw(self.__frame)
-                draw.text((x1, y1), line, self.__txtColor, self.__font)
-                self.currCol += len(line)
-                self.__colInRow[self.currRow] = self.currCol
-                ic(self.currRow, self.currCol)  # debug
-            self.cursorToBox(self.currRow + 1, 1, 1, 1, contin)  # move down by 1 row
-
-            if prompt:
-                self.cloneFrame(1)  # wait a bit before printing new prompt
-                self.genPrompt(
-                    self.currRow, 1, 1
-                )  # generate prompt right after printed text, i.e. 1 line below
-
-            draw = ImageDraw.Draw(self.__frame)
-            for _ in range(count):
-                if self.__showCursor:
-                    cx1, cy1, _, _ = self.cursorToBox(
-                        self.currRow, self.currCol, 1, 1, contin=True
-                    )  # no unnecessary scroll
-                    draw.text(
-                        (cx1, cy1), str(self.__cursor), self.__txtColor, self.__font
-                    )
-                self.__genFrame(self.__frame)
-                if self.__showCursor:
-                    cx1, cy1, _, _ = self.cursorToBox(
-                        self.currRow, self.currCol, 1, 1, contin=True
-                    )  # no unnecessary scroll
-                    blankBoxImage = Image.new(
-                        "RGB",
-                        (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.__defBgColor,
-                    )
-                    self.__frame.paste(blankBoxImage, (cx1, cy1))
-                    if (
-                        self.__blinkCursor
-                        and self.__frameCount % (self.__fps // 3) == 0
-                    ):  # alter cursor such that blinks every one-third second
-                        self.__alterCursor()
-
-    def genTypingText(
-        self,
-        text: str,
-        rowNum: int,
-        colNum: int = 1,
-        contin: bool = False,
-        speed: int = 0,
-    ) -> None:
-        # speed configuration
-        # 0 - random - random frame count
-        # 1 - fast - 1 frame count
-        # 2 - medium - 2 frame count
-        # 3 - slow - 3 frame count
-        if contin is False:
-            self.cursorToBox(rowNum, colNum, 1, 1, contin)
-        if speed == 1 or speed == 2 or speed == 3:
-            for char in text:
-                self.genText(char, rowNum, self.__colInRow[rowNum], speed, True)
-        else:
-            for char in text:
-                count = random.choice([1, 2, 3])
-                self.genText(char, rowNum, self.__colInRow[rowNum], count, True)
-
     def genRichText(
         self,
         text: str | list,
@@ -496,6 +357,33 @@ class Terminal:
                 ):  # alter cursor such that blinks every one-third second
                     self.__alterCursor()
 
+    def genTypingText(
+        self,
+        text: str,
+        rowNum: int,
+        colNum: int = 1,
+        contin: bool = False,
+        speed: int = 0,
+    ) -> None:
+        # speed configuration
+        # 0 - random - random frame count
+        # 1 - fast - 1 frame count
+        # 2 - medium - 2 frame count
+        # 3 - slow - 3 frame count
+        if contin is False:
+            self.cursorToBox(rowNum, colNum, 1, 1, contin)
+        if speed == 1 or speed == 2 or speed == 3:
+            for char in text:
+                self.genRichText(
+                    char, rowNum, self.__colInRow[rowNum], speed, False, True
+                )
+        else:
+            for char in text:
+                count = random.choice([1, 2, 3])
+                self.genRichText(
+                    char, rowNum, self.__colInRow[rowNum], count, False, True
+                )
+
     def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
         self.cloneFrame(1)  # wait a bit before printing new prompt
         origCursorState = self.__showCursor
@@ -543,16 +431,3 @@ class Terminal:
         print(
             f"INFO: Generated GIF approximately {round(self.__frameCount / self.__fps, 2)}s long"
         )
-
-
-# def replaceText(text: str, rowNum: int, colNum: int, count: int = 1) -> None:
-#     global __frame
-#     chars = 0
-#     for _ in text:
-#         chars += 1
-#     layerImage = Image.new(
-#         "RGB", (chars * __fontWidth, __fontHeight + __lineSpacing), __bgColor
-#     )
-#     x1, y1, _, _ = cursorToBox(rowNum, colNum)
-#     __frame.paste(layerImage, (x1, y1))
-#     genText(text, rowNum, colNum, count)

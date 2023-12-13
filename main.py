@@ -76,7 +76,7 @@ def main():
     userDetailsLines = rf"""
     \x1b[96;100mx0rzavi@GitHub\x1b[0m
     -------------------
-    \x1b[94;mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
+    \x1b[94;mOS:    \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
     \x1b[94mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
     \x1b[94mKernel: \x1b[93mComputer Science & Engineering #CSE
     \x1b[94mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
