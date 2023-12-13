@@ -1,5 +1,8 @@
 # TODO
 # [x] PROTOTYPE: Rich text - atleast highlights - different colors
+# [x] Handle changing bgColor - frame manipulation
+# [] Support all ANSI escape sequence forms
+# [] Handle dynamic font size
 # [] Hardcode highlighted prompt
 # [] Optimization + better code quality
 # [] Merge genText() + genMultiText() + genRichText()
@@ -13,6 +16,7 @@
 import os  # debug
 import re
 import random
+from textwrap import fill
 from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
@@ -41,8 +45,8 @@ class Terminal:
         self.__height = height
         self.__xPad = xPad
         self.__yPad = yPad
-        self.bgColor = "#101415"
-        self.txtColor = "#F2F4F5"
+        self.__bgColor = self.__prevBgColor = "#101415"
+        self.__txtColor = "#F2F4F5"
         self.__frameCount = 0
         self.currRow = 0
         self.currCol = 0
@@ -56,12 +60,16 @@ class Terminal:
         self.__frame = self.__genFrame()
 
     def setTxtColor(self, txtColor: str = "#F2F4F5") -> None:  # rework later
-        self.txtColor = txtColor
+        self.__txtColor = txtColor
+
+    def setBgColor(self, bgColor: str = "#101415") -> None:  # rework later
+        self.__prevBgColor = self.__bgColor
+        self.__bgColor = bgColor
 
     def toggleHighlight(self) -> None:  # rework later
-        self.setTxtColor("#7FC8D8") if self.txtColor == "#F2F4F5" else self.setTxtColor(
-            "#F2F4F5"
-        )
+        self.setTxtColor(
+            "#7FC8D8"
+        ) if self.__txtColor == "#F2F4F5" else self.setTxtColor("#F2F4F5")
 
     def setFont(self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont) -> None:
         self.__lineSpacing = 4
@@ -145,7 +153,7 @@ class Terminal:
 
     def __genFrame(self, frame: Image.Image = None) -> Image.Image:
         if frame is None:
-            frame = Image.new("RGB", (self.__width, self.__height), self.bgColor)
+            frame = Image.new("RGB", (self.__width, self.__height), self.__bgColor)
             self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
             # frame = self.__frameDebugLines(frame)
             self.cursorToBox(1, 1)  # initialize at box (1, 1)
@@ -173,7 +181,6 @@ class Terminal:
         textNumChars: int = 1,
         contin: bool = False,
     ) -> tuple:
-        # if rowNum < 1 or colNum < 1 or colNum > self.numCols:
         if rowNum < 1 or colNum < 1:  # dont care about exceeding colNum
             raise ValueError
         elif rowNum > self.numRows:
@@ -240,7 +247,7 @@ class Terminal:
             textNumChars = len(text)
             x1, y1, _, _ = self.cursorToBox(rowNum, colNum, 1, textNumChars, contin)
             draw = ImageDraw.Draw(self.__frame)
-            draw.text((x1, y1), text, self.txtColor, self.__font)
+            draw.text((x1, y1), text, self.__txtColor, self.__font)
             self.currCol += len(text)
             self.__colInRow[self.currRow] = self.currCol
             ic(self.currRow, self.currCol)  # debug
@@ -251,7 +258,7 @@ class Terminal:
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
                     draw.text(
-                        (cx1, cy1), str(self.__cursor), self.txtColor, self.__font
+                        (cx1, cy1), str(self.__cursor), self.__txtColor, self.__font
                     )
                 self.__genFrame(self.__frame)
                 if self.__showCursor:
@@ -261,7 +268,7 @@ class Terminal:
                     blankBoxImage = Image.new(
                         "RGB",
                         (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.bgColor,
+                        self.__bgColor,
                     )
                     self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
@@ -303,7 +310,7 @@ class Terminal:
                     rowNum + i, colNum, 1, textNumChars, contin
                 )
                 draw = ImageDraw.Draw(self.__frame)
-                draw.text((x1, y1), line, self.txtColor, self.__font)
+                draw.text((x1, y1), line, self.__txtColor, self.__font)
                 self.currCol += len(line)
                 self.__colInRow[self.currRow] = self.currCol
                 ic(self.currRow, self.currCol)  # debug
@@ -322,7 +329,7 @@ class Terminal:
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
                     draw.text(
-                        (cx1, cy1), str(self.__cursor), self.txtColor, self.__font
+                        (cx1, cy1), str(self.__cursor), self.__txtColor, self.__font
                     )
                 self.__genFrame(self.__frame)
                 if self.__showCursor:
@@ -332,7 +339,7 @@ class Terminal:
                     blankBoxImage = Image.new(
                         "RGB",
                         (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.bgColor,
+                        self.__bgColor,
                     )
                     self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
@@ -387,9 +394,9 @@ class Terminal:
         if textNumLines == 1:
             ic("Not for single line texts")  # debug
         else:
-            # if prompt:
-            #     ic("Initialized position") # debug
-            #     self.cursorToBox(rowNum, colNum, textNumLines + 2, 1, False)
+            self.cursorToBox(
+                rowNum, colNum, textNumLines, 1, contin
+            )  # initialize position
             for i in range(textNumLines):
                 line = textLines[i]
                 pattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
@@ -400,16 +407,27 @@ class Terminal:
                             word.lstrip("\x1b[").lstrip("\\x1b[").rstrip("m").split(";")
                         )
                         for code in codes:
-                            codeInfo = convertAnsiEscape.get(code)
-                            if codeInfo and codeInfo["op"] == "txtColor":
-                                self.setTxtColor(codeInfo["color"])
+                            codeInfo = convertAnsiEscape.convert(code)
+                            if codeInfo and codeInfo.op == "txtColor":
+                                self.setTxtColor(codeInfo.data)
+                                continue
+                            if codeInfo and codeInfo.op == "bgColor":
+                                self.setBgColor(codeInfo.data)
+                                continue
                     else:
                         textNumChars = len(word)
                         x1, y1, _, _ = self.cursorToBox(
                             rowNum + i, colNum, 1, textNumChars, True
                         )
                         draw = ImageDraw.Draw(self.__frame)
-                        draw.text((x1, y1), word, self.txtColor, self.__font)
+                        if (
+                            self.__prevBgColor != self.__bgColor
+                        ):  # reduce unnecessary operations
+                            rx1, ry1, rx2, ry2 = draw.textbbox(
+                                (x1, y1), word, self.__font
+                            )  # change bgColor
+                            draw.rectangle((rx1, ry1, rx2, ry2), self.__bgColor)
+                        draw.text((x1, y1), word, self.__txtColor, self.__font)
                         self.currCol += len(word)
                         self.__colInRow[self.currRow] = self.currCol
                         ic(self.currRow, self.currCol)  # debug
@@ -428,7 +446,7 @@ class Terminal:
                         self.currRow, self.currCol, 1, 1, contin=True
                     )  # no unnecessary scroll
                     draw.text(
-                        (cx1, cy1), str(self.__cursor), self.txtColor, self.__font
+                        (cx1, cy1), str(self.__cursor), self.__txtColor, self.__font
                     )
                 self.__genFrame(self.__frame)
                 if self.__showCursor:
@@ -438,7 +456,7 @@ class Terminal:
                     blankBoxImage = Image.new(
                         "RGB",
                         (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                        self.bgColor,
+                        self.__bgColor,
                     )
                     self.__frame.paste(blankBoxImage, (cx1, cy1))
                     if (
@@ -458,7 +476,9 @@ class Terminal:
             croppedFrame = self.__frame.crop(
                 (0, self.__fontHeight + self.__lineSpacing, self.__width, self.__height)
             )  # make room for 1 extra line (__fontHeight + __lineSpacing)
-            self.__frame = Image.new("RGB", (self.__width, self.__height), self.bgColor)
+            self.__frame = Image.new(
+                "RGB", (self.__width, self.__height), self.__bgColor
+            )
             self.__frame.paste(croppedFrame, (0, 0))
             self.currRow -= 1  # move cursor to where it was
 
@@ -477,7 +497,7 @@ class Terminal:
         blankLineImage = Image.new(
             "RGB",
             (self.__width, self.__fontHeight + self.__lineSpacing),
-            self.bgColor,
+            self.__bgColor,
         )
         self.__frame.paste(blankLineImage, (0, y1))
         ic(f"Deleted row {rowNum}")
@@ -497,7 +517,7 @@ class Terminal:
 #     for _ in text:
 #         chars += 1
 #     layerImage = Image.new(
-#         "RGB", (chars * __fontWidth, __fontHeight + __lineSpacing), bgColor
+#         "RGB", (chars * __fontWidth, __fontHeight + __lineSpacing), __bgColor
 #     )
 #     x1, y1, _, _ = cursorToBox(rowNum, colNum)
 #     __frame.paste(layerImage, (x1, y1))

@@ -83,9 +83,9 @@ def main():
     t.clearFrame()
     topLanguages = [lang[0] for lang in gitUserDetails.languagesSorted]
     userDetailsLines = rf"""
-    \x1b[91mx0rzavi@GitHub\x1b[39m
+    \x1b[40;91mx0rzavi@GitHub\x1b[39;49m
     -------------------
-    \x1b[94mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
+    \x1b[94;mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 14
     \x1b[94mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
     \x1b[94mKernel: \x1b[93mComputer Science & Engineering #CSE
     \x1b[94mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
@@ -117,9 +117,9 @@ def main():
     t.toggleHighlight()
     t.genText("", t.currRow, count=100, contin=True)
 
-    t.genGif()
-    image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
-    print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
+    # t.genGif()
+    # image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
+    # print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
 
 
 if __name__ == "__main__":
