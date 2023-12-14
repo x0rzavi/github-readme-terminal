@@ -77,27 +77,27 @@ def main():
     t.clearFrame()
     topLanguages = [lang[0] for lang in gitUserDetails.languagesSorted]
     userDetailsLines = rf"""
-    \x1b[96;100mx0rzavi@GitHub\x1b[0m
+    \x1b[30;104mx0rzavi@GitHub\x1b[0m
     -------------------
-    \x1b[94mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 13
-    \x1b[94mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
-    \x1b[94mKernel: \x1b[93mComputer Science & Engineering #CSE
-    \x1b[94mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
-    \x1b[94mIDE:    \x1b[93mneovim, VSCode
+    \x1b[96mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 13
+    \x1b[96mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
+    \x1b[96mKernel: \x1b[93mComputer Science & Engineering #CSE
+    \x1b[96mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
+    \x1b[96mIDE:    \x1b[93mneovim, VSCode
 
-    \x1b[96;100mContact:\x1b[0m
+    \x1b[30;104mContact:\x1b[0m
     -------------------
-    \x1b[94mEmail:  \x1b[93mx0rzavi@gmail.com
-    \x1b[94mLinkedIn: \x1b[93mavishek-sen-x0rzavi
+    \x1b[96mEmail:  \x1b[93mx0rzavi@gmail.com
+    \x1b[96mLinkedIn: \x1b[93mavishek-sen-x0rzavi
 
-    \x1b[96;100mGitHub Stats:\x1b[0m
+    \x1b[30;104mGitHub Stats:\x1b[0m
     -------------------
-    \x1b[94mUser Rating: \x1b[93m{gitUserDetails.userRank.level}
-    \x1b[94mTotal Stars Earned: \x1b[93m{gitUserDetails.totalStargazers}
-    \x1b[94mTotal Commits (2023): \x1b[93m{gitUserDetails.totalCommitsLastYear}
-    \x1b[94mTotal PRs: \x1b[93m{gitUserDetails.totalPullRequestsMade}\x1b[0m | \x1b[94mMerged PR%: \x1b[93m{gitUserDetails.pullRequestsMergePercentage}
-    \x1b[94mTotal Contributions: \x1b[93m{gitUserDetails.totalRepoContributions}
-    \x1b[94mTop Languages: \x1b[93m{', '.join(topLanguages[:5])}\x1b[0m
+    \x1b[96mUser Rating: \x1b[93m{gitUserDetails.userRank.level}
+    \x1b[96mTotal Stars Earned: \x1b[93m{gitUserDetails.totalStargazers}
+    \x1b[96mTotal Commits (2023): \x1b[93m{gitUserDetails.totalCommitsLastYear}
+    \x1b[96mTotal PRs: \x1b[93m{gitUserDetails.totalPullRequestsMade}\x1b[0m | \x1b[96mMerged PR%: \x1b[93m{gitUserDetails.pullRequestsMergePercentage}
+    \x1b[96mTotal Contributions: \x1b[93m{gitUserDetails.totalRepoContributions}
+    \x1b[96mTop Languages: \x1b[93m{', '.join(topLanguages[:5])}\x1b[0m
     """
     t.genPrompt(1)
     t.cloneFrame(10)

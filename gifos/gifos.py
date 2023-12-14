@@ -1,9 +1,9 @@
 # TODO
 # [x] Richtext in genTypingText()
 # [x] Prompt configuration option
+# [x] Config file
+# [x] Theming
 # [] Better implementations for non monospace fonts
-# [] Theming
-# [] Config file
 # [] Support all ANSI escape sequence forms
 # [] Optimization + better code quality
 # [] Scriptable input file
@@ -17,6 +17,7 @@ import random
 from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
+from config import ansiEscapeColors
 
 os.system("rm -fr ./frame* ./output*")  # debug
 
@@ -47,8 +48,14 @@ class Terminal:
         if not self.__debug:
             ic.disable()
 
-        self.__bgColor = self.__defBgColor = "#101415"
-        self.__txtColor = "#F2F4F5"
+        self.__txtColor = (
+            ansiEscapeColors.get("defaultColors", {}).get("fg")
+            or convertAnsiEscape.convert("39").data
+        )
+        self.__bgColor = self.__defBgColor = (
+            ansiEscapeColors.get("defaultColors", {}).get("bg")
+            or convertAnsiEscape.convert("49").data
+        )
         self.__frameCount = 0
         self.currRow = 0
         self.currCol = 0
@@ -58,13 +65,21 @@ class Terminal:
         self.__showCursor = True
         self.__blinkCursor = True
         self.__fps = 20.0
-        self.__prompt = "\x1b[0;94mx0rzavi\x1b[0m@\x1b[0;93mdeadbeef ~> \x1b[0m"
+        self.__prompt = "\x1b[0;91mx0rzavi\x1b[0m@\x1b[0;93mdeadbeef ~> \x1b[0m"
         self.__frame = self.__genFrame()
 
-    def setTxtColor(self, txtColor: str = "#F2F4F5") -> None:  # rework later
+    def setTxtColor(
+        self,
+        txtColor: str = ansiEscapeColors.get("defaultColors", {}).get("fg")
+        or convertAnsiEscape.convert("39").data,
+    ) -> None:
         self.__txtColor = txtColor
 
-    def setBgColor(self, bgColor: str = "#101415") -> None:  # rework later
+    def setBgColor(
+        self,
+        bgColor: str = ansiEscapeColors.get("defaultColors", {}).get("bg")
+        or convertAnsiEscape.convert("49").data,
+    ) -> None:
         self.__bgColor = bgColor
 
     def __checkFontType(

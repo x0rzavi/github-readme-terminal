@@ -1,55 +1,64 @@
 # Colorscheme reference: https://github.com/rxyhn/yoru#art--colorscheme
 from .schemas.ansiEscape import ansiEscape
+from config import ansiEscapeColors
 
 
 class convertAnsiEscape:
-    ANSI_ESCAPE_MAP_FG_COLOR = {
+    @staticmethod
+    def __getColor(colorDict, colorName, defColor):
+        return (
+            colorDict.get(colorName, defColor)
+            if isinstance(colorDict, dict)
+            else defColor
+        )
+
+    ANSI_ESCAPE_MAP_TXT_COLOR = {
         # normal color mode
-        "30": "#232526",  # black
-        "31": "#df5b61",  # red
-        "32": "#78b892",  # green
-        "33": "#de8f78",  # yellow
-        "34": "#6791c9",  # blue
-        "35": "#bc83e3",  # magenta
-        "36": "#67afc1",  # cyan
-        "37": "#e4e6e7",  # white
-        "39": "#F2F4F5",  # default
+        "30": __getColor(ansiEscapeColors.get("normalColors"), "black", "#232526"),
+        "31": __getColor(ansiEscapeColors.get("normalColors"), "red", "#df5b61"),
+        "32": __getColor(ansiEscapeColors.get("normalColors"), "green", "#78b892"),
+        "33": __getColor(ansiEscapeColors.get("normalColors"), "yellow", "#de8f78"),
+        "34": __getColor(ansiEscapeColors.get("normalColors"), "blue", "#6791c9"),
+        "35": __getColor(ansiEscapeColors.get("normalColors"), "magenta", "#bc83e3"),
+        "36": __getColor(ansiEscapeColors.get("normalColors"), "cyan", "#67afc1"),
+        "37": __getColor(ansiEscapeColors.get("normalColors"), "white", "#e4e6e7"),
+        "39": __getColor(ansiEscapeColors.get("defaultColors"), "fg", "#F2F4F5"),
         # bright color mode
-        "90": "#2c2e2f",  # bright black
-        "91": "#e8646a",  # bright red
-        "92": "#81c19b",  # bright green
-        "93": "#e79881",  # bright yellow
-        "94": "#709ad2",  # bright blue
-        "95": "#c58cec",  # bright magenta
-        "96": "#70b8ca",  # bright cyan
-        "97": "#f2f4f5",  # bright white
+        "90": __getColor(ansiEscapeColors.get("brightColors"), "black", "#2c2e2f"),
+        "91": __getColor(ansiEscapeColors.get("brightColors"), "red", "#e8646a"),
+        "92": __getColor(ansiEscapeColors.get("brightColors"), "green", "#81c19b"),
+        "93": __getColor(ansiEscapeColors.get("brightColors"), "yellow", "#e79881"),
+        "94": __getColor(ansiEscapeColors.get("brightColors"), "blue", "#709ad2"),
+        "95": __getColor(ansiEscapeColors.get("brightColors"), "magenta", "#c58cec"),
+        "96": __getColor(ansiEscapeColors.get("brightColors"), "cyan", "#70b8ca"),
+        "97": __getColor(ansiEscapeColors.get("brightColors"), "white", "#f2f4f5"),
     }
 
     ANSI_ESCAPE_MAP_BG_COLOR = {
         # normal color mode
-        "40": "#232526",  # black
-        "41": "#df5b61",  # red
-        "42": "#78b892",  # green
-        "43": "#de8f78",  # yellow
-        "44": "#6791c9",  # blue
-        "45": "#bc83e3",  # magenta
-        "46": "#67afc1",  # cyan
-        "47": "#e4e6e7",  # white
-        "49": "#101415",  # default
+        "40": __getColor(ansiEscapeColors.get("normalColors"), "black", "#232526"),
+        "41": __getColor(ansiEscapeColors.get("normalColors"), "red", "#df5b61"),
+        "42": __getColor(ansiEscapeColors.get("normalColors"), "green", "#78b892"),
+        "43": __getColor(ansiEscapeColors.get("normalColors"), "yellow", "#de8f78"),
+        "44": __getColor(ansiEscapeColors.get("normalColors"), "blue", "#6791c9"),
+        "45": __getColor(ansiEscapeColors.get("normalColors"), "magenta", "#bc83e3"),
+        "46": __getColor(ansiEscapeColors.get("normalColors"), "cyan", "#67afc1"),
+        "47": __getColor(ansiEscapeColors.get("normalColors"), "white", "#e4e6e7"),
+        "49": __getColor(ansiEscapeColors.get("defaultColors"), "bg", "#101415"),
         # bright color mode
-        "100": "#2c2e2f",  # bright black
-        "101": "#e8646a",  # bright red
-        "102": "#81c19b",  # bright green
-        "103": "#e79881",  # bright yellow
-        "104": "#709ad2",  # bright blue
-        "105": "#c58cec",  # bright magenta
-        "106": "#70b8ca",  # bright cyan
-        "107": "#f2f4f5",  # bright white
+        "100": __getColor(ansiEscapeColors.get("brightColors"), "black", "#2c2e2f"),
+        "101": __getColor(ansiEscapeColors.get("brightColors"), "red", "#e8646a"),
+        "102": __getColor(ansiEscapeColors.get("brightColors"), "green", "#81c19b"),
+        "103": __getColor(ansiEscapeColors.get("brightColors"), "yellow", "#e79881"),
+        "104": __getColor(ansiEscapeColors.get("brightColors"), "blue", "#709ad2"),
+        "105": __getColor(ansiEscapeColors.get("brightColors"), "magenta", "#c58cec"),
+        "106": __getColor(ansiEscapeColors.get("brightColors"), "cyan", "#70b8ca"),
+        "107": __getColor(ansiEscapeColors.get("brightColors"), "white", "#f2f4f5"),
     }
 
     @classmethod
     def convert(cls, escapeCode) -> ansiEscape:
-        txtColor = cls.ANSI_ESCAPE_MAP_FG_COLOR.get(escapeCode)
+        txtColor = cls.ANSI_ESCAPE_MAP_TXT_COLOR.get(escapeCode)
         if txtColor:
             return ansiEscape(data=txtColor, oper="txtColor")
 
