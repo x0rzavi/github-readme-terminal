@@ -4,9 +4,7 @@ from gifos import effects
 
 
 fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
-# fontFileTruetype = "./fonts/SpaceMonoNerdFontMono-Bold.ttf"
 # fontFileBitmap = "./fonts/ter-u14n.pil"
-# fontFileBitmap = "./fonts/cherry-13-r.pil"
 fontFileBitmap = "./fonts/gohufont-uni-14.pil"
 
 
@@ -46,9 +44,11 @@ def main():
     midRow = (t.numRows + 1) // 2
     midCol = (t.numCols - len(osLogoText) + 1) // 2
     effectLines = effects.textScrambleEffectLines(osLogoText, 3, includeSpecial=False)
-    for effectLine in effectLines:
-        t.deleteRow(midRow)
-        t.genText(effectLine, midRow, midCol + 1)
+    for i in range(len(effectLines)):
+        if i == len(effectLines) // 2:
+            t.genText("\x1b[93m", midRow + 1, contin=True)
+        t.deleteRow(midRow + 1)
+        t.genText(effectLines[i], midRow + 1, midCol + 1)
 
     t.setFont(fontFileBitmap)
     t.clearFrame()

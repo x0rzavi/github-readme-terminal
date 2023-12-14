@@ -1,4 +1,6 @@
 # TODO
+# [] Richtext in genTypingText()
+# [] Better implementations for non monospace fonts
 # [] Prompt configuration option
 # [] Theming
 # [] Config file
@@ -90,11 +92,15 @@ class Terminal:
                 self.__fontWidth = self.__font.getbbox("W")[
                     2
                 ]  # empirically widest character
+                self.__fontHeight = self.__font.getbbox(r'|(/QMW"')[
+                    3
+                ]  # empirically tallest characters
             else:
-                self.__fontWidth = self.__checkMonospaceFont(self.__font)["avgWidth"]
-            self.__fontHeight = self.__font.getbbox(r"|(/QMW")[
-                3
-            ]  # empirically tallest characters
+                self.__fontWidth = self.__checkMonospaceFont(self.__font)[
+                    "avgWidth"
+                ]  # rework
+                fontMetrics = self.__font.getmetrics()
+                self.__fontHeight = fontMetrics[0] + fontMetrics[1]
             self.numRows = (self.__height - 2 * self.__yPad) // (
                 self.__fontHeight + self.__lineSpacing
             )
@@ -273,7 +279,12 @@ class Terminal:
             textLines = text
             textNumLines = len(text)
 
-        ansiPattern = r"(\\x1b\[[0-?]*[ -/]*[@-~]|\x1b\[[0-?]*[ -/]*[@-~])"
+        ansiEscapePattern = re.compile(
+            r"(\\x1b\[\d+(?:;\d+)*m|\x1b\[\d+(?:;\d+)*m)"
+        )  # match ANSI color mode escape codes
+        colorCodePattern = re.compile(
+            r"\\x1b\[(\d+)(?:;(\d+))*m|\x1b\[(\d+)(?:;(\d+))*m"
+        )  # match only color codes
         for i in range(textNumLines):  # for each line
             self.cursorToBox(
                 rowNum + i,
@@ -284,11 +295,17 @@ class Terminal:
             )  # initialize position to check contin for each line
 
             line = textLines[i]  # single line
-            words = [word for word in re.split(ansiPattern, line) if word]
+            words = [word for word in re.split(ansiEscapePattern, line) if word]
             for word in words:  # for each word in line
-                if word.startswith(("\x1b[", "\\x1b[")):  # if ansi escape sequence
-                    codes = word.lstrip("\x1b[").lstrip("\\x1b[").rstrip("m").split(";")
+                if re.match(ansiEscapePattern, word):  # if ANSI escape sequence
+                    codes = [
+                        code
+                        for _ in re.findall(colorCodePattern, word)
+                        for code in _
+                        if code
+                    ]
                     for code in codes:
+                        # print(code)
                         if code == "0":  # reset to default
                             self.setTxtColor()
                             self.setBgColor()
@@ -312,10 +329,12 @@ class Terminal:
                         True,  # contin=True since words in same line
                     )
                     draw = ImageDraw.Draw(self.__frame)
-                    rx1, ry1, rx2, ry2 = draw.textbbox(
+                    _, _, rx2, _ = draw.textbbox(
                         (x1, y1), word, self.__font
                     )  # change bgColor
-                    draw.rectangle((rx1, ry1, rx2, ry2), self.__bgColor)
+                    draw.rectangle(
+                        (x1, y1, rx2, y1 + self.__fontHeight), self.__bgColor
+                    )
                     draw.text((x1, y1), word, self.__txtColor, self.__font)
                     self.currCol += len(word)
                     self.__colInRow[self.currRow] = self.currCol
@@ -370,15 +389,11 @@ class Terminal:
             self.cursorToBox(rowNum, colNum, 1, 1, contin)
         if speed == 1 or speed == 2 or speed == 3:
             for char in text:
-                self.genText(
-                    char, rowNum, self.__colInRow[rowNum], speed, False, True
-                )
+                self.genText(char, rowNum, self.__colInRow[rowNum], speed, False, True)
         else:
             for char in text:
                 count = random.choice([1, 2, 3])
-                self.genText(
-                    char, rowNum, self.__colInRow[rowNum], count, False, True
-                )
+                self.genText(char, rowNum, self.__colInRow[rowNum], count, False, True)
 
     def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
         self.cloneFrame(1)  # wait a bit before printing new prompt
