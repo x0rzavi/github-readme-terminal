@@ -9,7 +9,8 @@ fontFileBitmap = "./fonts/gohufont-uni-14.pil"
 
 
 def main():
-    t = Terminal(640, 480, 15, 15, fontFileBitmap)
+    # t = Terminal(640, 480, 15, 15, "./fonts/IosevkaTermNerdFont-Bold.ttf", 16)
+    t = Terminal(1024, 768, 15, 15, "./fonts/IosevkaTermNerdFont-Bold.ttf", 16)
     t.setFps(15)
 
     t.genText("", 1, count=20)
@@ -52,7 +53,7 @@ def main():
         t.deleteRow(midRow + 1)
         t.genText(effectLines[i], midRow + 1, midCol + 1)
 
-    t.setFont(fontFileBitmap)
+    t.setFont("./fonts/IosevkaTermNerdFont-Bold.ttf", 16)
     t.clearFrame()
     t.cloneFrame(5)
     t.toggleShowCursor(False)

@@ -17,7 +17,7 @@ import random
 from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
-from config import ansiEscapeColors
+from config import ansiEscapeColors, gifos
 
 os.system("rm -fr ./frame* ./output*")  # debug
 
@@ -35,7 +35,7 @@ class Terminal:
         yPad: int,
         fontFile: str,
         fontSize: int = 16,
-        debug: bool = False,
+        # debug: bool = False,
     ) -> None:
         ic.configureOutput(includeContext=True)
         self.__width = width
@@ -44,7 +44,7 @@ class Terminal:
         self.__yPad = yPad
         self.__fontFile = fontFile
         self.__fontSize = fontSize
-        self.__debug = debug
+        self.__debug = gifos.get("general", {}).get("debug") or False
         if not self.__debug:
             ic.disable()
 
@@ -60,12 +60,15 @@ class Terminal:
         self.currRow = 0
         self.currCol = 0
         self.setFont(self.__fontFile, self.__fontSize)
-        self.__cursor = "_"
+        self.__cursor = gifos.get("general", {}).get("cursor") or "_"
         self.__cursorOrig = self.__cursor
-        self.__showCursor = True
-        self.__blinkCursor = True
-        self.__fps = 20.0
-        self.__prompt = "\x1b[0;91mx0rzavi\x1b[0m@\x1b[0;93mdeadbeef ~> \x1b[0m"
+        self.__showCursor = gifos.get("general", {}).get("showCursor") or True
+        self.__blinkCursor = gifos.get("general", {}).get("blinkCursor") or True
+        self.__fps = gifos.get("general", {}).get("fps") or 20
+        self.__userName = gifos.get("general", {}).get("userName") or "x0rzavi"
+        self.__prompt = (
+            f"\x1b[0;91m{self.__userName}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
+        )
         self.__frame = self.__genFrame()
 
     def setTxtColor(

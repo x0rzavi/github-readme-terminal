@@ -1,0 +1,7 @@
+[general]
+debug = false
+cursor = "_"
+showCursor = true
+blinkCursor = false
+userName = "x0rzavi" # for prompt
+fps = 15
