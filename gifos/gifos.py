@@ -1,6 +1,6 @@
 # TODO
 # [x] Richtext in genTypingText()
-# [] Prompt configuration option
+# [x] Prompt configuration option
 # [] Better implementations for non monospace fonts
 # [] Theming
 # [] Config file
@@ -58,7 +58,7 @@ class Terminal:
         self.__showCursor = True
         self.__blinkCursor = True
         self.__fps = 20.0
-        self.prompt = "\x1b[0;94mx0rzavi\x1b[0m@\x1b[0;93mdeadbeef ~> \x1b[0m"
+        self.__prompt = "\x1b[0;94mx0rzavi\x1b[0m@\x1b[0;93mdeadbeef ~> \x1b[0m"
         self.__frame = self.__genFrame()
 
     def setTxtColor(self, txtColor: str = "#F2F4F5") -> None:  # rework later
@@ -90,7 +90,6 @@ class Terminal:
         widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
         avgWidth = int(round(sum(widths) / len(widths), 0))
         return {"check": max(widths) == min(widths), "avgWidth": avgWidth}
-
 
     def setFont(self, fontFile: str, fontSize: int = 16) -> None:
         self.__font = self.__checkFontType(fontFile, fontSize)
@@ -399,12 +398,15 @@ class Terminal:
                         char, rowNum, self.__colInRow[rowNum], count, False, True
                     )
 
+    def setPrompt(self, prompt: str) -> None:
+        self.__prompt = prompt
+
     def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
         self.cloneFrame(1)  # wait a bit before printing new prompt
         origCursorState = self.__showCursor
         self.toggleShowCursor(True)
         self.genText(
-            self.prompt, rowNum, colNum, count, False, False
+            self.__prompt, rowNum, colNum, count, False, False
         )  # generate prompt right after printed text, i.e. 1 line below
         self.__showCursor = origCursorState
 
