@@ -37,7 +37,7 @@ def main():
     t.clearFrame()
     t.genText("Initiating Boot Sequence ", 1, contin=True)
     t.genTypingText(".....", 1, contin=True)
-    t.genText("\x1b[96m", 1, contin=True)  # buffer to be removed
+    t.genText("\x1b[96m", 1, count=0, contin=True)  # buffer to be removed
     t.setFont(fontFileTruetype, 66)
     # t.toggleShowCursor(True)
     osLogoText = "GIF OS"
@@ -46,7 +46,9 @@ def main():
     effectLines = effects.textScrambleEffectLines(osLogoText, 3, includeSpecial=False)
     for i in range(len(effectLines)):
         if i == len(effectLines) // 2:
-            t.genText("\x1b[93m", midRow + 1, contin=True)
+            t.genText(
+                "\x1b[93m", midRow + 1, count=0, contin=True
+            )  # buffer to be removed
         t.deleteRow(midRow + 1)
         t.genText(effectLines[i], midRow + 1, midCol + 1)
 

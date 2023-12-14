@@ -1,7 +1,7 @@
 # TODO
-# [] Richtext in genTypingText()
-# [] Better implementations for non monospace fonts
+# [x] Richtext in genTypingText()
 # [] Prompt configuration option
+# [] Better implementations for non monospace fonts
 # [] Theming
 # [] Config file
 # [] Support all ANSI escape sequence forms
@@ -84,6 +84,14 @@ class Terminal:
             print(f"ERROR: unknown font {fontFile}")
             return None
 
+    def __checkMonospaceFont(
+        self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont
+    ) -> dict:
+        widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
+        avgWidth = int(round(sum(widths) / len(widths), 0))
+        return {"check": max(widths) == min(widths), "avgWidth": avgWidth}
+
+
     def setFont(self, fontFile: str, fontSize: int = 16) -> None:
         self.__font = self.__checkFontType(fontFile, fontSize)
         if self.__font:
@@ -109,9 +117,6 @@ class Terminal:
             # self.clearFrame()
             ic(self.__font)  # debug
 
-    def setFps(self, fps: float) -> None:
-        self.__fps = fps
-
     def toggleShowCursor(self, choice: bool = None) -> None:
         self.__showCursor = not self.__showCursor if choice is None else choice
         ic(self.__showCursor)  # debug
@@ -119,13 +124,6 @@ class Terminal:
     def toggleBlinkCursor(self, choice: bool = None) -> None:
         self.__blinkCursor = not self.__blinkCursor if choice is None else choice
         ic(self.__blinkCursor)  # debug
-
-    def __checkMonospaceFont(
-        self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont
-    ) -> dict:
-        widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
-        avgWidth = int(round(sum(widths) / len(widths), 0))
-        return {"check": max(widths) == min(widths), "avgWidth": avgWidth}
 
     def __alterCursor(self) -> None:
         self.__cursor = self.__cursorOrig if self.__cursor != self.__cursorOrig else " "
@@ -385,15 +383,21 @@ class Terminal:
         # 1 - fast - 1 frame count
         # 2 - medium - 2 frame count
         # 3 - slow - 3 frame count
-        if contin is False:
+        ansiEscapePattern = re.compile(
+            r"(\\x1b\[\d+(?:;\d+)*m|\x1b\[\d+(?:;\d+)*m)"
+        )  # match ANSI color mode escape codes
+        if not contin:
             self.cursorToBox(rowNum, colNum, 1, 1, contin)
-        if speed == 1 or speed == 2 or speed == 3:
-            for char in text:
-                self.genText(char, rowNum, self.__colInRow[rowNum], speed, False, True)
-        else:
-            for char in text:
-                count = random.choice([1, 2, 3])
-                self.genText(char, rowNum, self.__colInRow[rowNum], count, False, True)
+        words = [word for word in re.split(ansiEscapePattern, text) if word]
+        for word in words:
+            if re.match(ansiEscapePattern, word):
+                self.genText(word, rowNum, self.__colInRow[rowNum], 0, False, True)
+            else:
+                for char in word:
+                    count = speed if speed in [1, 2, 3] else random.choice([1, 2, 3])
+                    self.genText(
+                        char, rowNum, self.__colInRow[rowNum], count, False, True
+                    )
 
     def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
         self.cloneFrame(1)  # wait a bit before printing new prompt
@@ -434,6 +438,9 @@ class Terminal:
         )
         self.__frame.paste(blankLineImage, (0, y1))
         ic(f"Deleted row {rowNum}")
+
+    def setFps(self, fps: float) -> None:
+        self.__fps = fps
 
     def genGif(self) -> None:
         os.system(
