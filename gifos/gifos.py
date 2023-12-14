@@ -1,8 +1,6 @@
 # TODO
-# [x] Richtext in genTypingText()
-# [x] Prompt configuration option
-# [x] Config file
-# [x] Theming
+# [] profile image ascii art
+# [] incremental text effect
 # [] Better implementations for non monospace fonts
 # [] Support all ANSI escape sequence forms
 # [] Optimization + better code quality
@@ -11,7 +9,8 @@
 # [] GIF maker implementation
 # [] Test cases
 
-import os  # debug
+import os
+from shutil import rmtree
 import re
 import random
 from icecream import ic
@@ -19,11 +18,17 @@ from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
 from config import ansiEscapeColors, gifos
 
-os.system("rm -fr ./frame* ./output*")  # debug
+frameBaseName = gifos.get("files", {}).get("frameBaseName") or "frame_"
+frameFolderName = gifos.get("files", {}).get("frameFolderName") or "./frames"
+outputGifName = gifos.get("files", {}).get("outputGifName") or "output"
 
-baseName = "frame_"
-folderName = "./frames/"
-os.mkdir(folderName)
+try:
+    os.remove(outputGifName + ".gif")
+except Exception:
+    pass
+
+rmtree(frameFolderName, ignore_errors=True)
+os.mkdir(frameFolderName)
 
 
 class Terminal:
@@ -66,9 +71,7 @@ class Terminal:
         self.__blinkCursor = gifos.get("general", {}).get("blinkCursor") or True
         self.__fps = gifos.get("general", {}).get("fps") or 20
         self.__userName = gifos.get("general", {}).get("userName") or "x0rzavi"
-        self.__prompt = (
-            f"\x1b[0;91m{self.__userName}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
-        )
+        self.__prompt = f"\x1b[0;91m{self.__userName}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
         self.__frame = self.__genFrame()
 
     def setTxtColor(
@@ -201,8 +204,8 @@ class Terminal:
             self.cursorToBox(1, 1)  # initialize at box (1, 1)
             return frame
         self.__frameCount += 1
-        fileName = baseName + str(self.__frameCount) + ".png"
-        frame.save(folderName + fileName, "PNG")
+        fileName = frameBaseName + str(self.__frameCount) + ".png"
+        frame.save(frameFolderName + "/" + fileName, "PNG")
         print(f"INFO: Generated frame #{self.__frameCount}")  # debug
         return frame
 
@@ -464,8 +467,8 @@ class Terminal:
 
     def genGif(self) -> None:
         os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{folderName}frame_%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' output.gif"
+            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frameFolderName}/{frameBaseName}%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {outputGifName}.gif"
         )
         print(
-            f"INFO: Generated GIF approximately {round(self.__frameCount / self.__fps, 2)}s long"
+            f"INFO: Generated {outputGifName}.gif approximately {round(self.__frameCount / self.__fps, 2)}s long"
         )

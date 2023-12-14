@@ -5,3 +5,8 @@ showCursor = true
 blinkCursor = false
 userName = "x0rzavi" # for prompt
 fps = 15
+
+[files]
+frameBaseName = "frame_"
+frameFolderName = "frame"
+outputGifName = "output"
