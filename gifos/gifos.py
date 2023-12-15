@@ -1,6 +1,6 @@
 # TODO
 # [x] replace text
-# [] image paste
+# [x] image paste
 # [] incremental text effect
 # [] profile image ascii art
 # [] Better implementations for non monospace fonts
@@ -8,8 +8,8 @@
 # [] Optimization + better code quality
 # [] Documentation
 # [] Test cases
-# [] Scriptable input file
 # [] GIF maker implementation
+# [] Scriptable input file
 
 import os
 import re
@@ -19,7 +19,7 @@ from icecream import ic
 from shutil import rmtree
 from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
-from config import ansiEscapeColors, gifos
+from .utils.load_config import ansi_escape_colors, gifos
 
 frameBaseName = gifos.get("files", {}).get("frameBaseName") or "frame_"
 frameFolderName = gifos.get("files", {}).get("frameFolderName") or "./frames"
@@ -43,7 +43,6 @@ class Terminal:
         yPad: int,
         fontFile: str,
         fontSize: int = 16,
-        # debug: bool = False,
     ) -> None:
         ic.configureOutput(includeContext=True)
         self.__width = width
@@ -57,11 +56,11 @@ class Terminal:
             ic.disable()
 
         self.__txtColor = self.__defTxtColor = (
-            ansiEscapeColors.get("defaultColors", {}).get("fg")
+            ansi_escape_colors.get("defaultColors", {}).get("fg")
             or convertAnsiEscape.convert("39").data
         )
         self.__bgColor = self.__defBgColor = (
-            ansiEscapeColors.get("defaultColors", {}).get("bg")
+            ansi_escape_colors.get("defaultColors", {}).get("bg")
             or convertAnsiEscape.convert("49").data
         )
         self.__frameCount = 0
@@ -79,14 +78,14 @@ class Terminal:
 
     def setTxtColor(
         self,
-        txtColor: str = ansiEscapeColors.get("defaultColors", {}).get("fg")
+        txtColor: str = ansi_escape_colors.get("defaultColors", {}).get("fg")
         or convertAnsiEscape.convert("39").data,
     ) -> None:
         self.__txtColor = txtColor
 
     def setBgColor(
         self,
-        bgColor: str = ansiEscapeColors.get("defaultColors", {}).get("bg")
+        bgColor: str = ansi_escape_colors.get("defaultColors", {}).get("bg")
         or convertAnsiEscape.convert("49").data,
     ) -> None:
         self.__bgColor = bgColor
