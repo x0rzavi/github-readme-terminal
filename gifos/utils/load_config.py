@@ -24,7 +24,5 @@ def load_toml(file_name: str) -> dict:
 
 gifos = load_toml("gifos.toml")
 ansi_escape_colors = load_toml("ansi_escape_colors.toml")
-print(gifos)
-print(ansi_escape_colors)
 
 __all__ = ["gifos", "ansi_escape_colors"]

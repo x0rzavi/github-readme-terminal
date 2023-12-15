@@ -1,6 +1,5 @@
 # TODO
 # [] proper file paths
-# [x] PEP 8
 # [] incremental text effect
 # [] profile image ascii art
 # [] Better implementations for non monospace fonts
