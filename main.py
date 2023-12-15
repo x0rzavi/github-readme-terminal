@@ -10,7 +10,7 @@ fontFileTruetype = "./fonts/IosevkaTermNerdFont-Bold.ttf"
 
 
 def main():
-    t = Terminal(800, 600, 15, 15, fontFileBitmap, 15)
+    t = Terminal(640, 480, 15, 15, fontFileBitmap, 15)
     t.setFps(15)
 
     t.genText("", 1, count=20)
@@ -77,9 +77,9 @@ def main():
     userAge = utils.calcAge(26, 7, 2002)
     t.clearFrame()
     topLanguages = [lang[0] for lang in gitUserDetails.languagesSorted]
-    userDetailsLines = rf"""
+    userDetailsLines = f"""
     \x1b[30;104mx0rzavi@GitHub\x1b[0m
-    -------------------
+    ---------
     \x1b[96mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 13
     \x1b[96mHost:   \x1b[93mNetaji Subhash Engineering College \x1b[94m#NSEC
     \x1b[96mKernel: \x1b[93mComputer Science & Engineering \x1b[94m#CSE
@@ -87,12 +87,12 @@ def main():
     \x1b[96mIDE:    \x1b[93mneovim, VSCode
 
     \x1b[30;104mContact:\x1b[0m
-    -------------------
+    ----------
     \x1b[96mEmail:  \x1b[93mx0rzavi@gmail.com
     \x1b[96mLinkedIn: \x1b[93mavishek-sen-x0rzavi
 
     \x1b[30;104mGitHub Stats:\x1b[0m
-    -------------------
+    ----------
     \x1b[96mUser Rating: \x1b[93m{gitUserDetails.userRank.level}
     \x1b[96mTotal Stars Earned: \x1b[93m{gitUserDetails.totalStargazers}
     \x1b[96mTotal Commits (2023): \x1b[93m{gitUserDetails.totalCommitsLastYear}
@@ -108,13 +108,15 @@ def main():
     t.deleteRow(1, promptCol)
     t.genText("\x1b[92mfetch.sh\x1b[0m", 1, contin=True)
     t.genTypingText(" -u x0rzavi", 1, contin=True)
-    t.genText(userDetailsLines, 2)
+
+    # t.pasteImage("./temp/x0rzavi.jpg", 3, 5, sizeMulti=0.5)
+    t.genText(userDetailsLines, 2, contin=True)
     t.genPrompt(t.currRow)
     t.genText("", t.currRow, count=120, contin=True)
 
-    # t.genGif()
-    # image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
-    # print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
+    t.genGif()
+    image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
+    print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
 
 
 if __name__ == "__main__":

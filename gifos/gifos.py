@@ -12,10 +12,11 @@
 # [] GIF maker implementation
 
 import os
-from shutil import rmtree
 import re
 import random
+from math import ceil
 from icecream import ic
+from shutil import rmtree
 from PIL import Image, ImageDraw, ImageFont
 from .utils.convertAnsiEscape import convertAnsiEscape
 from config import ansiEscapeColors, gifos
@@ -469,8 +470,28 @@ class Terminal:
         self.__frame.paste(blankLineImage, (x1, y1))
         ic(f"Deleted row {rowNum} starting at col {colNum}")
 
-    def replaceText(self, rowNum: int, colNum: int, count: int = 1) -> None:
-        pass
+    def pasteImage(
+        self, imageFile: str, rowNum: int, colNum: int = 1, sizeMulti: float = 1
+    ) -> None:
+        x1, y1, _, _ = self.cursorToBox(rowNum, colNum, 1, 1, True, True)
+        with Image.open(imageFile) as image:
+            imageWidth, imageHeight = image.size
+            image = image.resize(
+                (int(imageWidth * sizeMulti), int(imageHeight * sizeMulti))
+            )
+            rowsCovered = ceil(image.height / (self.__fontHeight + self.__lineSpacing))
+            colsCovered = ceil(image.width / (self.__fontWidth)) + 1
+            if (
+                rowNum + rowsCovered > self.numRows
+                or colNum + colsCovered > self.numCols
+            ):
+                print("ERROR: Image exceeds frame dimensions")
+                exit(1)
+            for i in range(rowsCovered):
+                self.__colInRow[rowNum + i] = colsCovered
+            self.imageCol = colNum + colsCovered  # helper for scripts
+            self.__frame.paste(image, (x1, y1))
+            self.__genFrame(self.__frame)
 
     def setFps(self, fps: float) -> None:
         self.__fps = fps
