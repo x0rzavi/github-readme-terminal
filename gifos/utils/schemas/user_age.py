@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class userAge:
+class UserAge:
     __slots__ = ["years", "months", "days"]
     years: int
     months: int

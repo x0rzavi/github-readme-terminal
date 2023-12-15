@@ -1,21 +1,22 @@
+from pathlib import Path
+
 try:
     import tomllib
 except ModuleNotFoundError:
     import tomli as tomllib
-from pathlib import Path
 
 
-def loadtoml(filename: str) -> dict:
-    configfile = Path("./config") / filename
-    if configfile.exists():
-        with configfile.open(mode="rb") as fp:
+def load_toml(file_name: str) -> dict:
+    config_file = Path("config") / file_name
+    if config_file.exists():
+        with config_file.open(mode="rb") as fp:
             return tomllib.load(fp)
     else:
-        print(f"INFO: configfile {filename} does not exist")
+        print(f"INFO: config_file {file_name} does not exist")
         return {}
 
 
-gifos = loadtoml("gifos.toml")
-ansi_escape_colors = loadtoml("ansi_escape_colors.toml")
+gifos = load_toml("gifos.toml")
+ansi_escape_colors = load_toml("ansi_escape_colors.toml")
 
 __all__ = ["gifos", "ansi_escape_colors"]

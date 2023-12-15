@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 
 @dataclass
-class imgbbImage:
+class ImgbbImage:
     __slots__ = [
         "id",
         "url",
-        "deleteUrl",
-        "fileName",
+        "delete_url",
+        "file_name",
         "expiration",
         "size",
         "mime",
@@ -15,8 +15,8 @@ class imgbbImage:
     ]
     id: str
     url: str
-    deleteUrl: str
-    fileName: str
+    delete_url: str
+    file_name: str
     expiration: str
     size: str
     mime: str

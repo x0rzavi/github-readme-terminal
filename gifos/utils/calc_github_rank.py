@@ -1,25 +1,25 @@
 # Reference: https://github.com/anuraghazra/github-readme-stats/blob/23472f40e81170ba452c38a99abc674db0000ce6/src/calculateRank.js
-from .schemas.githubUserRank import githubUserRank
+from gifos.utils.schemas.github_user_rank import GithubUserRank
 
 
-def exponentialCdf(x):
+def exponential_cdf(x):
     return 1 - 2**-x
 
 
-def logNormalCdf(x):
+def log_normal_cdf(x):
     return x / (1 + x)
 
 
-def calcGithubRank(
-    allCommits: bool,
+def calc_github_rank(
+    all_commits: bool,
     commits: int,
     prs: int,
     issues: int,
     reviews: int,
     stars: int,
     followers: int,
-) -> githubUserRank:
-    COMMITS_MEDIAN = 1000 if allCommits else 250
+) -> GithubUserRank:
+    COMMITS_MEDIAN = 1000 if all_commits else 250
     COMMITS_WEIGHT = 2
     PRS_MEDIAN = 50
     PRS_WEIGHT = 3
@@ -45,12 +45,12 @@ def calcGithubRank(
     rank = (
         1
         - (
-            COMMITS_WEIGHT * exponentialCdf(commits / COMMITS_MEDIAN)
-            + PRS_WEIGHT * exponentialCdf(prs / PRS_MEDIAN)
-            + ISSUES_WEIGHT * exponentialCdf(issues / ISSUES_MEDIAN)
-            + REVIEWS_WEIGHT * exponentialCdf(reviews / REVIEWS_MEDIAN)
-            + STARS_WEIGHT * logNormalCdf(stars / STARS_MEDIAN)
-            + FOLLOWERS_WEIGHT * logNormalCdf(followers / FOLLOWERS_MEDIAN)
+            COMMITS_WEIGHT * exponential_cdf(commits / COMMITS_MEDIAN)
+            + PRS_WEIGHT * exponential_cdf(prs / PRS_MEDIAN)
+            + ISSUES_WEIGHT * exponential_cdf(issues / ISSUES_MEDIAN)
+            + REVIEWS_WEIGHT * exponential_cdf(reviews / REVIEWS_MEDIAN)
+            + STARS_WEIGHT * log_normal_cdf(stars / STARS_MEDIAN)
+            + FOLLOWERS_WEIGHT * log_normal_cdf(followers / FOLLOWERS_MEDIAN)
         )
         / TOTAL_WEIGHT
     )
@@ -59,4 +59,4 @@ def calcGithubRank(
         next((i for i, t in enumerate(THRESHOLDS) if rank * 100 <= t), len(LEVELS) - 1)
     ]
     percentile = round(rank * 100, 2)
-    return githubUserRank(level, percentile)
+    return GithubUserRank(level, percentile)

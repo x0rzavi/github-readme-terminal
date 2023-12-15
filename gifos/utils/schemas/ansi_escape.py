@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ansiEscape:
+class AnsiEscape:
     __slots__ = ["data", "oper"]
     data: str
     oper: str

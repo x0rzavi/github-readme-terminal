@@ -1,6 +1,6 @@
 # TODO
-# [x] replace text
-# [x] image paste
+# [] proper file paths
+# [x] PEP 8
 # [] incremental text effect
 # [] profile image ascii art
 # [] Better implementations for non monospace fonts
@@ -12,26 +12,28 @@
 # [] Scriptable input file
 
 import os
-import re
-import random
 from math import ceil
-from icecream import ic
+import random
+import re
 from shutil import rmtree
-from PIL import Image, ImageDraw, ImageFont
-from .utils.convertAnsiEscape import convertAnsiEscape
-from .utils.load_config import ansi_escape_colors, gifos
 
-frameBaseName = gifos.get("files", {}).get("frameBaseName") or "frame_"
-frameFolderName = gifos.get("files", {}).get("frameFolderName") or "./frames"
-outputGifName = gifos.get("files", {}).get("outputGifName") or "output"
+from icecream import ic
+from PIL import Image, ImageDraw, ImageFont
+
+from gifos.utils.convert_ansi_escape import ConvertAnsiEscape
+from gifos.utils.load_config import ansi_escape_colors, gifos
+
+frame_base_name = gifos.get("files", {}).get("frame_base_name") or "frame_"
+frame_folder_name = gifos.get("files", {}).get("frame_folder_name") or "./frames"
+output_gif_name = gifos.get("files", {}).get("output_gif_name") or "output"
 
 try:
-    os.remove(outputGifName + ".gif")
+    os.remove(output_gif_name + ".gif")
 except Exception:
     pass
 
-rmtree(frameFolderName, ignore_errors=True)
-os.mkdir(frameFolderName)
+rmtree(frame_folder_name, ignore_errors=True)
+os.mkdir(frame_folder_name)
 
 
 class Terminal:
@@ -39,121 +41,125 @@ class Terminal:
         self,
         width: int,
         height: int,
-        xPad: int,
-        yPad: int,
-        fontFile: str,
-        fontSize: int = 16,
+        xpad: int,
+        ypad: int,
+        font_file: str,
+        font_size: int = 16,
     ) -> None:
         ic.configureOutput(includeContext=True)
         self.__width = width
         self.__height = height
-        self.__xPad = xPad
-        self.__yPad = yPad
-        self.__fontFile = fontFile
-        self.__fontSize = fontSize
+        self.__xpad = xpad
+        self.__ypad = ypad
+        self.__font_file = font_file
+        self.__font_size = font_size
         self.__debug = gifos.get("general", {}).get("debug") or False
         if not self.__debug:
             ic.disable()
 
-        self.__txtColor = self.__defTxtColor = (
-            ansi_escape_colors.get("defaultColors", {}).get("fg")
-            or convertAnsiEscape.convert("39").data
+        self.__txt_color = self.__def_txt_color = (
+            ansi_escape_colors.get("default_colors", {}).get("fg")
+            or ConvertAnsiEscape.convert("39").data
         )
-        self.__bgColor = self.__defBgColor = (
-            ansi_escape_colors.get("defaultColors", {}).get("bg")
-            or convertAnsiEscape.convert("49").data
+        self.__bg_color = self.__def_bg_color = (
+            ansi_escape_colors.get("default_colors", {}).get("bg")
+            or ConvertAnsiEscape.convert("49").data
         )
-        self.__frameCount = 0
-        self.currRow = 0
-        self.currCol = 0
-        self.setFont(self.__fontFile, self.__fontSize)
+        self.__frame_count = 0
+        self.curr_row = 0
+        self.curr_col = 0
+        self.set_font(self.__font_file, self.__font_size)
         self.__cursor = gifos.get("general", {}).get("cursor") or "_"
-        self.__cursorOrig = self.__cursor
-        self.__showCursor = gifos.get("general", {}).get("showCursor") or True
-        self.__blinkCursor = gifos.get("general", {}).get("blinkCursor") or True
+        self.__cursor_orig = self.__cursor
+        self.__show_cursor = gifos.get("general", {}).get("show_cursor") or True
+        self.__blink_cursor = gifos.get("general", {}).get("blink_cursor") or True
         self.__fps = gifos.get("general", {}).get("fps") or 20
-        self.__userName = gifos.get("general", {}).get("userName") or "x0rzavi"
-        self.__prompt = f"\x1b[0;91m{self.__userName}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
-        self.__frame = self.__genFrame()
+        self.__user_name = gifos.get("general", {}).get("user_name") or "x0rzavi"
+        self.__prompt = (
+            f"\x1b[0;91m{self.__user_name}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
+        )
+        self.__frame = self.__gen_frame()
 
-    def setTxtColor(
+    def set_txt_color(
         self,
-        txtColor: str = ansi_escape_colors.get("defaultColors", {}).get("fg")
-        or convertAnsiEscape.convert("39").data,
+        txt_color: str = ansi_escape_colors.get("default_colors", {}).get("fg")
+        or ConvertAnsiEscape.convert("39").data,
     ) -> None:
-        self.__txtColor = txtColor
+        self.__txt_color = txt_color
 
-    def setBgColor(
+    def set_bg_color(
         self,
-        bgColor: str = ansi_escape_colors.get("defaultColors", {}).get("bg")
-        or convertAnsiEscape.convert("49").data,
+        bg_color: str = ansi_escape_colors.get("default_colors", {}).get("bg")
+        or ConvertAnsiEscape.convert("49").data,
     ) -> None:
-        self.__bgColor = bgColor
+        self.__bg_color = bg_color
 
-    def __checkFontType(
-        self, fontFile: str, fontSize: int
+    def __check_font_type(
+        self, font_file: str, font_size: int
     ) -> ImageFont.ImageFont | ImageFont.FreeTypeFont | None:
         try:
-            font = ImageFont.truetype(fontFile, fontSize)
+            font = ImageFont.truetype(font_file, font_size)
             return font
         except OSError:
             pass
 
         try:
-            print(f"WARNING: {fontFile} is BitMap - Ignoring size {fontSize}")
-            font = ImageFont.load(fontFile)
+            print(f"WARNING: {font_file} is BitMap - Ignoring size {font_size}")
+            font = ImageFont.load(font_file)
             return font
         except OSError:
-            print(f"ERROR: unknown font {fontFile}")
+            print(f"ERROR: unknown font {font_file}")
             return None
 
-    def __checkMonospaceFont(
+    def __check_monospace_font(
         self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont
     ) -> dict:
         widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
-        avgWidth = int(round(sum(widths) / len(widths), 0))
-        return {"check": max(widths) == min(widths), "avgWidth": avgWidth}
+        avg_width = int(round(sum(widths) / len(widths), 0))
+        return {"check": max(widths) == min(widths), "avg_width": avg_width}
 
-    def setFont(self, fontFile: str, fontSize: int = 16) -> None:
-        self.__font = self.__checkFontType(fontFile, fontSize)
+    def set_font(self, font_file: str, font_size: int = 16) -> None:
+        self.__font = self.__check_font_type(font_file, font_size)
         if self.__font:
-            self.__lineSpacing = 4
-            if self.__checkMonospaceFont(self.__font)["check"]:
-                self.__fontWidth = self.__font.getbbox("W")[
+            self.__line_spacing = 4
+            if self.__check_monospace_font(self.__font)["check"]:
+                self.__font_width = self.__font.getbbox("W")[
                     2
                 ]  # empirically widest character
-                self.__fontHeight = self.__font.getbbox(r'|(/QMW"')[
+                self.__font_height = self.__font.getbbox(r'|(/QMW"')[
                     3
                 ]  # empirically tallest characters
             else:
-                self.__fontWidth = self.__checkMonospaceFont(self.__font)[
-                    "avgWidth"
+                self.__font_width = self.__check_monospace_font(self.__font)[
+                    "avg_width"
                 ]  # rework
-                fontMetrics = self.__font.getmetrics()
-                self.__fontHeight = fontMetrics[0] + fontMetrics[1]
-            self.numRows = (self.__height - 2 * self.__yPad) // (
-                self.__fontHeight + self.__lineSpacing
+                font_metrics = self.__font.getmetrics()
+                self.__font_height = font_metrics[0] + font_metrics[1]
+            self.num_rows = (self.__height - 2 * self.__ypad) // (
+                self.__font_height + self.__line_spacing
             )
-            self.numCols = (self.__width - 2 * self.__xPad) // (self.__fontWidth)
-            print(f"INFO: Number of rows: {self.numRows}")
-            print(f"INFO: Number of columns: {self.numCols}")
-            self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
-            # self.clearFrame()
+            self.num_cols = (self.__width - 2 * self.__xpad) // (self.__font_width)
+            print(f"INFO: Number of rows: {self.num_rows}")
+            print(f"INFO: Number of columns: {self.num_cols}")
+            self.__col_in_row = {_ + 1: 1 for _ in range(self.num_rows)}
+            # self.clear_frame()
             ic(self.__font)  # debug
 
-    def toggleShowCursor(self, choice: bool = None) -> None:
-        self.__showCursor = not self.__showCursor if choice is None else choice
-        ic(self.__showCursor)  # debug
+    def toggle_show_cursor(self, choice: bool = None) -> None:
+        self.__show_cursor = not self.__show_cursor if choice is None else choice
+        ic(self.__show_cursor)  # debug
 
-    def toggleBlinkCursor(self, choice: bool = None) -> None:
-        self.__blinkCursor = not self.__blinkCursor if choice is None else choice
-        ic(self.__blinkCursor)  # debug
+    def toggle_blink_cursor(self, choice: bool = None) -> None:
+        self.__blink_cursor = not self.__blink_cursor if choice is None else choice
+        ic(self.__blink_cursor)  # debug
 
-    def __alterCursor(self) -> None:
-        self.__cursor = self.__cursorOrig if self.__cursor != self.__cursorOrig else " "
+    def __alter_cursor(self) -> None:
+        self.__cursor = (
+            self.__cursor_orig if self.__cursor != self.__cursor_orig else " "
+        )
         ic(self.__cursor)  # debug
 
-    def __checkMultiline(self, text: str | list) -> bool:  # make local to genText() ?
+    def __check_multiline(self, text: str | list) -> bool:  # make local to gen_text() ?
         if isinstance(text, list):
             if len(text) <= 1:
                 return False
@@ -161,132 +167,134 @@ class Terminal:
             return "\n" in text
         return True
 
-    def __frameDebugLines(self, frame: Image.Image) -> Image.Image:
+    def __frame_debug_lines(self, frame: Image.Image) -> Image.Image:
         # checker box to debug
         draw = ImageDraw.Draw(frame)
-        for i in range(self.numRows + 1):  # (n + 1) lines
-            x1 = self.__xPad
-            x2 = self.__width - self.__xPad
-            y1 = y2 = self.__yPad + i * (self.__fontHeight + self.__lineSpacing)
+        for i in range(self.num_rows + 1):  # (n + 1) lines
+            x1 = self.__xpad
+            x2 = self.__width - self.__xpad
+            y1 = y2 = self.__ypad + i * (self.__font_height + self.__line_spacing)
             draw.line([(x1, y1), (x2, y2)], "yellow")
             draw.text((0, y1), str(i + 1), "orange", self.__font)  # row numbers
-        for i in range(self.numCols + 1):  # (n + 1) lines
-            x1 = x2 = self.__xPad + i * self.__fontWidth
-            y1 = self.__yPad
-            y2 = self.__height - self.__yPad
+        for i in range(self.num_cols + 1):  # (n + 1) lines
+            x1 = x2 = self.__xpad + i * self.__font_width
+            y1 = self.__ypad
+            y2 = self.__height - self.__ypad
             draw.line([(x1, y1), (x2, y2)], "turquoise")
         draw.line(
-            [(self.__xPad, self.__yPad), (self.__width - self.__xPad, self.__yPad)],
+            [(self.__xpad, self.__ypad), (self.__width - self.__xpad, self.__ypad)],
             "red",
         )  # top
         draw.line(
-            [(self.__xPad, self.__yPad), (self.__xPad, self.__height - self.__yPad)],
+            [(self.__xpad, self.__ypad), (self.__xpad, self.__height - self.__ypad)],
             "red",
         )  # left
         draw.line(
             [
-                (self.__xPad, self.__height - self.__yPad),
-                (self.__width - self.__xPad, self.__height - self.__yPad),
+                (self.__xpad, self.__height - self.__ypad),
+                (self.__width - self.__xpad, self.__height - self.__ypad),
             ],
             "red",
         )  # bottom
         draw.line(
             [
-                (self.__width - self.__xPad, self.__yPad),
-                (self.__width - self.__xPad, self.__height - self.__yPad),
+                (self.__width - self.__xpad, self.__ypad),
+                (self.__width - self.__xpad, self.__height - self.__ypad),
             ],
             "red",
         )  # right
         return frame
 
-    def __genFrame(self, frame: Image.Image = None) -> Image.Image:
+    def __gen_frame(self, frame: Image.Image = None) -> Image.Image:
         if frame is None:
-            frame = Image.new("RGB", (self.__width, self.__height), self.__bgColor)
-            self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
+            frame = Image.new("RGB", (self.__width, self.__height), self.__bg_color)
+            self.__col_in_row = {_ + 1: 1 for _ in range(self.num_rows)}
             if self.__debug:
-                frame = self.__frameDebugLines(frame)
-            self.cursorToBox(1, 1)  # initialize at box (1, 1)
+                frame = self.__frame_debug_lines(frame)
+            self.cursor_to_box(1, 1)  # initialize at box (1, 1)
             return frame
-        self.__frameCount += 1
-        fileName = frameBaseName + str(self.__frameCount) + ".png"
-        frame.save(frameFolderName + "/" + fileName, "PNG")
-        print(f"INFO: Generated frame #{self.__frameCount}")  # debug
+        self.__frame_count += 1
+        file_name = frame_base_name + str(self.__frame_count) + ".png"
+        frame.save(frame_folder_name + "/" + file_name, "PNG")
+        print(f"INFO: Generated frame #{self.__frame_count}")  # debug
         return frame
 
-    def clearFrame(self) -> None:
-        self.__frame = self.__genFrame()
+    def clear_frame(self) -> None:
+        self.__frame = self.__gen_frame()
         ic("Frame cleared")
 
-    def cloneFrame(self, count: int = 1) -> None:
+    def clone_frame(self, count: int = 1) -> None:
         for _ in range(count):
-            self.__frame = self.__genFrame(self.__frame)
+            self.__frame = self.__gen_frame(self.__frame)
         ic(f"Frame cloned {count} times")
 
-    def cursorToBox(
+    def cursor_to_box(
         self,
-        rowNum: int,
-        colNum: int,
-        textNumLines: int = 1,
-        textNumChars: int = 1,
+        row_num: int,
+        col_num: int,
+        text_num_lines: int = 1,
+        text_num_chars: int = 1,
         contin: bool = False,
-        forceCol: bool = False,  # to assist in deleteRow()
+        force_col: bool = False,  # to assist in delete_row()
     ) -> tuple:
-        if rowNum < 1 or colNum < 1:  # do not care about exceeding colNum
+        if row_num < 1 or col_num < 1:  # do not care about exceeding col_num
             raise ValueError
-        elif rowNum > self.numRows:
+        elif row_num > self.num_rows:
             ic(
-                f"row {rowNum} > max row {self.numRows}, using row {self.numRows} instead"
+                f"row {row_num} > max row {self.num_rows}, using row {self.num_rows} instead"
             )
-            rowNum = self.numRows
-        maxRowNum = self.numRows - textNumLines + 1  # maximum row that can be permitted
-        minColNum = self.__colInRow[rowNum]
+            row_num = self.num_rows
+        max_row_num = (
+            self.num_rows - text_num_lines + 1
+        )  # maximum row that can be permitted
+        min_col_num = self.__col_in_row[row_num]
 
-        if contin is False:
-            numBlankRows = 0
-            firstBlankRow = self.numRows + 1  # all rows are filled
-            for i in range(self.numRows, rowNum - 1, -1):
-                if self.__colInRow[i] == 1:
-                    firstBlankRow = i
-                    numBlankRows += 1
+        if not contin:
+            num_blank_rows = 0
+            first_blank_row = self.num_rows + 1  # all rows are filled
+            for i in range(self.num_rows, row_num - 1, -1):
+                if self.__col_in_row[i] == 1:
+                    first_blank_row = i
+                    num_blank_rows += 1
                 else:
                     break
-            ic(firstBlankRow, numBlankRows)  # debug
+            ic(first_blank_row, num_blank_rows)  # debug
 
-            if rowNum > maxRowNum:
-                ic(f"{textNumLines} lines cannot be accomodated at {rowNum}")
-                ic(f"Maximum possible is {maxRowNum}")
-                if firstBlankRow < maxRowNum:  # needed ?
+            if row_num > max_row_num:
+                ic(f"{text_num_lines} lines cannot be accomodated at {row_num}")
+                ic(f"Maximum possible is {max_row_num}")
+                if first_blank_row < max_row_num:  # needed ?
                     ic("NEEDED!")  # debug
                     exit(1)
-                    scrollTimes = textNumLines - numBlankRows
-                    ic(scrollTimes)
-                    self.scrollUp(scrollTimes)
-                    rowNum = self.currRow
+                    scroll_times = text_num_lines - num_blank_rows
+                    ic(scroll_times)
+                    self.scroll_up(scroll_times)
+                    row_num = self.curr_row
                 else:
-                    rowNum = maxRowNum  # enough space to print; no need to scroll
+                    row_num = max_row_num  # enough space to print; no need to scroll
 
-            elif firstBlankRow > rowNum:
-                scrollTimes = firstBlankRow - rowNum
-                ic(scrollTimes)
-                self.scrollUp(scrollTimes)
+            elif first_blank_row > row_num:
+                scroll_times = first_blank_row - row_num
+                ic(scroll_times)
+                self.scroll_up(scroll_times)
         else:
-            if colNum < minColNum and not forceCol:
-                ic(f"{textNumChars} chars cannot be accomodated at column {colNum}")
-                colNum = self.__colInRow[rowNum]
-        self.currRow, self.currCol = rowNum, colNum
-        ic(self.currRow, self.currCol)  # debug
+            if col_num < min_col_num and not force_col:
+                ic(f"{text_num_chars} chars cannot be accomodated at column {col_num}")
+                col_num = self.__col_in_row[row_num]
+        self.curr_row, self.curr_col = row_num, col_num
+        ic(self.curr_row, self.curr_col)  # debug
 
-        x1 = self.__xPad + (colNum - 1) * self.__fontWidth
-        y1 = self.__yPad + (rowNum - 1) * (self.__fontHeight + self.__lineSpacing)
-        x2 = self.__xPad + colNum * self.__fontWidth
-        y2 = self.__yPad + rowNum * (self.__fontHeight + self.__lineSpacing)
+        x1 = self.__xpad + (col_num - 1) * self.__font_width
+        y1 = self.__ypad + (row_num - 1) * (self.__font_height + self.__line_spacing)
+        x2 = self.__xpad + col_num * self.__font_width
+        y2 = self.__ypad + row_num * (self.__font_height + self.__line_spacing)
         return x1, y1, x2, y2
 
-    def genText(
+    def gen_text(
         self,
         text: str | list,
-        rowNum: int,
-        colNum: int = 1,
+        row_num: int,
+        col_num: int = 1,
         count: int = 1,
         prompt: bool = False,
         contin: bool = False,
@@ -296,112 +304,112 @@ class Terminal:
             exit(1)
 
         if isinstance(text, str):
-            textLines = text.splitlines()
-            textNumLines = len(textLines)
+            text_lines = text.splitlines()
+            text_num_lines = len(text_lines)
         else:
-            textLines = text
-            textNumLines = len(text)
+            text_lines = text
+            text_num_lines = len(text)
 
-        ansiEscapePattern = re.compile(
+        ansi_escape_pattern = re.compile(
             r"(\\x1b\[\d+(?:;\d+)*m|\x1b\[\d+(?:;\d+)*m)"
         )  # match ANSI color mode escape codes
-        colorCodePattern = re.compile(
+        color_code_pattern = re.compile(
             r"\\x1b\[(\d+)(?:;(\d+))*m|\x1b\[(\d+)(?:;(\d+))*m"
         )  # match only color codes
-        for i in range(textNumLines):  # for each line
-            self.cursorToBox(
-                rowNum + i,
-                colNum,
+        for i in range(text_num_lines):  # for each line
+            self.cursor_to_box(
+                row_num + i,
+                col_num,
                 1,
                 1,
                 contin,
             )  # initialize position to check contin for each line
 
-            line = textLines[i]  # single line
-            words = [word for word in re.split(ansiEscapePattern, line) if word]
+            line = text_lines[i]  # single line
+            words = [word for word in re.split(ansi_escape_pattern, line) if word]
             for word in words:  # for each word in line
-                if re.match(ansiEscapePattern, word):  # if ANSI escape sequence
+                if re.match(ansi_escape_pattern, word):  # if ANSI escape sequence
                     codes = [
                         code
-                        for _ in re.findall(colorCodePattern, word)
+                        for _ in re.findall(color_code_pattern, word)
                         for code in _
                         if code
                     ]
                     for code in codes:
                         # print(code)
                         if code == "0":  # reset to default
-                            self.setTxtColor()
-                            self.setBgColor()
+                            self.set_txt_color()
+                            self.set_bg_color()
                             continue
                         else:
-                            codeInfo = convertAnsiEscape.convert(code)
-                            if codeInfo:
-                                if codeInfo.oper == "txtColor":
-                                    self.setTxtColor(codeInfo.data)
+                            code_info = ConvertAnsiEscape.convert(code)
+                            if code_info:
+                                if code_info.oper == "txt_color":
+                                    self.set_txt_color(code_info.data)
                                     continue
-                                if codeInfo.oper == "bgColor":
-                                    self.setBgColor(codeInfo.data)
+                                if code_info.oper == "bg_color":
+                                    self.set_bg_color(code_info.data)
                                     continue
                 else:  # if normal word
-                    textNumChars = len(word)
-                    x1, y1, _, _ = self.cursorToBox(
-                        rowNum + i,
-                        colNum,
+                    text_num_chars = len(word)
+                    x1, y1, _, _ = self.cursor_to_box(
+                        row_num + i,
+                        col_num,
                         1,
-                        textNumChars,
+                        text_num_chars,
                         True,  # contin=True since words in same line
                     )
                     draw = ImageDraw.Draw(self.__frame)
                     _, _, rx2, _ = draw.textbbox(
                         (x1, y1), word, self.__font
-                    )  # change bgColor
+                    )  # change bg_color
                     draw.rectangle(
-                        (x1, y1, rx2, y1 + self.__fontHeight), self.__bgColor
+                        (x1, y1, rx2, y1 + self.__font_height), self.__bg_color
                     )
-                    draw.text((x1, y1), word, self.__txtColor, self.__font)
-                    self.currCol += len(word)
-                    self.__colInRow[self.currRow] = self.currCol
-                    ic(self.currRow, self.currCol)  # debug
-        if self.__checkMultiline(textLines):
-            self.cursorToBox(
-                self.currRow + 1, 1, 1, 1, contin
+                    draw.text((x1, y1), word, self.__txt_color, self.__font)
+                    self.curr_col += len(word)
+                    self.__col_in_row[self.curr_row] = self.curr_col
+                    ic(self.curr_row, self.curr_col)  # debug
+        if self.__check_multiline(text_lines):
+            self.cursor_to_box(
+                self.curr_row + 1, 1, 1, 1, contin
             )  # move down by 1 row only if multiline
 
-        if prompt and self.__checkMultiline(
-            textLines
+        if prompt and self.__check_multiline(
+            text_lines
         ):  # only generate prompt if multiline
-            self.genPrompt(self.currRow, 1, 1)
+            self.gen_prompt(self.curr_row, 1, 1)
 
         draw = ImageDraw.Draw(self.__frame)
         for _ in range(count):
-            if self.__showCursor:
-                cx1, cy1, _, _ = self.cursorToBox(
-                    self.currRow, self.currCol, 1, 1, contin=True
+            if self.__show_cursor:
+                cx1, cy1, _, _ = self.cursor_to_box(
+                    self.curr_row, self.curr_col, 1, 1, contin=True
                 )  # no unnecessary scroll
                 draw.text(
-                    (cx1, cy1), str(self.__cursor), self.__defTxtColor, self.__font
+                    (cx1, cy1), str(self.__cursor), self.__def_txt_color, self.__font
                 )
-            self.__genFrame(self.__frame)
-            if self.__showCursor:
-                cx1, cy1, _, _ = self.cursorToBox(
-                    self.currRow, self.currCol, 1, 1, contin=True
+            self.__gen_frame(self.__frame)
+            if self.__show_cursor:
+                cx1, cy1, _, _ = self.cursor_to_box(
+                    self.curr_row, self.curr_col, 1, 1, contin=True
                 )  # no unnecessary scroll
-                blankBoxImage = Image.new(
+                blank_box_image = Image.new(
                     "RGB",
-                    (self.__fontWidth, self.__fontHeight + self.__lineSpacing),
-                    self.__defBgColor,
+                    (self.__font_width, self.__font_height + self.__line_spacing),
+                    self.__def_bg_color,
                 )
-                self.__frame.paste(blankBoxImage, (cx1, cy1))
+                self.__frame.paste(blank_box_image, (cx1, cy1))
                 if (
-                    self.__blinkCursor and self.__frameCount % (self.__fps // 3) == 0
+                    self.__blink_cursor and self.__frame_count % (self.__fps // 3) == 0
                 ):  # alter cursor such that blinks every one-third second
-                    self.__alterCursor()
+                    self.__alter_cursor()
 
-    def genTypingText(
+    def gen_typing_text(
         self,
         text: str,
-        rowNum: int,
-        colNum: int = 1,
+        row_num: int,
+        col_num: int = 1,
         contin: bool = False,
         speed: int = 0,
     ) -> None:
@@ -410,95 +418,109 @@ class Terminal:
         # 1 - fast - 1 frame count
         # 2 - medium - 2 frame count
         # 3 - slow - 3 frame count
-        ansiEscapePattern = re.compile(
+        ansi_escape_pattern = re.compile(
             r"(\\x1b\[\d+(?:;\d+)*m|\x1b\[\d+(?:;\d+)*m)"
         )  # match ANSI color mode escape codes
         if not contin:
-            self.cursorToBox(rowNum, colNum, 1, 1, contin)
-        words = [word for word in re.split(ansiEscapePattern, text) if word]
+            self.cursor_to_box(row_num, col_num, 1, 1, contin)
+        words = [word for word in re.split(ansi_escape_pattern, text) if word]
         for word in words:
-            if re.match(ansiEscapePattern, word):
-                self.genText(word, rowNum, self.__colInRow[rowNum], 0, False, True)
+            if re.match(ansi_escape_pattern, word):
+                self.gen_text(word, row_num, self.__col_in_row[row_num], 0, False, True)
             else:
                 for char in word:
                     count = speed if speed in [1, 2, 3] else random.choice([1, 2, 3])
-                    self.genText(
-                        char, rowNum, self.__colInRow[rowNum], count, False, True
+                    self.gen_text(
+                        char, row_num, self.__col_in_row[row_num], count, False, True
                     )
 
-    def setPrompt(self, prompt: str) -> None:
+    def set_prompt(self, prompt: str) -> None:
         self.__prompt = prompt
 
-    def genPrompt(self, rowNum: int, colNum: int = 1, count: int = 1) -> None:
-        self.cloneFrame(1)  # wait a bit before printing new prompt
-        origCursorState = self.__showCursor
-        self.toggleShowCursor(True)
-        self.genText(
-            self.__prompt, rowNum, colNum, count, False, False
+    def gen_prompt(self, row_num: int, col_num: int = 1, count: int = 1) -> None:
+        self.clone_frame(1)  # wait a bit before printing new prompt
+        orig_cursor_state = self.__show_cursor
+        self.toggle_show_cursor(True)
+        self.gen_text(
+            self.__prompt, row_num, col_num, count, False, False
         )  # generate prompt right after printed text, i.e. 1 line below
-        self.__showCursor = origCursorState
+        self.__show_cursor = orig_cursor_state
 
-    def scrollUp(self, count: int = 1) -> None:
+    def scroll_up(self, count: int = 1) -> None:
         for _ in range(count):
-            croppedFrame = self.__frame.crop(
-                (0, self.__fontHeight + self.__lineSpacing, self.__width, self.__height)
-            )  # make room for 1 extra line (__fontHeight + __lineSpacing)
+            cropped_frame = self.__frame.crop(
+                (
+                    0,
+                    self.__font_height + self.__line_spacing,
+                    self.__width,
+                    self.__height,
+                )
+            )  # make room for 1 extra line (__font_height + __line_spacing)
             self.__frame = Image.new(
-                "RGB", (self.__width, self.__height), self.__defBgColor
+                "RGB", (self.__width, self.__height), self.__def_bg_color
             )
-            self.__frame.paste(croppedFrame, (0, 0))
-            self.currRow -= 1  # move cursor to where it was
+            self.__frame.paste(cropped_frame, (0, 0))
+            self.curr_row -= 1  # move cursor to where it was
 
-            keys = list(self.__colInRow.keys())
-            values = list(self.__colInRow.values())
-            shiftedValues = values[1:] + [1]
-            shiftedDict = dict(zip(keys, shiftedValues))
-            self.__colInRow = shiftedDict
-            ic(self.currRow, self.currCol)
+            keys = list(self.__col_in_row.keys())
+            values = list(self.__col_in_row.values())
+            shifted_values = values[1:] + [1]
+            shifted_dict = dict(zip(keys, shifted_values))
+            self.__col_in_row = shifted_dict
+            ic(self.curr_row, self.curr_col)
 
-    def deleteRow(self, rowNum: int, colNum: int = 1) -> None:
-        x1, y1, _, _ = self.cursorToBox(
-            rowNum, colNum, 1, 1, True, forceCol=True
+    def delete_row(self, row_num: int, col_num: int = 1) -> None:
+        x1, y1, _, _ = self.cursor_to_box(
+            row_num, col_num, 1, 1, True, force_col=True
         )  # continue = True; do not scroll up
-        self.__colInRow[rowNum] = colNum
-        blankLineImage = Image.new(
+        self.__col_in_row[row_num] = col_num
+        blank_line_image = Image.new(
             "RGB",
-            (self.__width - x1, self.__fontHeight + self.__lineSpacing),
-            self.__bgColor,
+            (self.__width - x1, self.__font_height + self.__line_spacing),
+            self.__bg_color,
         )
-        self.__frame.paste(blankLineImage, (x1, y1))
-        ic(f"Deleted row {rowNum} starting at col {colNum}")
+        self.__frame.paste(blank_line_image, (x1, y1))
+        ic(f"Deleted row {row_num} starting at col {col_num}")
 
-    def pasteImage(
-        self, imageFile: str, rowNum: int, colNum: int = 1, sizeMulti: float = 1
+    def paste_image(
+        self,
+        image_file: str,
+        row_num: int,
+        col_num: int = 1,
+        size_multiplier: float = 1,
     ) -> None:
-        x1, y1, _, _ = self.cursorToBox(rowNum, colNum, 1, 1, True, True)
-        with Image.open(imageFile) as image:
-            imageWidth, imageHeight = image.size
+        x1, y1, _, _ = self.cursor_to_box(row_num, col_num, 1, 1, True, True)
+        with Image.open(image_file) as image:
+            image_width, image_height = image.size
             image = image.resize(
-                (int(imageWidth * sizeMulti), int(imageHeight * sizeMulti))
+                (
+                    int(image_width * size_multiplier),
+                    int(image_height * size_multiplier),
+                )
             )
-            rowsCovered = ceil(image.height / (self.__fontHeight + self.__lineSpacing))
-            colsCovered = ceil(image.width / (self.__fontWidth)) + 1
+            rows_covered = ceil(
+                image.height / (self.__font_height + self.__line_spacing)
+            )
+            cols_covered = ceil(image.width / (self.__font_width)) + 1
             if (
-                rowNum + rowsCovered > self.numRows
-                or colNum + colsCovered > self.numCols
+                row_num + rows_covered > self.num_rows
+                or col_num + cols_covered > self.num_cols
             ):
                 print("ERROR: Image exceeds frame dimensions")
                 exit(1)
-            for i in range(rowsCovered):
-                self.__colInRow[rowNum + i] = colsCovered
-            self.imageCol = colNum + colsCovered  # helper for scripts
+            for i in range(rows_covered):
+                self.__col_in_row[row_num + i] = cols_covered
+            self.image_col = col_num + cols_covered  # helper for scripts
             self.__frame.paste(image, (x1, y1))
-            self.__genFrame(self.__frame)
+            self.__gen_frame(self.__frame)
 
-    def setFps(self, fps: float) -> None:
+    def set_fps(self, fps: float) -> None:
         self.__fps = fps
 
-    def genGif(self) -> None:
+    def gen_gif(self) -> None:
         os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frameFolderName}/{frameBaseName}%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {outputGifName}.gif"
+            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
         )
         print(
-            f"INFO: Generated {outputGifName}.gif approximately {round(self.__frameCount / self.__fps, 2)}s long"
+            f"INFO: Generated {output_gif_name}.gif approximately {round(self.__frame_count / self.__fps, 2)}s long"
         )

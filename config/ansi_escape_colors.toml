@@ -1,8 +1,8 @@
-# [defaultColors]
+# [default_colors]
 # fg = "#cdd6f4"
 # bg = "#1e1e2e"
 
-# [normalColors]
+# [normal_colors]
 # black = "#45475a"
 # red = "#f38ba8"
 # green = "#a6e3a1"
@@ -12,7 +12,7 @@
 # cyan = "#94e2d5"
 # white = "#bac2de"
 
-# [brightColors]
+# [bright_colors]
 # black = "#585b70"
 # red = "#f38ba8"
 # green = "#a6e3a1"

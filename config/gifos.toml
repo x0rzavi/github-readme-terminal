@@ -1,12 +1,12 @@
 [general]
 debug = false
 cursor = "_"
-showCursor = true
-blinkCursor = false
-userName = "x0rzavi" # for prompt
+show_cursor = true
+blink_cursor = false
+user_name = "x0rzavi" # for prompt
 fps = 15
 
 [files]
-frameBaseName = "frame_"
-frameFolderName = "frames"
-outputGifName = "output"
+frame_base_name = "frame_"
+frame_folder_name = "frames"
+output_gif_name = "output"
