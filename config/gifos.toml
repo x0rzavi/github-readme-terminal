@@ -8,5 +8,5 @@ fps = 15
 
 [files]
 frameBaseName = "frame_"
-frameFolderName = "frame"
+frameFolderName = "frames"
 outputGifName = "output"

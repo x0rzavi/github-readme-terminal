@@ -3,14 +3,14 @@ from gifos import utils
 from gifos import effects
 
 
-fontFileTruetype = "./fonts/vtks-blocketo.regular.ttf"
+fontFileLogo = "./fonts/vtks-blocketo.regular.ttf"
 # fontFileBitmap = "./fonts/ter-u14n.pil"
 fontFileBitmap = "./fonts/gohufont-uni-14.pil"
+fontFileTruetype = "./fonts/IosevkaTermNerdFont-Bold.ttf"
 
 
 def main():
-    # t = Terminal(640, 480, 15, 15, "./fonts/IosevkaTermNerdFont-Bold.ttf", 16)
-    t = Terminal(1024, 768, 15, 15, "./fonts/IosevkaTermNerdFont-Bold.ttf", 16)
+    t = Terminal(800, 600, 15, 15, fontFileBitmap, 15)
     t.setFps(15)
 
     t.genText("", 1, count=20)
@@ -39,21 +39,17 @@ def main():
     t.genText("Initiating Boot Sequence ", 1, contin=True)
     t.genTypingText(".....", 1, contin=True)
     t.genText("\x1b[96m", 1, count=0, contin=True)  # buffer to be removed
-    t.setFont(fontFileTruetype, 66)
+    t.setFont(fontFileLogo, 66)
     # t.toggleShowCursor(True)
     osLogoText = "GIF OS"
     midRow = (t.numRows + 1) // 2
     midCol = (t.numCols - len(osLogoText) + 1) // 2
     effectLines = effects.textScrambleEffectLines(osLogoText, 3, includeSpecial=False)
     for i in range(len(effectLines)):
-        if i == len(effectLines) // 2:
-            t.genText(
-                "\x1b[93m", midRow + 1, count=0, contin=True
-            )  # buffer to be removed
         t.deleteRow(midRow + 1)
         t.genText(effectLines[i], midRow + 1, midCol + 1)
 
-    t.setFont("./fonts/IosevkaTermNerdFont-Bold.ttf", 16)
+    t.setFont(fontFileBitmap, 15)
     t.clearFrame()
     t.cloneFrame(5)
     t.toggleShowCursor(False)
@@ -68,9 +64,13 @@ def main():
     t.genTypingText("*********", 4, contin=True)
     t.toggleShowCursor(False)
     t.genText("Last login: Sun Dec  13 22:55:39 on tty1", 6)
+
     t.genPrompt(7, count=5)
+    promptCol = t.currCol
     t.toggleShowCursor(True)
-    t.genTypingText("clear", 7, contin=True)
+    t.genTypingText("\x1b[91mclea", 7, contin=True)
+    t.deleteRow(7, promptCol)  # simulate syntax highlighting
+    t.genText("\x1b[92mclear\x1b[0m", 7, count=3, contin=True)
 
     ignoreRepos = ["archiso-zfs", "archiso-zfs-archive"]
     gitUserDetails = utils.fetchGithubStats("x0rzavi", ignoreRepos, True)
@@ -81,8 +81,8 @@ def main():
     \x1b[30;104mx0rzavi@GitHub\x1b[0m
     -------------------
     \x1b[96mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 13
-    \x1b[96mHost:   \x1b[93mNetaji Subhash Engineering College #NSEC
-    \x1b[96mKernel: \x1b[93mComputer Science & Engineering #CSE
+    \x1b[96mHost:   \x1b[93mNetaji Subhash Engineering College \x1b[94m#NSEC
+    \x1b[96mKernel: \x1b[93mComputer Science & Engineering \x1b[94m#CSE
     \x1b[96mUptime: \x1b[93m{userAge.years} years, {userAge.months} months, {userAge.days} days
     \x1b[96mIDE:    \x1b[93mneovim, VSCode
 
@@ -101,14 +101,18 @@ def main():
     \x1b[96mTop Languages: \x1b[93m{', '.join(topLanguages[:5])}\x1b[0m
     """
     t.genPrompt(1)
+    promptCol = t.currCol
     t.cloneFrame(10)
     t.toggleShowCursor(True)
-    t.genTypingText("statsfetch -u x0rzavi", 1, contin=True)
+    t.genTypingText("\x1b[91mfetch.s", 1, contin=True)
+    t.deleteRow(1, promptCol)
+    t.genText("\x1b[92mfetch.sh\x1b[0m", 1, contin=True)
+    t.genTypingText(" -u x0rzavi", 1, contin=True)
     t.genText(userDetailsLines, 2)
     t.genPrompt(t.currRow)
-    t.genText("", t.currRow, count=100, contin=True)
+    t.genText("", t.currRow, count=120, contin=True)
 
-    t.genGif()
+    # t.genGif()
     # image = utils.uploadImgBB("output.gif", 129600)  # 1.5 days expiration
     # print(f"Image URL: {image.url}\nDeletion URL: {image.deleteUrl}")
 

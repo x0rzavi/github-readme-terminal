@@ -1,13 +1,15 @@
 # TODO
-# [] profile image ascii art
+# [x] replace text
+# [] image paste
 # [] incremental text effect
+# [] profile image ascii art
 # [] Better implementations for non monospace fonts
 # [] Support all ANSI escape sequence forms
 # [] Optimization + better code quality
-# [] Scriptable input file
 # [] Documentation
-# [] GIF maker implementation
 # [] Test cases
+# [] Scriptable input file
+# [] GIF maker implementation
 
 import os
 from shutil import rmtree
@@ -53,7 +55,7 @@ class Terminal:
         if not self.__debug:
             ic.disable()
 
-        self.__txtColor = (
+        self.__txtColor = self.__defTxtColor = (
             ansiEscapeColors.get("defaultColors", {}).get("fg")
             or convertAnsiEscape.convert("39").data
         )
@@ -133,6 +135,8 @@ class Terminal:
                 self.__fontHeight + self.__lineSpacing
             )
             self.numCols = (self.__width - 2 * self.__xPad) // (self.__fontWidth)
+            print(f"INFO: Number of rows: {self.numRows}")
+            print(f"INFO: Number of columns: {self.numCols}")
             self.__colInRow = {_ + 1: 1 for _ in range(self.numRows)}
             # self.clearFrame()
             ic(self.__font)  # debug
@@ -225,8 +229,9 @@ class Terminal:
         textNumLines: int = 1,
         textNumChars: int = 1,
         contin: bool = False,
+        forceCol: bool = False,  # to assist in deleteRow()
     ) -> tuple:
-        if rowNum < 1 or colNum < 1:  # dont care about exceeding colNum
+        if rowNum < 1 or colNum < 1:  # do not care about exceeding colNum
             raise ValueError
         elif rowNum > self.numRows:
             ic(
@@ -265,7 +270,7 @@ class Terminal:
                 ic(scrollTimes)
                 self.scrollUp(scrollTimes)
         else:
-            if colNum < minColNum:
+            if colNum < minColNum and not forceCol:
                 ic(f"{textNumChars} chars cannot be accomodated at column {colNum}")
                 colNum = self.__colInRow[rowNum]
         self.currRow, self.currCol = rowNum, colNum
@@ -373,7 +378,9 @@ class Terminal:
                 cx1, cy1, _, _ = self.cursorToBox(
                     self.currRow, self.currCol, 1, 1, contin=True
                 )  # no unnecessary scroll
-                draw.text((cx1, cy1), str(self.__cursor), self.__txtColor, self.__font)
+                draw.text(
+                    (cx1, cy1), str(self.__cursor), self.__defTxtColor, self.__font
+                )
             self.__genFrame(self.__frame)
             if self.__showCursor:
                 cx1, cy1, _, _ = self.cursorToBox(
@@ -449,18 +456,21 @@ class Terminal:
             self.__colInRow = shiftedDict
             ic(self.currRow, self.currCol)
 
-    def deleteRow(self, rowNum: int) -> None:
-        _, y1, _, _ = self.cursorToBox(
-            rowNum, 1, 1, 1, True
+    def deleteRow(self, rowNum: int, colNum: int = 1) -> None:
+        x1, y1, _, _ = self.cursorToBox(
+            rowNum, colNum, 1, 1, True, forceCol=True
         )  # continue = True; do not scroll up
-        self.__colInRow[rowNum] = 1
+        self.__colInRow[rowNum] = colNum
         blankLineImage = Image.new(
             "RGB",
-            (self.__width, self.__fontHeight + self.__lineSpacing),
+            (self.__width - x1, self.__fontHeight + self.__lineSpacing),
             self.__bgColor,
         )
-        self.__frame.paste(blankLineImage, (0, y1))
-        ic(f"Deleted row {rowNum}")
+        self.__frame.paste(blankLineImage, (x1, y1))
+        ic(f"Deleted row {rowNum} starting at col {colNum}")
+
+    def replaceText(self, rowNum: int, colNum: int, count: int = 1) -> None:
+        pass
 
     def setFps(self, fps: float) -> None:
         self.__fps = fps
