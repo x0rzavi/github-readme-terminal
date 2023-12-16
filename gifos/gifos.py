@@ -12,10 +12,11 @@
 
 import os
 from math import ceil
+from pathlib import Path
 import random
 import re
-from pathlib import Path
 from shutil import rmtree
+import sys
 
 from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
@@ -36,6 +37,7 @@ rmtree(frame_folder_name, ignore_errors=True)
 os.mkdir(frame_folder_name)
 
 font_path = Path(__file__).parent / "fonts"
+
 
 class Terminal:
     def __init__(
@@ -109,7 +111,6 @@ class Terminal:
             print(f"WARNING: {font_file} is BitMap - Ignoring size {font_size}")
             return font
         except OSError:
-            print(f"ERROR: Could not locate font_file {font_file}")
             return None
 
     def __check_monospace_font(
@@ -146,7 +147,8 @@ class Terminal:
             # self.clear_frame()
             ic(self.__font)  # debug
         else:
-            exit(1)
+            print(f"ERROR: Could not locate font_file {font_file}")
+            sys.exit(1)
 
     def toggle_show_cursor(self, choice: bool = None) -> None:
         self.__show_cursor = not self.__show_cursor if choice is None else choice
@@ -268,7 +270,7 @@ class Terminal:
                 ic(f"Maximum possible is {max_row_num}")
                 if first_blank_row < max_row_num:  # needed ?
                     ic("NEEDED!")  # debug
-                    exit(1)
+                    sys.exit(1)
                     scroll_times = text_num_lines - num_blank_rows
                     ic(scroll_times)
                     self.scroll_up(scroll_times)
@@ -304,7 +306,7 @@ class Terminal:
     ) -> None:
         if prompt and contin:  # why ?
             print("ERROR: Both prompt and contin can't be simultaneously True")  # debug
-            exit(1)
+            sys.exit(1)
 
         if isinstance(text, str):
             text_lines = text.splitlines()
@@ -509,13 +511,13 @@ class Terminal:
                 row_num + rows_covered > self.num_rows
                 or col_num + cols_covered > self.num_cols
             ):
-                print("ERROR: Image exceeds frame dimensions")
-                exit(1)
-            for i in range(rows_covered):
-                self.__col_in_row[row_num + i] = cols_covered
-            self.image_col = col_num + cols_covered  # helper for scripts
-            self.__frame.paste(image, (x1, y1))
-            self.__gen_frame(self.__frame)
+                print("WARNING: Image exceeds frame dimensions")
+            else:
+                for i in range(rows_covered):
+                    self.__col_in_row[row_num + i] = cols_covered
+                self.image_col = col_num + cols_covered  # helper for scripts
+                self.__frame.paste(image, (x1, y1))
+                self.__gen_frame(self.__frame)
 
     def set_fps(self, fps: float) -> None:
         self.__fps = fps

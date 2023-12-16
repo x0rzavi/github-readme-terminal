@@ -8,6 +8,7 @@
 
 import os
 import requests
+import sys
 
 from dotenv import load_dotenv
 
@@ -16,7 +17,6 @@ from gifos.utils.schemas.github_user_stats import GithubUserStats
 
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_TOKEN = str(GITHUB_TOKEN).strip("'\"")  # docker --env-file quirk
 GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
 
 
@@ -171,6 +171,10 @@ def fetch_total_commits(user_name: str) -> int:
 def fetch_github_stats(
     user_name: str, ignore_repos: list = None, include_all_commits: bool = False
 ) -> GithubUserStats:
+    if not GITHUB_TOKEN:
+        print("ERROR: Please provide GITHUB_TOKEN")
+        sys.exit(1)
+
     repo_end_cursor = None
     total_stargazers = 0
     languages_dict = {}

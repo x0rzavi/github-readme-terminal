@@ -1,6 +1,7 @@
 from base64 import b64encode
 import os
 import requests
+import sys
 
 from dotenv import load_dotenv
 
@@ -8,11 +9,14 @@ from gifos.utils.schemas.imagebb_image import ImgbbImage
 
 load_dotenv()
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
-IMGBB_API_KEY = str(IMGBB_API_KEY).strip("'\"")  # docker --env-file quirk
 ENDPOINT = "https://api.imgbb.com/1/upload"
 
 
 def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
+    if not IMGBB_API_KEY:
+        print("ERROR: Please provide IMGBB_API_KEY")
+        sys.exit(1)
+
     if expiration is None:
         pass
     elif expiration < 60 or expiration > 15552000:
