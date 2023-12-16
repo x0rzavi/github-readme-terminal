@@ -8,7 +8,7 @@ except ModuleNotFoundError:
 
 def load_toml(file_name: str) -> dict:
     def_config_file = (
-        Path(__file__).parents[2] / "config" / file_name
+        Path(__file__).parents[1] / "config" / file_name
     )  # default config path
     user_config_file = Path.home() / ".config" / "gifos" / file_name  # user config path
 
