@@ -22,7 +22,7 @@ class ConvertAnsiEscape:
         "35": __get_color(ansi_escape_colors.get("normalColors"), "magenta", "#bc83e3"),
         "36": __get_color(ansi_escape_colors.get("normalColors"), "cyan", "#67afc1"),
         "37": __get_color(ansi_escape_colors.get("normalColors"), "white", "#e4e6e7"),
-        "39": __get_color(ansi_escape_colors.get("defaultColors"), "fg", "#F2F4F5"),
+        "39": __get_color(ansi_escape_colors.get("defaultColors"), "fg", "#edeff0"),
         # bright color mode
         "90": __get_color(ansi_escape_colors.get("brightColors"), "black", "#2c2e2f"),
         "91": __get_color(ansi_escape_colors.get("brightColors"), "red", "#e8646a"),
@@ -44,7 +44,7 @@ class ConvertAnsiEscape:
         "45": __get_color(ansi_escape_colors.get("normalColors"), "magenta", "#bc83e3"),
         "46": __get_color(ansi_escape_colors.get("normalColors"), "cyan", "#67afc1"),
         "47": __get_color(ansi_escape_colors.get("normalColors"), "white", "#e4e6e7"),
-        "49": __get_color(ansi_escape_colors.get("defaultColors"), "bg", "#101415"),
+        "49": __get_color(ansi_escape_colors.get("defaultColors"), "bg", "#0c0e0f"),
         # bright color mode
         "100": __get_color(ansi_escape_colors.get("brightColors"), "black", "#2c2e2f"),
         "101": __get_color(ansi_escape_colors.get("brightColors"), "red", "#e8646a"),
