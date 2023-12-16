@@ -16,6 +16,7 @@ from gifos.utils.schemas.github_user_stats import GithubUserStats
 
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = str(GITHUB_TOKEN).strip("'\"")  # docker --env-file quirk
 GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
 
 
@@ -152,7 +153,8 @@ def fetch_total_commits(user_name: str) -> int:
     REST_API_URL = f"https://api.github.com/search/commits?q=author:{user_name}"
     headers = {
         "Content-Type": "application/json",
-        "Accept": "application/vnd.github.cloak-preview",
+        "User-Agent": "x0rzavi",
+        "Accept": "application/vnd.github+json",
         "Authorization": f"token {GITHUB_TOKEN}",
     }
     response = requests.get(REST_API_URL, headers=headers)

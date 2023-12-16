@@ -18,7 +18,7 @@ def load_toml(file_name: str) -> dict:
         with user_config_file.open(mode="rb") as user_fp:
             user_config = tomllib.load(user_fp)
             return {**def_config, **user_config}  # override with user config
-    print(f"INFO: default config_file {file_name} loaded")
+    print(f"INFO: Default config_file {file_name} loaded")
     return def_config
 
 

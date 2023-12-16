@@ -8,6 +8,7 @@ from gifos.utils.schemas.imagebb_image import ImgbbImage
 
 load_dotenv()
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
+IMGBB_API_KEY = str(IMGBB_API_KEY).strip("'\"")  # docker --env-file quirk
 ENDPOINT = "https://api.imgbb.com/1/upload"
 
 

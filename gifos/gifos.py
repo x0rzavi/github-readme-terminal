@@ -103,11 +103,11 @@ class Terminal:
             pass
 
         try:
-            print(f"WARNING: {font_file} is BitMap - Ignoring size {font_size}")
             font = ImageFont.load(font_file)
+            print(f"WARNING: {font_file} is BitMap - Ignoring size {font_size}")
             return font
         except OSError:
-            print(f"ERROR: unknown font {font_file}")
+            print(f"ERROR: Could not locate font_file {font_file}")
             return None
 
     def __check_monospace_font(
@@ -143,6 +143,8 @@ class Terminal:
             self.__col_in_row = {_ + 1: 1 for _ in range(self.num_rows)}
             # self.clear_frame()
             ic(self.__font)  # debug
+        else:
+            exit(1)
 
     def toggle_show_cursor(self, choice: bool = None) -> None:
         self.__show_cursor = not self.__show_cursor if choice is None else choice
