@@ -48,6 +48,7 @@ class Terminal:
         ypad: int,
         font_file: str = f"{font_path}/gohufont-uni-14.pil",
         font_size: int = 16,
+        line_spacing: int = 4,
     ) -> None:
         ic.configureOutput(includeContext=True)
         self.__width = width
@@ -71,7 +72,7 @@ class Terminal:
         self.__frame_count = 0
         self.curr_row = 0
         self.curr_col = 0
-        self.set_font(self.__font_file, self.__font_size)
+        self.set_font(self.__font_file, self.__font_size, line_spacing)
         self.__cursor = gifos.get("general", {}).get("cursor") or "_"
         self.__cursor_orig = self.__cursor
         self.__show_cursor = gifos.get("general", {}).get("show_cursor") or True
@@ -120,10 +121,10 @@ class Terminal:
         avg_width = int(round(sum(widths) / len(widths), 0))
         return {"check": max(widths) == min(widths), "avg_width": avg_width}
 
-    def set_font(self, font_file: str, font_size: int = 16) -> None:
+    def set_font(self, font_file: str, font_size: int = 16, line_spacing: int = 4) -> None:
         self.__font = self.__check_font_type(font_file, font_size)
         if self.__font:
-            self.__line_spacing = 4
+            self.__line_spacing = line_spacing
             if self.__check_monospace_font(self.__font)["check"]:
                 self.__font_width = self.__font.getbbox("W")[
                     2
