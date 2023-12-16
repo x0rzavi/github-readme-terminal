@@ -142,6 +142,7 @@ class Terminal:
                 self.__font_height + self.__line_spacing
             )
             self.num_cols = (self.__width - 2 * self.__xpad) // (self.__font_width)
+            print(f"INFO: Loaded font_file: {font_file}")
             print(f"INFO: Number of rows: {self.num_rows}")
             print(f"INFO: Number of columns: {self.num_cols}")
             self.__col_in_row = {_ + 1: 1 for _ in range(self.num_rows)}

@@ -158,7 +158,25 @@ def main():
 
     t.gen_gif()
     image = gifos.utils.upload_imgbb("output.gif", 129600)  # 1.5 days expiration
-    print(f"Image URL: {image.url}\nDeletion URL: {image.delete_url}")
+    readme_file_content = rf"""<div align="justify">
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="{image.url}">
+    <source media="(prefers-color-scheme: light)" srcset="{image.url}">
+    <img alt="GIFOS" src="{image.url}">
+</picture>
+
+<sub><i>Generated automatically using [x0rzavi/github-readme-terminal](https://github.com/x0rzavi/github-readme-terminal) at {time_now}</i></sub>
+
+<details>
+<summary>More details</summary>
+
+</details>
+</div>
+
+<!-- Image deletion URL: {image.delete_url} -->"""
+    with open("README.md", "w") as fp:
+        fp.write(readme_file_content)
+        print("INFO: README.md file generated")
 
 
 if __name__ == "__main__":
