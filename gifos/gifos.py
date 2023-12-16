@@ -14,6 +14,7 @@ import os
 from math import ceil
 import random
 import re
+from pathlib import Path
 from shutil import rmtree
 
 from icecream import ic
@@ -34,6 +35,7 @@ except Exception:
 rmtree(frame_folder_name, ignore_errors=True)
 os.mkdir(frame_folder_name)
 
+font_path = Path(__file__).parent / "fonts"
 
 class Terminal:
     def __init__(
@@ -42,7 +44,7 @@ class Terminal:
         height: int,
         xpad: int,
         ypad: int,
-        font_file: str,
+        font_file: str = f"{font_path}/gohufont-uni-14.pil",
         font_size: int = 16,
     ) -> None:
         ic.configureOutput(includeContext=True)

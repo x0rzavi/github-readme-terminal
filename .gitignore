@@ -165,5 +165,5 @@ cython_debug/
 temp.py
 temp/
 frames/
-fonts/
+/fonts/
 .vscode
