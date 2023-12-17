@@ -5,6 +5,7 @@ import sys
 
 from dotenv import load_dotenv
 
+from gifos.utils.load_config import gifos
 from gifos.utils.schemas.imagebb_image import ImgbbImage
 
 load_dotenv()
@@ -17,10 +18,14 @@ def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
         print("ERROR: Please provide IMGBB_API_KEY")
         sys.exit(1)
 
-    if expiration is None:
-        pass
-    elif expiration < 60 or expiration > 15552000:
-        raise ValueError
+    if gifos.get("general", {}).get("debug"):
+        expiration = 600
+        print("INFO: Debugging is true Setting expiration to 10min")
+    else:
+        if expiration is None:
+            pass
+        elif expiration < 60 or expiration > 15552000:
+            raise ValueError
 
     with open(file_name, "rb") as image:
         image_name = image.name
