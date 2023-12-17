@@ -1,7 +1,8 @@
 # TODO
+# [x] profile image ascii art
+# [] save a frame
 # [] proper file paths
 # [] incremental text effect
-# [] profile image ascii art
 # [] Better implementations for non monospace fonts
 # [] Support all ANSI escape sequence forms
 # [] Optimization + better code quality
@@ -22,7 +23,7 @@ from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 
 from gifos.utils.convert_ansi_escape import ConvertAnsiEscape
-from gifos.utils.load_config import ansi_escape_colors, gifos
+from gifos.utils.load_config import gifos
 
 frame_base_name = gifos.get("files", {}).get("frame_base_name") or "frame_"
 frame_folder_name = gifos.get("files", {}).get("frame_folder_name") or "./frames"
@@ -61,14 +62,8 @@ class Terminal:
         if not self.__debug:
             ic.disable()
 
-        self.__txt_color = self.__def_txt_color = (
-            ansi_escape_colors.get("default_colors", {}).get("fg")
-            or ConvertAnsiEscape.convert("39").data
-        )
-        self.__bg_color = self.__def_bg_color = (
-            ansi_escape_colors.get("default_colors", {}).get("bg")
-            or ConvertAnsiEscape.convert("49").data
-        )
+        self.__txt_color = self.__def_txt_color = ConvertAnsiEscape.convert("39").data
+        self.__bg_color = self.__def_bg_color = ConvertAnsiEscape.convert("49").data
         self.__frame_count = 0
         self.curr_row = 0
         self.curr_col = 0
@@ -86,15 +81,13 @@ class Terminal:
 
     def set_txt_color(
         self,
-        txt_color: str = ansi_escape_colors.get("default_colors", {}).get("fg")
-        or ConvertAnsiEscape.convert("39").data,
+        txt_color: str = ConvertAnsiEscape.convert("39").data,
     ) -> None:
         self.__txt_color = txt_color
 
     def set_bg_color(
         self,
-        bg_color: str = ansi_escape_colors.get("default_colors", {}).get("bg")
-        or ConvertAnsiEscape.convert("49").data,
+        bg_color: str = ConvertAnsiEscape.convert("49").data,
     ) -> None:
         self.__bg_color = bg_color
 
@@ -121,7 +114,9 @@ class Terminal:
         avg_width = int(round(sum(widths) / len(widths), 0))
         return {"check": max(widths) == min(widths), "avg_width": avg_width}
 
-    def set_font(self, font_file: str, font_size: int = 16, line_spacing: int = 4) -> None:
+    def set_font(
+        self, font_file: str, font_size: int = 16, line_spacing: int = 4
+    ) -> None:
         self.__font = self.__check_font_type(font_file, font_size)
         if self.__font:
             self.__line_spacing = line_spacing
@@ -225,6 +220,11 @@ class Terminal:
         frame.save(frame_folder_name + "/" + file_name, "PNG")
         print(f"INFO: Generated frame #{self.__frame_count}")  # debug
         return frame
+
+    def save_frame(self, base_file_name: str):
+        file_name = base_file_name + ("" if ".png" in base_file_name else ".png")
+        self.__frame.save(file_name, "PNG")
+        print(f"INFO: Saved frame #{self.__frame_count}: {file_name}")
 
     def clear_frame(self) -> None:
         self.__frame = self.__gen_frame()

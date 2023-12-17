@@ -1,23 +1,249 @@
-[default_colors]
-fg = "#edeff0"
-bg = "#0c0e0f"
+[yoru]
+        [yoru.default_colors]
+        fg = "#edeff0"
+        bg = "#0c0e0f"
+        
+        [yoru.normal_colors]
+        black = "#232526"
+        red = "#df5b61"
+        green = "#78b892"
+        yellow = "#de8f78"
+        blue = "#6791c9"
+        magenta = "#bc83e3"
+        cyan = "#67afc1"
+        white = "#e4e6e7"
+        
+        [yoru.bright_colors]
+        black = "#2c2e2f"
+        red = "#e8646a"
+        green = "#81c19b"
+        yellow = "#e79881"
+        blue = "#709ad2"
+        magenta = "#c58cec"
+        cyan = "#70b8ca"
+        white = "#f2f4f5"
 
-[normal_colors]
-black = "#232526"
-red = "#df5b61"
-green = "#78b892"
-yellow = "#de8f78"
-blue = "#6791c9"
-magenta = "#bc83e3"
-cyan = "#67afc1"
-white = "#e4e6e7"
+[gruvbox-dark]
+        [gruvbox-dark.default_colors]
+        fg = "#ebdbb2"
+        bg = "#282828"
+        
+        [gruvbox-dark.normal_colors]
+        black = "#282828"
+        red = "#cc241d"
+        green = "#98971a"
+        yellow = "#d79921"
+        blue = "#458588"
+        magenta = "#b16286"
+        cyan = "#689d6a"
+        white = "#8ec07c"
+        
+        [gruvbox-dark.bright_colors]
+        black = "#928374"
+        red = "#fb4934"
+        green = "#b8bb26"
+        yellow = "#fabd2f"
+        blue = "#83a598"
+        magenta = "#d3869b"
+        cyan = "#8ec07c"
+        white = "#ebdbb2"
 
-[bright_colors]
-black = "#2c2e2f"
-red = "#e8646a"
-green = "#81c19b"
-yellow = "#e79881"
-blue = "#709ad2"
-magenta = "#c58cec"
-cyan = "#70b8ca"
-white = "#f2f4f5"
+[gruvbox-light]
+        [gruvbox-light.default_colors]
+        fg = "#3c3836"
+        bg = "#fbf1c7"
+        
+        [gruvbox-light.normal_colors]
+        black = "#fdf4c1"
+        red = "#cc241d"
+        green = "#98971a"
+        yellow = "#d79921"
+        blue = "#458588"
+        magenta = "#b16286"
+        cyan = "#689d6a"
+        white = "#7c6f64"
+        
+        [gruvbox-light.bright_colors]
+        black = "#928374"
+        red = "#9d0006"
+        green = "#79740e"
+        yellow = "#b57614"
+        blue = "#076678"
+        magenta = "#8f3f71"
+        cyan = "#427b58"
+        white = "#3c3836"
+
+[rose-pine]
+        [rose-pine.default_colors]
+        fg = "#e0def4"
+        bg = "#191724"
+        
+        [rose-pine.normal_colors]
+        black = "#26233a"
+        red = "#eb6f92"
+        green = "#31748f"
+        yellow = "#f6c177"
+        blue = "#9ccfd8"
+        magenta = "#c4a7e7"
+        cyan = "#ebbcba"
+        white = "#e0def4"
+        
+        [rose-pine.bright_colors]
+        black = "#6e6a86"
+        red = "#eb6f92"
+        green = "#31748f"
+        yellow = "#f6c177"
+        blue = "#9ccfd8"
+        magenta = "#c4a7e7"
+        cyan = "#ebbcba"
+        white = "#e0def4"
+
+[dracula]
+        [dracula.default_colors]
+        fg = "#F8F8F2"
+        bg = "#282A36"
+        
+        [dracula.normal_colors]
+        black = "#000000"
+        red = "#FF5555"
+        green = "#50FA7B"
+        yellow = "#F1FA8C"
+        blue = "#BD93F9"
+        magenta = "#FF79C6"
+        cyan = "#8BE9FD"
+        white = "#BFBFBF"
+        
+        [dracula.bright_colors]
+        black = "#4D4D4D"
+        red = "#FF6E67"
+        green = "#5AF78E"
+        yellow = "#F4F99D"
+        blue = "#CAA9FA"
+        magenta = "#FF92D0"
+        cyan = "#9AEDFE"
+        white = "#E6E6E6"
+
+[nord]
+        [nord.default_colors]
+        fg = "#D8DEE9"
+        bg = "#2E3440"
+        
+        [nord.normal_colors]
+        black = "#3B4252"
+        red = "#BF616A"
+        green = "#A3BE8C"
+        yellow = "#EBCB8B"
+        blue = "#81A1C1"
+        magenta = "#B48EAD"
+        cyan = "#88C0D0"
+        white = "#E5E9F0"
+        
+        [nord.bright_colors]
+        black = "#4C566A"
+        red = "#BF616A"
+        green = "#A3BE8C"
+        yellow = "#EBCB8B"
+        blue = "#81A1C1"
+        magenta = "#B48EAD"
+        cyan = "#8FBCBB"
+        white = "#ECEFF4"
+
+[catppuccin-mocha]
+        [catppuccin-mocha.default_colors]
+        fg = "#CDD6F4"
+        bg = "#1E1E2E"
+        
+        [catppuccin-mocha.normal_colors]
+        black = "#45475A"
+        red = "#F38BA8"
+        green = "#A6E3A1"
+        yellow = "#F9E2AF"
+        blue = "#89B4FA"
+        magenta = "#F5C2E7"
+        cyan = "#94E2D5"
+        white = "#BAC2DE"
+        
+        [catppuccin-mocha.bright_colors]
+        black = "#585B70"
+        red = "#F38BA8"
+        green = "#A6E3A1"
+        yellow = "#F9E2AF"
+        blue = "#89B4FA"
+        magenta = "#F5C2E7"
+        cyan = "#94E2D5"
+        white = "#A6ADC8"
+
+[catppuccin-latte]
+        [catppuccin-latte.default_colors]
+        fg = "#4C4F69"
+        bg = "#EFF1F5"
+        
+        [catppuccin-latte.normal_colors]
+        black = "#5C5F77"
+        red = "#D20F39"
+        green = "#40A02B"
+        yellow = "#DF8E1D"
+        blue = "#1E66F5"
+        magenta = "#EA76CB"
+        cyan = "#179299"
+        white = "#ACB0BE"
+        
+        [catppuccin-latte.bright_colors]
+        black = "#6C6F85"
+        red = "#D20F39"
+        green = "#40A02B"
+        yellow = "#DF8E1D"
+        blue = "#1E66F5"
+        magenta = "#EA76CB"
+        cyan = "#179299"
+        white = "#BCC0CC"
+
+[onedark]
+        [onedark.default_colors]
+        fg = "#979eab"
+        bg = "#282c34"
+        
+        [onedark.normal_colors]
+        black = "#282c34"
+        red = "#e06c75"
+        green = "#98c379"
+        yellow = "#e5c07b"
+        blue = "#61afef"
+        magenta = "#be5046"
+        cyan = "#56b6c2"
+        white = "#979eab"
+        
+        [onedark.bright_colors]
+        black = "#393e48"
+        red = "#d19a66"
+        green = "#56b6c2"
+        yellow = "#e5c07b"
+        blue = "#61afef"
+        magenta = "#be5046"
+        cyan = "#56b6c2"
+        white = "#abb2bf"
+
+[monokai]
+        [monokai.default_colors]
+        fg = "#FCFCFA"
+        bg = "#2D2A2E"
+        
+        [monokai.normal_colors]
+        black = "#403E41"
+        red = "#FF6188"
+        green = "#A9DC76"
+        yellow = "#FFD866"
+        blue = "#FC9867"
+        magenta = "#AB9DF2"
+        cyan = "#78DCE8"
+        white = "#FCFCFA"
+        
+        [monokai.bright_colors]
+        black = "#727072"
+        red = "#FF6188"
+        green = "#A9DC76"
+        yellow = "#FFD866"
+        blue = "#FC9867"
+        magenta = "#AB9DF2"
+        cyan = "#78DCE8"
+        white = "#FCFCFA"

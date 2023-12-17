@@ -5,6 +5,7 @@ show_cursor = true
 blink_cursor = false
 user_name = "x0rzavi" # for prompt
 fps = 15
+color_scheme = "rose-pine"
 
 [files]
 frame_base_name = "frame_"
