@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 try:
@@ -13,13 +14,22 @@ def load_toml(file_name: str) -> dict:
     user_config_file = Path.home() / ".config" / "gifos" / file_name  # user config path
 
     with def_config_file.open(mode="rb") as def_fp:
-        def_config = tomllib.load(def_fp)
+        config = tomllib.load(def_fp)
     if user_config_file.exists():
         with user_config_file.open(mode="rb") as user_fp:
             user_config = tomllib.load(user_fp)
-            return {**def_config, **user_config}  # override with user config
-    print(f"INFO: Default config_file: {file_name} loaded")
-    return def_config
+            config.update(user_config)  # override with user config
+            return config
+    else:
+        print(f"INFO: Default config_file: {file_name} loaded")
+    for section in config:
+        for key in config[section]:
+            env_var_name = f"GIFOS_{section.upper()}_{key.upper()}"
+            env_var_value = os.getenv(env_var_name)
+            if env_var_value is not None:
+                config[section][key] = env_var_value
+                print(f"INFO: Config updated from environment variable: {env_var_name}")
+    return config
 
 
 gifos = load_toml("gifos.toml")
