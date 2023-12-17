@@ -161,6 +161,7 @@ cython_debug/
 
 # Miscellaneous
 *.png
+!docs/**
 *.gif
 temp.py
 temp/
