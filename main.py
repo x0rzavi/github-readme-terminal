@@ -11,7 +11,7 @@ FONT_FILE_MONA = "./fonts/Inversionz.otf"
 
 
 def main():
-    t = gifos.Terminal(800, 500, 15, 15, FONT_FILE_BITMAP, 15)
+    t = gifos.Terminal(750, 500, 15, 15, FONT_FILE_BITMAP, 15)
     t.set_fps(15)
 
     t.gen_text("", 1, count=20)
@@ -124,14 +124,14 @@ def main():
     \x1b[49m    \x1b[34;44m}}}}}\x1b[49m \x1b[34;44m}}}}}\x1b[0m
     \x1b[49m   \x1b[34;44m}}}}}}}}}}}}}\x1b[0m
     \x1b[49m   \x1b[34;44m}}}}}}}}}}}}}}\x1b[0m
-    \x1b[49m   \x1b[34;44m}}\x1b[97;107m}}}}}}}\x1b[34;44m}}}}}\x1b[0m
-    \x1b[49m  \x1b[34;44m}}\x1b[97;107m}}}}}}}}}}\x1b[34;44m}}}\x1b[0m
-    \x1b[49m  \x1b[34;44m}}\x1b[97;107m}\x1b[34;44m}\x1b[97;107m}}}}}\x1b[34;44m}\x1b[97;107m}}\x1b[34;44m}}}}\x1b[0m
-    \x1b[49m  \x1b[34;44m}\x1b[97;107m}}\x1b[34;44m}\x1b[97;107m}}}}}\x1b[34;44m}\x1b[97;107m}}}\x1b[34;44m}}}\x1b[0m
-    \x1b[34;44m}}}\x1b[97;107m}}}}\x1b[34;44m}}}\x1b[97;107m}}}}}\x1b[34;44m}}}}\x1b[0m
-    \x1b[49m  \x1b[34;44m}\x1b[97;107m}}}}}\x1b[34;44m}}\x1b[97;107m}}}}}\x1b[34;44m}}}\x1b[0m
-    \x1b[49m \x1b[34;44m}}\x1b[97;107m}}}}}}}}}}}}\x1b[34;44m}}}\x1b[0m
-    \x1b[34;44m}\x1b[49m  \x1b[34;44m}}\x1b[97;107m}}}}}}}}\x1b[34;44m}}}\x1b[49m  \x1b[34;44m}\x1b[0m
+    \x1b[49m   \x1b[34;44m}}\x1b[37;47m}}}}}}}\x1b[34;44m}}}}}\x1b[0m
+    \x1b[49m  \x1b[34;44m}}\x1b[37;47m}}}}}}}}}}\x1b[34;44m}}}\x1b[0m
+    \x1b[49m  \x1b[34;44m}}\x1b[37;47m}\x1b[34;44m}\x1b[37;47m}}}}}\x1b[34;44m}\x1b[37;47m}}\x1b[34;44m}}}}\x1b[0m
+    \x1b[49m  \x1b[34;44m}\x1b[37;47m}}\x1b[34;44m}\x1b[37;47m}}}}}\x1b[34;44m}\x1b[37;47m}}}\x1b[34;44m}}}\x1b[0m
+    \x1b[34;44m}}}\x1b[37;47m}}}}\x1b[34;44m}}}\x1b[37;47m}}}}}\x1b[34;44m}}}}\x1b[0m
+    \x1b[49m  \x1b[34;44m}\x1b[37;47m}}}}}\x1b[34;44m}}\x1b[37;47m}}}}}\x1b[34;44m}}}\x1b[0m
+    \x1b[49m \x1b[34;44m}}\x1b[37;47m}}}}}}}}}}}}\x1b[34;44m}}}\x1b[0m
+    \x1b[34;44m}\x1b[49m  \x1b[34;44m}}\x1b[37;47m}}}}}}}}\x1b[34;44m}}}\x1b[49m  \x1b[34;44m}\x1b[0m
     \x1b[49m        \x1b[34;44m}}}}}\x1b[0m
     \x1b[49m       \x1b[34;44m}}}}}}}\x1b[0m
     \x1b[49m       \x1b[34;44m}}}}}}}}\x1b[0m
@@ -154,6 +154,7 @@ def main():
         t.curr_row,
         contin=True,
     )
+    t.save_frame("fetch_details.png")
     t.gen_text("", t.curr_row, count=80, contin=True)
 
     t.gen_gif()
@@ -165,7 +166,7 @@ def main():
     <img alt="GIFOS" src="{image.url}">
 </picture>
 
-<sub><i>Generated automatically using [x0rzavi/github-readme-terminal](https://github.com/x0rzavi/github-readme-terminal) at {time_now}</i></sub>
+<sub><i>Generated automatically using [x0rzavi/github-readme-terminal](https://github.com/x0rzavi/github-readme-terminal) on {time_now}</i></sub>
 
 <details>
 <summary>More details</summary>
