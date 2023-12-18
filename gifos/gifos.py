@@ -1,12 +1,10 @@
-# TODO
-# [x] profile image ascii art
-# [] save a frame
+# TODO:
+# [] Documentation
 # [] proper file paths
 # [] incremental text effect
 # [] Better implementations for non monospace fonts
 # [] Support all ANSI escape sequence forms
 # [] Optimization + better code quality
-# [] Documentation
 # [] Test cases
 # [] GIF maker implementation
 # [] Scriptable input file
@@ -41,6 +39,45 @@ font_path = Path(__file__).parent / "fonts"
 
 
 class Terminal:
+    """A class to represent a terminal.
+
+    This class represents a terminal with a specified width, height, padding, and font.
+
+    Attributes:
+        width: The width of the terminal.
+        height: The height of the terminal.
+        xpad: The horizontal padding of the terminal.
+        ypad: The vertical padding of the terminal.
+        font_file: The file path of the font to use for the terminal. Defaults to "gohufont-uni-14.pil".
+        font_size: The size of the font to use for the terminal. Defaults to 16.
+        line_spacing: The line spacing to use for the terminal. Defaults to 4.
+        curr_row: The current row of the cursor in terminal.
+        curr_col: The current column of the cursor in terminal.
+        num_rows: The number of rows in the terminal.
+        num_cols: The number of columns in the terminal.
+        image_col: The column number of the last image pasted in the terminal.
+
+    Methods:
+        set_txt_color: Set the text color to be used.
+        set_bg_color: Set the background color to be used.
+        set_font: Set the font to be used.
+        toggle_show_cursor: Toggle the visibility of the cursor.
+        toggle_blink_cursor: Toggle the blinking of the cursor.
+        save_frame: Save the current frame of the terminal.
+        clear_frame: Clear the current frame of the terminal.
+        clone_frame: Clone the current frame of the terminal.
+        cursor_to_box: Move the cursor to a specified box (coordinate) in the terminal.
+        gen_text: Generate text on the terminal.
+        gen_typing_text: Generate text on the terminal as if it is being typed.
+        set_prompt: Set the prompt text to be used.
+        gen_prompt: Generate the prompt text on the terminal.
+        scroll_up: Scroll up the terminal.
+        delete_row: Delete a row in the terminal.
+        paste_image: Paste an image on the terminal.
+        set_fps: Set the FPS of the GIF to be generated.
+        gen_gif: Generate the GIF from the frames.
+    """
+
     def __init__(
         self,
         width: int,
@@ -51,6 +88,23 @@ class Terminal:
         font_size: int = 16,
         line_spacing: int = 4,
     ) -> None:
+        """Initialize a Terminal object.
+
+        :param width: The width of the terminal.
+        :type width: int
+        :param height: The height of the terminal.
+        :type height: int
+        :param xpad: The horizontal padding of the terminal.
+        :type xpad: int
+        :param ypad: The vertical padding of the terminal.
+        :type ypad: int
+        :param font_file: The file path of the font to use for the terminal.
+        :type font_file: str, optional
+        :param font_size: The size of the font to use for the terminal. Defaults to 16.
+        :type font_size: int, optional
+        :param line_spacing: The line spacing to use for the terminal. Defaults to 4.
+        :type line_spacing: int, optional
+        """
         ic.configureOutput(includeContext=True)
         self.__width = width
         self.__height = height
@@ -130,7 +184,7 @@ class Terminal:
             else:
                 self.__font_width = self.__check_monospace_font(self.__font)[
                     "avg_width"
-                ]  # rework
+                ]  # FIXME: rework
                 font_metrics = self.__font.getmetrics()
                 self.__font_height = font_metrics[0] + font_metrics[1]
             self.num_rows = (self.__height - 2 * self.__ypad) // (
@@ -161,7 +215,9 @@ class Terminal:
         )
         ic(self.__cursor)  # debug
 
-    def __check_multiline(self, text: str | list) -> bool:  # make local to gen_text() ?
+    def __check_multiline(
+        self, text: str | list
+    ) -> bool:  # FIXME: make local to gen_text() ?
         if isinstance(text, list):
             if len(text) <= 1:
                 return False
@@ -270,7 +326,7 @@ class Terminal:
             if row_num > max_row_num:
                 ic(f"{text_num_lines} lines cannot be accomodated at {row_num}")
                 ic(f"Maximum possible is {max_row_num}")
-                if first_blank_row < max_row_num:  # needed ?
+                if first_blank_row < max_row_num:  # FIXME: needed ?
                     ic("NEEDED!")  # debug
                     sys.exit(1)
                     scroll_times = text_num_lines - num_blank_rows
@@ -306,7 +362,7 @@ class Terminal:
         prompt: bool = False,
         contin: bool = False,
     ) -> None:
-        if prompt and contin:  # why ?
+        if prompt and contin:  # FIXME: why ?
             print("ERROR: Both prompt and contin can't be simultaneously True")  # debug
             sys.exit(1)
 
@@ -343,7 +399,6 @@ class Terminal:
                         if code
                     ]
                     for code in codes:
-                        # print(code)
                         if code == "0":  # reset to default
                             self.set_txt_color()
                             self.set_bg_color()

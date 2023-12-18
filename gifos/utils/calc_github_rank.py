@@ -1,6 +1,7 @@
 # Reference: https://github.com/anuraghazra/github-readme-stats/blob/23472f40e81170ba452c38a99abc674db0000ce6/src/calculateRank.js
 from gifos.utils.schemas.github_user_rank import GithubUserRank
 
+"""This module contains a utility function for calculating a GitHub user's rank."""
 
 def exponential_cdf(x):
     return 1 - 2**-x
@@ -19,6 +20,30 @@ def calc_github_rank(
     stars: int,
     followers: int,
 ) -> GithubUserRank:
+    """Calculate the GitHub rank of a user based on their activity.
+
+    The rank is calculated using a weighted sum of various activity metrics, including
+    commits, pull requests, issues, reviews, stars, and followers. Each metric is
+    normalized using a cumulative distribution function (either exponential or log-
+    normal) before being weighted and summed.
+
+    :param all_commits: Whether to consider all commits or only those in the last year.
+    :type all_commits: bool
+    :param commits: The number of commits the user has made.
+    :type commits: int
+    :param prs: The number of pull requests the user has made.
+    :type prs: int
+    :param issues: The number of issues the user has opened.
+    :type issues: int
+    :param reviews: The number of reviews the user has made.
+    :type reviews: int
+    :param stars: The number of stars the user's repositories have received.
+    :type stars: int
+    :param followers: The number of followers the user has.
+    :type followers: int
+    :return: The user's GitHub rank and percentile.
+    :rtype: GithubUserRank
+    """
     COMMITS_MEDIAN = 1000 if all_commits else 250
     COMMITS_WEIGHT = 2
     PRS_MEDIAN = 50

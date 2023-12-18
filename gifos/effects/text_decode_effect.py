@@ -50,6 +50,21 @@ def generate_pattern_lines(
 
 
 def text_decode_effect_lines(input_text: str, multiplier: int) -> list:
+    """Generate a list of text lines with a decoding effect.
+
+    This function generates a list of text lines that simulate a decoding effect. The
+    function takes an input text and a multiplier as parameters. The multiplier
+    determines the number of times each line is repeated in the output. The function
+    randomly replaces characters in the input text with characters from a list to create
+    the decoding effect.
+
+    :param input_text: The text to apply the decoding effect to.
+    :type input_text: str
+    :param multiplier: The number of times each line is repeated in the output.
+    :type multiplier: int
+    :return: A list of text lines with the decoding effect.
+    :rtype: list
+    """
     lines_list = list()
     chars_list = ["<", ">", "/", "*", " "]
 

@@ -15,12 +15,29 @@ from dotenv import load_dotenv
 from gifos.utils.calc_github_rank import calc_github_rank
 from gifos.utils.schemas.github_user_stats import GithubUserStats
 
+"""This module contains a function for fetching a GitHub user's statistics."""
+
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
 
 
 def fetch_repo_stats(user_name: str, repo_end_cursor: str = None) -> dict:
+    """Fetch statistics for a user's repositories.
+
+    This function sends a GraphQL query to the GitHub API to fetch statistics for a
+    user's repositories. The function uses the `GITHUB_TOKEN` environment variable for
+    authentication and the `GRAPHQL_ENDPOINT` constant for the API endpoint.
+
+    :param user_name: The username of the user to fetch statistics for.
+    :type user_name: str
+    :param repo_end_cursor: The end cursor for pagination. If not provided, the function
+        fetches statistics from the beginning.
+    :type repo_end_cursor: str, optional
+    :return: A dictionary containing the fetched statistics if the request is
+        successful, otherwise None.
+    :rtype: dict or None
+    """
     query = """
     query repoInfo(
         $user_name: String!
@@ -87,6 +104,18 @@ def fetch_repo_stats(user_name: str, repo_end_cursor: str = None) -> dict:
 
 
 def fetch_user_stats(user_name: str) -> dict:
+    """Fetch statistics for a GitHub user.
+
+    This function sends a GraphQL query to the GitHub API to fetch statistics for a
+    GitHub user. The function uses the `GITHUB_TOKEN` environment variable for
+    authentication and the `GRAPHQL_ENDPOINT` constant for the API endpoint.
+
+    :param user_name: The username of the user to fetch statistics for.
+    :type user_name: str
+    :return: A dictionary containing the fetched statistics if the request is
+        successful, otherwise None.
+    :rtype: dict or None
+    """
     query = """
     query userInfo($user_name: String!) {
         user(login: $user_name) {
@@ -150,6 +179,18 @@ def fetch_user_stats(user_name: str) -> dict:
 
 # Reference: https://github.com/anuraghazra/github-readme-stats/blob/23472f40e81170ba452c38a99abc674db0000ce6/src/fetchers/stats-fetcher.js#L170
 def fetch_total_commits(user_name: str) -> int:
+    """Fetch the total number of commits (lifetime) made by a GitHub user.
+
+    This function sends a GET request to the GitHub REST API to fetch the total number
+    of commits made by a GitHub user. The function uses the `GITHUB_TOKEN` environment
+    variable for authentication.
+
+    :param user_name: The username of the user to fetch the total number of commits for.
+    :type user_name: str
+    :return: The total number of commits made by the user if the request is successful,
+        otherwise None.
+    :rtype: int or None
+    """
     REST_API_URL = f"https://api.github.com/search/commits?q=author:{user_name}"
     headers = {
         "Content-Type": "application/json",
@@ -171,6 +212,24 @@ def fetch_total_commits(user_name: str) -> int:
 def fetch_github_stats(
     user_name: str, ignore_repos: list = None, include_all_commits: bool = False
 ) -> GithubUserStats:
+    """Fetch GitHub statistics for a user.
+
+    This function fetches various statistics for a GitHub user. The function uses the
+    `GITHUB_TOKEN` environment variable for authentication.
+
+    :param user_name: The username of the user to fetch statistics for.
+    :type user_name: str
+    :param ignore_repos: A list of repository names to ignore when fetching statistics.
+        If not provided, all repositories are included.
+    :type ignore_repos: list, optional
+    :param include_all_commits: A boolean indicating whether to include all commits when
+        calculating the user's GitHub rank. If False, only commits from the last year
+        are included.
+    :type include_all_commits: bool, optional
+    :return: A `GithubUserStats` object containing the fetched statistics if the request
+        is successful, otherwise None.
+    :rtype: GithubUserStats or None
+    """
     if not GITHUB_TOKEN:
         print("ERROR: Please provide GITHUB_TOKEN")
         sys.exit(1)

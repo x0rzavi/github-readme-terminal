@@ -8,12 +8,33 @@ from dotenv import load_dotenv
 from gifos.utils.load_config import gifos
 from gifos.utils.schemas.imagebb_image import ImgbbImage
 
+"""This module contains a function for uploading an image to ImgBB."""
+
 load_dotenv()
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
 ENDPOINT = "https://api.imgbb.com/1/upload"
 
 
 def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
+    """Upload an image to ImgBB.
+
+    This function uploads an image to ImgBB using the ImgBB API. The function reads the
+    image file, encodes it in base64, and sends a POST request to the ImgBB API. The
+    function uses the `IMGBB_API_KEY` environment variable for authentication and the
+    `ENDPOINT` constant for the API endpoint. If the `debug` configuration value is
+    True, the function sets the image expiration time to 10 minutes.
+
+    :param file_name: The name of the image file to upload.
+    :type file_name: str
+    :param expiration: The expiration time for the image in seconds. If the `debug`
+        configuration value is True, this parameter is ignored and the expiration time
+        is set to 10 minutes. The value must be between 60 and 15552000 (6 months) if
+        provided.
+    :type expiration: int, optional
+    :return: An `ImgbbImage` object containing the uploaded image's information if the
+        upload is successful, otherwise None.
+    :rtype: ImgbbImage or None
+    """
     if not IMGBB_API_KEY:
         print("ERROR: Please provide IMGBB_API_KEY")
         sys.exit(1)
