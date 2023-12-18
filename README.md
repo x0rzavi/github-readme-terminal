@@ -45,7 +45,7 @@ A Python project that empowers you to create visually stunning and unique GIFs f
 ⚙️ To install `github-readme-terminal`, you need `pip`:
 
 ```bash
-python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple --upgrade github-readme-terminal
+python -m pip install --upgrade github-readme-terminal
 ```
 
 ## 🪧 Usage
