@@ -6,6 +6,12 @@
 
 # 💻 GitHub ReadME Terminal 🎞️
 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/github-readme-terminal)
+![PyPI - License](https://img.shields.io/pypi/l/github-readme-terminal)
+[![PyPI - Version](https://img.shields.io/pypi/v/github-readme-terminal)](https://pypi.org/project/github-readme-terminal/)
+
 ## 📘 Description
 
 A Python project that empowers you to create visually stunning and unique GIFs for your GitHub Profile ReadME. Unleash your creativity and make your profile stand out from the rest!
@@ -79,11 +85,11 @@ Tunable options can be set in two locations:
 1. Inside TOML files located in `~/.config/gifos/`.
 2. As environment variables.
 
-The format of TOML configuration files / environment variables are:
-
-### 📑 gifos.toml
+### 📑 TOML configuration file format
 
 ```toml
+# gifos.toml
+
 [general]
 debug = false
 cursor = "_"
@@ -99,9 +105,9 @@ frame_folder_name = "frames"
 output_gif_name = "output"
 ```
 
-### 📑 ansi_escape_colors.toml
-
 ```toml
+# ansi_escape_colors.toml
+
 [yoru]
         [yoru.default_colors]
         fg = "#edeff0"
@@ -128,7 +134,7 @@ output_gif_name = "output"
         white = "#f2f4f5"
 ```
 
-### 📑 Environment variables
+### 📑 Environment variables format
 
 ```bash
 export GIFOS_GENERAL_DEBUG=true
@@ -138,15 +144,32 @@ export GIFOS_CATPPUCCIN-MOCHA_DEFAULT_COLORS_BG="black"
 # Other variables are named similarly
 ```
 
-Optional API keys for modules which must be present in `.env` file or declared as environment variables:
+### 📂 Optional API keys
 
-1. `GITHUB_TOKEN` - with permissions 
+Optional API keys for modules must be present in `.env` file or declared as environment variables:
+
+1. `GITHUB_TOKEN`
+   - Repository access - All repositories
+   - Repository permissions - Contents: Read-only
 2. `IMGBB_API_KEY`
+
+### 🌈 Color schemes included
+
+- [yoru](https://github.com/rxyhn/yoru#art--colorscheme) - Default
+- [gruvbox-dark](https://github.com/morhetz/gruvbox)
+- [gruvbox-light](https://github.com/morhetz/gruvbox)
+- [rose-pine](https://rosepinetheme.com/)
+- [dracula](https://draculatheme.com/)
+- [nord](https://www.nordtheme.com/)
+- [catppuccin-mocha](https://github.com/catppuccin/catppuccin)
+- [catppuccin-latte](https://github.com/catppuccin/catppuccin)
+- [onedark](https://github.com/navarasu/onedark.nvim)
+- [monokai](https://monokai.pro/)
 
 ## 📃 Roadmap
 
-- [ ] Add GitHub streak statistics.
 - [ ] Add proper documentation.
+- [ ] Add GitHub streak statistics.
 - [ ] Properly handle exceptions.
 - [ ] Add unit tests.
 - [ ] Support for more ANSI escape codes.
