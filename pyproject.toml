@@ -1,11 +1,17 @@
 [tool.poetry]
 name = "github-readme-terminal"
 version = "0.1.11"
-description = "🚀 Revolutionize your GitHub Profile ReadMe with Minimalism and Retro Terminal vibes ✨"
+description = "✨ Elevate your GitHub Profile ReadMe with Minimalistic Retro Terminal GIFs 🚀"
 authors = ["Avishek Sen <x0rzavi@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "gifos"}]
+repository = "https://github.com/x0rzavi/github-readme-terminal"
+packages = [
+    { include = "gifos" }
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/x0rzavi/github-readme-terminal/issues"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -15,7 +21,6 @@ requests = "^2.31.0"
 icecream = "^2.1.3"
 python-dateutil = "^2.8.2"
 python-dotenv = "^1.0.0"
-
 
 [tool.poetry.group.docs.dependencies]
 docformatter = "^1.7.5"
