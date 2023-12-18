@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "github-readme-terminal"
-version = "0.1.11"
+version = "0.1.0"
 description = "✨ Elevate your GitHub Profile ReadMe with Minimalistic Retro Terminal GIFs 🚀"
 authors = ["Avishek Sen <x0rzavi@gmail.com>"]
 license = "MIT"
