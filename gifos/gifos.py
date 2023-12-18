@@ -137,17 +137,42 @@ class Terminal:
         self,
         txt_color: str = ConvertAnsiEscape.convert("39").data,
     ) -> None:
+        """Set the text color to be used in the Terminal object.
+
+        This method sets the text color of the Terminal object.
+
+        :param txt_color: The text color to set.
+        :type txt_color: str, optional
+        """
         self.__txt_color = txt_color
 
     def set_bg_color(
         self,
         bg_color: str = ConvertAnsiEscape.convert("49").data,
     ) -> None:
+        """Set the background color to be used in the Terminal object.
+
+        This method sets the background color of the Terminal object.
+
+        :param bg_color: The text color to set.
+        :type bg_color: str, optional
+        """
         self.__bg_color = bg_color
 
     def __check_font_type(
         self, font_file: str, font_size: int
     ) -> ImageFont.ImageFont | ImageFont.FreeTypeFont | None:
+        """Check the type of the font file and return the appropriate font object.
+
+        This method checks the type of the font file specified by `font_file`. If the font file is a TrueType font, it returns an `ImageFont.truetype` object with the specified `font_size`. If the font file is a bitmap font, it returns an `ImageFont.load` object and ignores the `font_size`. If the font file is neither a TrueType font nor a bitmap font, it returns `None`.
+
+        :param font_file: The file path of the font file.
+        :type font_file: str
+        :param font_size: The size of the font.
+        :type font_size: int
+        :return: An `ImageFont.truetype` object if the font file is a TrueType font, an `ImageFont.load` object if the font file is a bitmap font, or `None` if the font file is neither a TrueType font nor a bitmap font.
+        :rtype: ImageFont.ImageFont | ImageFont.FreeTypeFont | None
+        """
         try:
             font = ImageFont.truetype(font_file, font_size)
             return font
@@ -164,6 +189,18 @@ class Terminal:
     def __check_monospace_font(
         self, font: ImageFont.ImageFont | ImageFont.FreeTypeFont
     ) -> dict:
+        """Check if the specified font is monospaced and return a dictionary with the
+        check result and the average width of the characters.
+
+        This method checks if the specified font is monospaced by comparing the widths of the uppercase letters A-Z. If all the letters have the same width, the font is considered monospaced. The method returns a dictionary with the check result and the average width of the characters.
+
+        :param font: The font to check.
+        :type font: ImageFont.ImageFont | ImageFont.FreeTypeFont
+        :return: A dictionary with the check result and the average width of the characters. The dictionary has the following keys:
+            - "check": A boolean that is `True` if the font is monospaced and `False` otherwise.
+            - "avg_width": The average width of the characters in the font.
+        :rtype: dict
+        """
         widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
         avg_width = int(round(sum(widths) / len(widths), 0))
         return {"check": max(widths) == min(widths), "avg_width": avg_width}
@@ -171,6 +208,24 @@ class Terminal:
     def set_font(
         self, font_file: str, font_size: int = 16, line_spacing: int = 4
     ) -> None:
+        """Set the font to be used for the Terminal object.
+
+        This method sets the font of the Terminal object. The font is specified by a
+        file path and a size. The method also sets the line spacing of the terminal. If
+        the font is monospaced, the method sets the width and height of the font to the
+        width and height of the widest and tallest characters, respectively. If the font
+        is not monospaced, the method sets the width of the font to the average width of
+        the characters and the height of the font to the sum of the ascent and descent
+        of the font. The method also calculates the number of rows and columns that can
+        fit in the terminal based on the font size and line spacing.
+
+        :param font_file: The file path of the font file.
+        :type font_file: str
+        :param font_size: The size of the font. Defaults to 16.
+        :type font_size: int, optional
+        :param line_spacing: The line spacing to use for the terminal. Defaults to 4.
+        :type line_spacing: int, optional
+        """
         self.__font = self.__check_font_type(font_file, font_size)
         if self.__font:
             self.__line_spacing = line_spacing
@@ -202,14 +257,34 @@ class Terminal:
             sys.exit(1)
 
     def toggle_show_cursor(self, choice: bool = None) -> None:
+        """Toggle the visibility of the cursor in the Terminal object.
+
+        This method toggles the visibility of the cursor in the Terminal object. If `choice` is `None`, the method toggles the current visibility of the cursor. If `choice` is `True`, the method makes the cursor visible. If `choice` is `False`, the method makes the cursor invisible.
+
+        :param choice: The desired visibility of the cursor. If `None`, the method toggles the current visibility of the cursor. If `True`, the method makes the cursor visible. If `False`, the method makes the cursor invisible. Defaults to `None`.
+        :type choice: bool, optional
+        """
         self.__show_cursor = not self.__show_cursor if choice is None else choice
         ic(self.__show_cursor)  # debug
 
     def toggle_blink_cursor(self, choice: bool = None) -> None:
+        """Toggle the blinking of the cursor in the Terminal object.
+
+        This method toggles the blinking of the cursor in the Terminal object. If `choice` is `None`, the method toggles the current blinking state of the cursor. If `choice` is `True`, the method makes the cursor blink. If `choice` is `False`, the method makes the cursor stop blinking.
+
+        :param choice: The desired blinking state of the cursor. If `None`, the method toggles the current blinking state of the cursor. If `True`, the method makes the cursor blink. If `False`, the method makes the cursor stop blinking. Defaults to `None`.
+        :type choice: bool, optional
+        """
         self.__blink_cursor = not self.__blink_cursor if choice is None else choice
         ic(self.__blink_cursor)  # debug
 
     def __alter_cursor(self) -> None:
+        """Alter the cursor of the Terminal object.
+
+        This method alters the cursor of the Terminal object. If the current cursor is
+        not the original cursor, the method sets the cursor to the original cursor;
+        otherwise, it sets the cursor to a space.
+        """
         self.__cursor = (
             self.__cursor_orig if self.__cursor != self.__cursor_orig else " "
         )
@@ -218,6 +293,15 @@ class Terminal:
     def __check_multiline(
         self, text: str | list
     ) -> bool:  # FIXME: make local to gen_text() ?
+        """Check if the input text is multiline.
+
+        This method checks if the input text is multiline. If the text is a list and has more than one element, the method returns `True`. If the text is a string and contains a newline character, the method returns `True`. In all other cases, the method returns `False`.
+
+        :param text: The text to check. Can be a string or a list of strings.
+        :type text: str | list
+        :return: `True` if the text is multiline, `False` otherwise.
+        :rtype: bool
+        """
         if isinstance(text, list):
             if len(text) <= 1:
                 return False
@@ -226,6 +310,15 @@ class Terminal:
         return True
 
     def __frame_debug_lines(self, frame: Image.Image) -> Image.Image:
+        """Add debug lines to a frame.
+
+        This method adds debug lines to a frame. The frame is specified by `frame`. The method draws horizontal and vertical lines on the frame to represent rows and columns, respectively. It also draws a red border around the frame. The row and column numbers are printed next to the corresponding lines. The method returns the frame with the added debug lines.
+
+        :param frame: The frame to add debug lines to.
+        :type frame: Image.Image
+        :return: The frame with the added debug lines.
+        :rtype: Image.Image
+        """
         # checker box to debug
         draw = ImageDraw.Draw(frame)
         for i in range(self.num_rows + 1):  # (n + 1) lines
@@ -264,6 +357,15 @@ class Terminal:
         return frame
 
     def __gen_frame(self, frame: Image.Image = None) -> Image.Image:
+        """Generate a new frame or save the current frame.
+
+        This method generates a new frame if `frame` is `None` or saves the current frame if `frame` is not `None`. If a new frame is generated, the method initializes the frame with the background color, sets the number of columns in each row to 1, and moves the cursor to the box at (1, 1). If the debug mode is on, the method also draws debug lines on the frame. If the current frame is saved, the method increments the frame count, saves the frame as a PNG file with a name based on the frame count.
+
+        :param frame: The current frame. If `None`, a new frame is generated. If not `None`, the current frame is saved. Defaults to `None`.
+        :type frame: Image.Image, optional
+        :return: The new or saved frame.
+        :rtype: Image.Image
+        """
         if frame is None:
             frame = Image.new("RGB", (self.__width, self.__height), self.__bg_color)
             self.__col_in_row = {_ + 1: 1 for _ in range(self.num_rows)}
@@ -278,15 +380,35 @@ class Terminal:
         return frame
 
     def save_frame(self, base_file_name: str):
+        """Save the current frame as a PNG file.
+
+        This method saves the current frame as a PNG file. The file name is based on `base_file_name`.
+
+        :param base_file_name: The base file name for the PNG file.
+        :type base_file_name: str
+        """
         file_name = base_file_name + ("" if ".png" in base_file_name else ".png")
         self.__frame.save(file_name, "PNG")
         print(f"INFO: Saved frame #{self.__frame_count}: {file_name}")
 
     def clear_frame(self) -> None:
+        """Clear the current frame.
+
+        This method clears the current frame by generating a new frame. The new frame is
+        initialized with the background color, the number of columns in each row is set
+        to 1, and the cursor is moved to the box at (1, 1).
+        """
         self.__frame = self.__gen_frame()
         ic("Frame cleared")
 
     def clone_frame(self, count: int = 1) -> None:
+        """Clone the current frame a specified number of times.
+
+        This method clones the current frame a specified number of times. The number of times to clone the frame is specified by `count`.
+
+        :param count: The number of times to clone the frame. Defaults to 1.
+        :type count: int, optional
+        """
         for _ in range(count):
             self.__frame = self.__gen_frame(self.__frame)
         ic(f"Frame cloned {count} times")
@@ -300,6 +422,25 @@ class Terminal:
         contin: bool = False,
         force_col: bool = False,  # to assist in delete_row()
     ) -> tuple:
+        """Move the cursor to a specific box (coordinate) in the Terminal object.
+
+        This method moves the cursor to a specific box in the Terminal object. The box is specified by `row_num` and `col_num`. The method also takes into account the number of lines and characters in the text that will be printed at the box. If `contin` is `True`, the method continues printing from the current position of the cursor. If `force_col` is `True`, the method forces the cursor to move to the specified column.
+
+        :param row_num: The row number of the box.
+        :type row_num: int
+        :param col_num: The column number of the box.
+        :type col_num: int
+        :param text_num_lines: The number of lines in the text that will be printed at the box. Defaults to 1.
+        :type text_num_lines: int, optional
+        :param text_num_chars: The number of characters in the text that will be printed at the box. Defaults to 1.
+        :type text_num_chars: int, optional
+        :param contin: Whether to continue printing from the current position of the cursor. Defaults to False.
+        :type contin: bool, optional
+        :param force_col: Whether to force the cursor to move to the specified column. Defaults to False.
+        :type force_col: bool, optional
+        :return: The coordinates of the box.
+        :rtype: tuple
+        """
         if row_num < 1 or col_num < 1:  # do not care about exceeding col_num
             raise ValueError
         elif row_num > self.num_rows:
@@ -362,6 +503,26 @@ class Terminal:
         prompt: bool = False,
         contin: bool = False,
     ) -> None:
+        """Generate text on the Terminal object.
+
+        This method generates text on the Terminal object. The text is specified by `text`, and the position of the text is specified by `row_num` and `col_num`. The method also takes into account whether to generate a prompt after the text (`prompt`), whether to continue printing from the current position of the cursor (`contin`), and the number of times to generate the text (`count`).
+        If there is a single line of text, the default behaviour to position the cursor is at the end of the same line.
+        If there are multiple lines of text, the default behaviour to position the cursor is at the beginning of the next line.
+        Prompt is generated only if there are multiple lines of text.
+
+        :param text: The text to generate. If a string, the text is split into lines. If a list, each element is treated as a line of text.
+        :type text: str | list
+        :param row_num: The row number where the text starts.
+        :type row_num: int
+        :param col_num: The column number where the text starts. Defaults to 1.
+        :type col_num: int, optional
+        :param count: The number of times to generate the text. Defaults to 1.
+        :type count: int, optional
+        :param prompt: Whether to generate a prompt after the text. Defaults to False.
+        :type prompt: bool, optional
+        :param contin: Whether to continue printing from the current position of the cursor. Defaults to False.
+        :type contin: bool, optional
+        """
         if prompt and contin:  # FIXME: why ?
             print("ERROR: Both prompt and contin can't be simultaneously True")  # debug
             sys.exit(1)
@@ -475,11 +636,27 @@ class Terminal:
         contin: bool = False,
         speed: int = 0,
     ) -> None:
-        # speed configuration
-        # 0 - random - random frame count
-        # 1 - fast - 1 frame count
-        # 2 - medium - 2 frame count
-        # 3 - slow - 3 frame count
+        """Generate typing text simulation on the Terminal object.
+
+        This method generates typing text on the Terminal object. The text is specified by `text`, and the position of the text is specified by `row_num` and `col_num`. The method also takes into account whether to continue printing from the current position of the cursor `contin`, and the speed of typing `speed`.
+
+        Speed configuration:
+        0 - random - random frame count
+        1 - fast - 1 frame count
+        2 - medium - 2 frame count
+        3 - slow - 3 frame count
+
+        :param text: The text to generate. If a string, the text is split into words and each word is printed character by character.
+        :type text: str
+        :param row_num: The row number where the text starts.
+        :type row_num: int
+        :param col_num: The column number where the text starts. Defaults to 1.
+        :type col_num: int, optional
+        :param contin: Whether to continue printing from the current position of the cursor. Defaults to False.
+        :type contin: bool, optional
+        :param speed: The speed of typing. Can be 0 (random), 1 (fast), 2 (medium), or 3 (slow). Defaults to 0.
+        :type speed: int, optional
+        """
         ansi_escape_pattern = re.compile(
             r"(\\x1b\[\d+(?:;\d+)*m|\x1b\[\d+(?:;\d+)*m)"
         )  # match ANSI color mode escape codes
@@ -497,9 +674,27 @@ class Terminal:
                     )
 
     def set_prompt(self, prompt: str) -> None:
+        """Set the prompt for the Terminal object.
+
+        This method sets the prompt for the Terminal object. The prompt is specified by `prompt`.
+
+        :param prompt: The prompt to set.
+        :type prompt: str
+        """
         self.__prompt = prompt
 
     def gen_prompt(self, row_num: int, col_num: int = 1, count: int = 1) -> None:
+        """Generate a prompt on the Terminal object.
+
+        This method generates a prompt on the Terminal object. The position of the prompt is specified by `row_num` and `col_num`, and the number of times to generate the prompt is specified by `count`. Before generating the prompt, the method clones the current frame and ensures that the cursor is visible. After generating the prompt, the method restores the original state of the cursor.
+
+        :param row_num: The row number where the prompt starts.
+        :type row_num: int
+        :param col_num: The column number where the prompt starts. Defaults to 1.
+        :type col_num: int, optional
+        :param count: The number of times to generate the prompt. Defaults to 1.
+        :type count: int, optional
+        """
         self.clone_frame(1)  # wait a bit before printing new prompt
         orig_cursor_state = self.__show_cursor
         self.toggle_show_cursor(True)
@@ -509,6 +704,13 @@ class Terminal:
         self.__show_cursor = orig_cursor_state
 
     def scroll_up(self, count: int = 1) -> None:
+        """Scroll up the Terminal object.
+
+        This method scrolls up the Terminal object a specified number of times. The number of times to scroll up is specified by `count`.
+
+        :param count: The number of times to scroll up. Defaults to 1.
+        :type count: int, optional
+        """
         for _ in range(count):
             cropped_frame = self.__frame.crop(
                 (
@@ -532,6 +734,15 @@ class Terminal:
             ic(self.curr_row, self.curr_col)
 
     def delete_row(self, row_num: int, col_num: int = 1) -> None:
+        """Delete a row in the Terminal object.
+
+        This method deletes a row in the Terminal object. The row is specified by `row_num`, and the column where the deletion starts is specified by `col_num`.
+
+        :param row_num: The row number to delete.
+        :type row_num: int
+        :param col_num: The column number where the deletion starts. Defaults to 1.
+        :type col_num: int, optional
+        """
         x1, y1, _, _ = self.cursor_to_box(
             row_num, col_num, 1, 1, True, force_col=True
         )  # continue = True; do not scroll up
@@ -551,6 +762,19 @@ class Terminal:
         col_num: int = 1,
         size_multiplier: float = 1,
     ) -> None:
+        """Paste an image onto the Terminal object.
+
+        This method pastes an image onto the Terminal object. The image is specified by `image_file`, and the position of the image is specified by `row_num` and `col_num`. The method also takes into account a size multiplier `size_multiplier` to resize (with same aspect ratio) the image before pasting it.
+
+        :param image_file: The path to the image file to paste.
+        :type image_file: str
+        :param row_num: The row number where the image starts.
+        :type row_num: int
+        :param col_num: The column number where the image starts. Defaults to 1.
+        :type col_num: int, optional
+        :param size_multiplier: The multiplier by which to resize the image. Defaults to 1.
+        :type size_multiplier: float, optional
+        """
         x1, y1, _, _ = self.cursor_to_box(row_num, col_num, 1, 1, True, True)
         with Image.open(image_file) as image:
             image_width, image_height = image.size
@@ -577,9 +801,20 @@ class Terminal:
                 self.__gen_frame(self.__frame)
 
     def set_fps(self, fps: float) -> None:
+        """Set the frames per second (fps) for the GIF to be generated.
+
+        This method sets the frames per second (fps) for the GIF to be generated. The fps is specified by `fps`.
+
+        :param fps: The frames per second to set.
+        :type fps: float
+        """
         self.__fps = fps
 
     def gen_gif(self) -> None:
+        """Generate a GIF from the frames.
+
+        This method generates a GIF from the frames. The method uses the `ffmpeg` command to generate the GIF, with the frames per second (fps) set to the fps specified in the Terminal object. The generated GIF is saved with the name specified by `output_gif_name`.
+        """
         os.system(
             f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
         )
