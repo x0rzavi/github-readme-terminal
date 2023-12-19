@@ -54,6 +54,9 @@ A Python project that empowers you to create visually stunning and unique GIFs f
 python -m pip install --upgrade github-readme-terminal
 ```
 
+> [!NOTE]
+> The package includes only [gohufont-uni-14](https://github.com/hchargois/gohufont). Bring your own fonts, if you need additional ones. Also, refer to [Pillow documentation](https://pillow.readthedocs.io/en/stable/reference/ImageFont.html#module-PIL.ImageFont) if you need to work with bitmap fonts.
+
 ## 🪧 Usage
 
 Here is a basic demonstration:
