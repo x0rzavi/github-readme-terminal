@@ -88,16 +88,16 @@ Tunable options can be set in two locations:
 ### 📑 TOML configuration file format
 
 ```toml
-# gifos.toml
+# gifos_settings.toml
 
 [general]
 debug = false
 cursor = "_"
 show_cursor = true
-blink_cursor = false
+blink_cursor = true
 user_name = "x0rzavi" # for prompt
 fps = 15
-color_scheme = "rose-pine"
+color_scheme = "yoru"
 
 [files]
 frame_base_name = "frame_"
