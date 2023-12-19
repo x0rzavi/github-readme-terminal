@@ -21,11 +21,11 @@ from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 
 from gifos.utils.convert_ansi_escape import ConvertAnsiEscape
-from gifos.utils.load_config import gifos
+from gifos.utils.load_config import gifos_settings
 
-frame_base_name = gifos.get("files", {}).get("frame_base_name") or "frame_"
-frame_folder_name = gifos.get("files", {}).get("frame_folder_name") or "./frames"
-output_gif_name = gifos.get("files", {}).get("output_gif_name") or "output"
+frame_base_name = gifos_settings.get("files", {}).get("frame_base_name") or "frame_"
+frame_folder_name = gifos_settings.get("files", {}).get("frame_folder_name") or "./frames"
+output_gif_name = gifos_settings.get("files", {}).get("output_gif_name") or "output"
 
 try:
     os.remove(output_gif_name + ".gif")
@@ -112,7 +112,7 @@ class Terminal:
         self.__ypad = ypad
         self.__font_file = font_file
         self.__font_size = font_size
-        self.__debug = gifos.get("general", {}).get("debug") or False
+        self.__debug = gifos_settings.get("general", {}).get("debug") or False
         if not self.__debug:
             ic.disable()
 
@@ -122,12 +122,12 @@ class Terminal:
         self.curr_row = 0
         self.curr_col = 0
         self.set_font(self.__font_file, self.__font_size, line_spacing)
-        self.__cursor = gifos.get("general", {}).get("cursor") or "_"
+        self.__cursor = gifos_settings.get("general", {}).get("cursor") or "_"
         self.__cursor_orig = self.__cursor
-        self.__show_cursor = gifos.get("general", {}).get("show_cursor") or True
-        self.__blink_cursor = gifos.get("general", {}).get("blink_cursor") or True
-        self.__fps = gifos.get("general", {}).get("fps") or 20
-        self.__user_name = gifos.get("general", {}).get("user_name") or "x0rzavi"
+        self.__show_cursor = gifos_settings.get("general", {}).get("show_cursor", True)
+        self.__blink_cursor = gifos_settings.get("general", {}).get("blink_cursor", True)
+        self.__fps = gifos_settings.get("general", {}).get("fps") or 20
+        self.__user_name = gifos_settings.get("general", {}).get("user_name") or "x0rzavi"
         self.__prompt = (
             f"\x1b[0;91m{self.__user_name}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
         )

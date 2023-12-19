@@ -33,9 +33,11 @@ def load_toml(file_name: str) -> dict:
                 env_var_name = f"{prefix}_{key.upper()}"
                 env_var_value = os.getenv(env_var_name)
                 if env_var_value is not None:
+                    if env_var_value.lower() in ['true', 'false']:  # check if the env var is a boolean
+                        env_var_value = env_var_value.lower() == 'true' # convert to boolean
                     config[key] = env_var_value
                     print(
-                        f"INFO: Config updated from environment variable: {env_var_name}"
+                        f"INFO: Config updated from environment variable: {env_var_name}={env_var_value}"
                     )
 
     def_config_file = (
@@ -56,7 +58,7 @@ def load_toml(file_name: str) -> dict:
     return config
 
 
-gifos = load_toml("gifos.toml")
+gifos_settings = load_toml("gifos_settings.toml")
 ansi_escape_colors = load_toml("ansi_escape_colors.toml")
 
-__all__ = ["gifos", "ansi_escape_colors"]
+__all__ = ["gifos_settings", "ansi_escape_colors"]

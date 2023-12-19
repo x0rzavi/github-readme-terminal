@@ -1,5 +1,5 @@
 # Colorscheme reference: https://github.com/rxyhn/yoru#art--colorscheme
-from gifos.utils.load_config import ansi_escape_colors, gifos
+from gifos.utils.load_config import ansi_escape_colors, gifos_settings
 from gifos.utils.schemas.ansi_escape import AnsiEscape
 
 """This module contains a class `ConvertAnsiEscape` for converting ANSI escape codes to color values."""
@@ -8,7 +8,7 @@ from gifos.utils.schemas.ansi_escape import AnsiEscape
 class ConvertAnsiEscape:
     """A class for converting ANSI escape codes to color values."""
 
-    __color_scheme = gifos.get("general", {}).get("color_scheme")
+    __color_scheme = gifos_settings.get("general", {}).get("color_scheme")
 
     @staticmethod
     def __get_color(color_dict, color_name, def_color):

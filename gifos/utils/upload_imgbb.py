@@ -5,7 +5,7 @@ import sys
 
 from dotenv import load_dotenv
 
-from gifos.utils.load_config import gifos
+from gifos.utils.load_config import gifos_settings
 from gifos.utils.schemas.imagebb_image import ImgbbImage
 
 """This module contains a function for uploading an image to ImgBB."""
@@ -39,7 +39,7 @@ def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
         print("ERROR: Please provide IMGBB_API_KEY")
         sys.exit(1)
 
-    if gifos.get("general", {}).get("debug"):
+    if gifos_settings.get("general", {}).get("debug"):
         expiration = 600
         print("INFO: Debugging is true Setting expiration to 10min")
     else:
