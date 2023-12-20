@@ -280,19 +280,16 @@ def fetch_github_stats(
 
     user_stats = fetch_user_stats(user_name)
 
-    if user_stats["pullRequests"]["totalCount"] > 0:
-        # Calculate the percentage of merged pull requests
-        pull_requests_merge_percentage = round(
-            (user_stats["mergedPullRequests"]["totalCount"] /
-             user_stats["pullRequests"]["totalCount"]) * 100,
-            2
-        )
-    else:
-        # Set a default value or handle the case when there are no pull requests
-        pull_requests_merge_percentage = 0  # You can choose another appropriate value
-
-
     if user_stats:
+        if user_stats["pullRequests"]["totalCount"] > 0:
+            pull_requests_merge_percentage = round(
+                (user_stats["mergedPullRequests"]["totalCount"] /
+                 user_stats["pullRequests"]["totalCount"]) * 100,
+                2
+            )
+        else:
+            pull_requests_merge_percentage = 0
+
         user_details = GithubUserStats(
             account_name=user_stats["name"],
             total_followers=user_stats["followers"]["totalCount"],
