@@ -279,7 +279,17 @@ def fetch_github_stats(
     )
 
     user_stats = fetch_user_stats(user_name)
+
     if user_stats:
+        if user_stats["pullRequests"]["totalCount"] > 0:
+            pull_requests_merge_percentage = round(
+                (user_stats["mergedPullRequests"]["totalCount"] /
+                 user_stats["pullRequests"]["totalCount"]) * 100,
+                2
+            )
+        else:
+            pull_requests_merge_percentage = 0
+
         user_details = GithubUserStats(
             account_name=user_stats["name"],
             total_followers=user_stats["followers"]["totalCount"],
@@ -292,14 +302,7 @@ def fetch_github_stats(
             ),
             total_pull_requests_made=user_stats["pullRequests"]["totalCount"],
             total_pull_requests_merged=user_stats["mergedPullRequests"]["totalCount"],
-            pull_requests_merge_percentage=round(
-                (
-                    user_stats["mergedPullRequests"]["totalCount"]
-                    / user_stats["pullRequests"]["totalCount"]
-                )
-                * 100,
-                2,
-            ),
+            pull_requests_merge_percentage=pull_requests_merge_percentage,
             total_pull_requests_reviewed=user_stats["contributionsCollection"][
                 "totalPullRequestReviewContributions"
             ],
