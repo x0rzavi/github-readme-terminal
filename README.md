@@ -19,9 +19,9 @@ A Python project that empowers you to create visually stunning and unique GIFs f
 ## 📸 Showcase
 
 <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/3N50TJ2/output-gif.gif">
-    <source media="(prefers-color-scheme: light)" srcset="https://i.ibb.co/3N50TJ2/output-gif.gif">
-    <img alt="GIFOS" src="https://i.ibb.co/3N50TJ2/output-gif.gif">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/sample.gif">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/sample.gif">
+    <img alt="GIFOS" src="docs/assets/sample.gif">
 </picture>
 
 ## 🗝️ Key Features
