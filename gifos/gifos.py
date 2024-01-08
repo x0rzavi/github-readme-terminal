@@ -127,6 +127,7 @@ class Terminal:
         self.__show_cursor = gifos_settings.get("general", {}).get("show_cursor", True)
         self.__blink_cursor = gifos_settings.get("general", {}).get("blink_cursor", True)
         self.__fps = gifos_settings.get("general", {}).get("fps") or 20
+        self.__loop_count = gifos_settings.get("general", {}).get("loop_count") or 0
         self.__user_name = gifos_settings.get("general", {}).get("user_name") or "x0rzavi"
         self.__prompt = (
             f"\x1b[0;91m{self.__user_name}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
@@ -810,13 +811,30 @@ class Terminal:
         """
         self.__fps = fps
 
+    def set_loop_count(self, loop_count: int) -> None:
+        """Set the loop count for GIF to be generated.
+
+        This method sets the loop count for the GIF to be generated. Specifications for the loop number
+        are given by ffmpeg as follows:
+             -1:        No-loop (stop after first playback)
+             0:         Infinite loop
+             1..65535:  Loop n times up to a maximum of 65535
+
+        :param loop_count: The number of loops in the GIF to be generated.
+        :type loop_count: int
+        """
+        def limit(n: int, lower: int, upper: int):
+            return min(max(n, lower), upper)
+
+        self.__loop_count = limit(loop_count, -1, 65535)
+
     def gen_gif(self) -> None:
         """Generate a GIF from the frames.
 
         This method generates a GIF from the frames. The method uses the `ffmpeg` command to generate the GIF, with the frames per second (fps) set to the fps specified in the Terminal object. The generated GIF is saved with the name specified by `output_gif_name`.
         """
         os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
+            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -loop {self.__loop_count} -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
         )
         print(
             f"INFO: Generated {output_gif_name}.gif approximately {round(self.__frame_count / self.__fps, 2)}s long"
