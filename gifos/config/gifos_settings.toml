@@ -6,6 +6,7 @@ blink_cursor = true
 user_name = "x0rzavi" # for prompt
 fps = 15
 color_scheme = "yoru"
+loop_count = 0 # infinite loop
 
 [files]
 frame_base_name = "frame_"
