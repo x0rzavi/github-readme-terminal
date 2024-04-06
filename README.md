@@ -184,6 +184,8 @@ Optional API keys for modules must be present in `.env` file or declared as envi
 
 This is an open source project licensed under MIT and we welcome contributions from the community. We appreciate all types of contributions, including bug reports, feature requests, documentation improvements, and code contributions.
 
+Read our [Contributing Guidelines](https://github.com/x0rzavi/github-readme-terminal/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bugfixes and improvements of our Project
+
 ## 🤝 Acknowledgments
 
 - [liamg/liamg](https://github.com/liamg/liamg) - Inspiration.
