@@ -186,6 +186,10 @@ This is an open source project licensed under MIT and we welcome contributions f
 
 Read our [Contributing Guidelines](https://github.com/x0rzavi/github-readme-terminal/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bugfixes and improvements of our Project
 
+<h2>Code Of Conduct📑</h2>
+
+This project and everyone participating in it is governed by the [Code of Conduct](https://github.com/x0rzavi/github-readme-terminal/blob/main/Code_of_conduct.md). By participating, you are expected to uphold this code.
+
 ## 🤝 Acknowledgments
 
 - [liamg/liamg](https://github.com/liamg/liamg) - Inspiration.
