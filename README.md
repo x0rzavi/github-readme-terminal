@@ -39,6 +39,8 @@ A Python project that empowers you to create visually stunning and unique GIFs f
 - 🚨 Stand out in the developer community with **visually appealing** GIFs that can potentially make a lasting impression.
 - 📦 **High-level constructs** and functions for simulating various terminal operations provide unparalleled control over your ReadME aesthetic.
 
+<p align="right"><a href="#top"><img src="https://img.shields.io/badge/Move%20to%20top-Blue?style=plastic" alt="Back To Top"></a></p>
+
 ## ⚙️ Prerequisites
 
 1. Python >=3.9
@@ -180,9 +182,17 @@ Optional API keys for modules must be present in `.env` file or declared as envi
 - [ ] More in-built color schemes.
 - [ ] More in-built text animations.
 
+<p align="right"><a href="#top"><img src="https://img.shields.io/badge/Move%20to%20top-Blue?style=plastic" alt="Back To Top"></a></p>
+
 ## 🌱 Contributing
 
 This is an open source project licensed under MIT and we welcome contributions from the community. We appreciate all types of contributions, including bug reports, feature requests, documentation improvements, and code contributions.
+
+Read our [Contributing Guidelines](https://github.com/x0rzavi/github-readme-terminal/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bugfixes and improvements of our Project
+
+<h2>Code Of Conduct📑</h2>
+
+This project and everyone participating in it is governed by the [Code of Conduct](https://github.com/x0rzavi/github-readme-terminal/blob/main/Code_of_conduct.md). By participating, you are expected to uphold this code.
 
 ## 🤝 Acknowledgments
 
