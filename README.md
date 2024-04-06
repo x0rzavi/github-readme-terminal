@@ -39,6 +39,8 @@ A Python project that empowers you to create visually stunning and unique GIFs f
 - 🚨 Stand out in the developer community with **visually appealing** GIFs that can potentially make a lasting impression.
 - 📦 **High-level constructs** and functions for simulating various terminal operations provide unparalleled control over your ReadME aesthetic.
 
+<p align="right"><a href="#top"><img src="https://img.shields.io/badge/Move%20to%20top-Blue?style=plastic" alt="Back To Top"></a></p>
+
 ## ⚙️ Prerequisites
 
 1. Python >=3.9
@@ -179,6 +181,8 @@ Optional API keys for modules must be present in `.env` file or declared as envi
 - [ ] Support for more ANSI escape codes.
 - [ ] More in-built color schemes.
 - [ ] More in-built text animations.
+
+<p align="right"><a href="#top"><img src="https://img.shields.io/badge/Move%20to%20top-Blue?style=plastic" alt="Back To Top"></a></p>
 
 ## 🌱 Contributing
 
