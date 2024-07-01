@@ -88,6 +88,8 @@ Tunable options can be set in two locations:
 1. Inside TOML files located in `~/.config/gifos/`.
 2. As environment variables.
 
+Environment variables override configuration in TOML files
+
 ### 📑 TOML configuration file format
 
 ```toml

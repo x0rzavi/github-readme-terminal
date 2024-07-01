@@ -87,7 +87,9 @@ def fetch_repo_stats(user_name: str, repo_end_cursor: str = None) -> dict:
     variables = {"user_name": user_name, "repo_end_cursor": repo_end_cursor}
 
     response = requests.post(
-        GRAPHQL_ENDPOINT, json={"query": query, "variables": variables}, headers=headers
+        GRAPHQL_ENDPOINT,
+        json={"query": query, "variables": variables},
+        headers=headers,
     )
 
     if response.status_code == 200:
@@ -161,7 +163,9 @@ def fetch_user_stats(user_name: str) -> dict:
     variables = {"user_name": user_name}
 
     response = requests.post(
-        GRAPHQL_ENDPOINT, json={"query": query, "variables": variables}, headers=headers
+        GRAPHQL_ENDPOINT,
+        json={"query": query, "variables": variables},
+        headers=headers,
     )
 
     if response.status_code == 200:
@@ -283,9 +287,12 @@ def fetch_github_stats(
     if user_stats:
         if user_stats["pullRequests"]["totalCount"] > 0:
             pull_requests_merge_percentage = round(
-                (user_stats["mergedPullRequests"]["totalCount"] /
-                 user_stats["pullRequests"]["totalCount"]) * 100,
-                2
+                (
+                    user_stats["mergedPullRequests"]["totalCount"]
+                    / user_stats["pullRequests"]["totalCount"]
+                )
+                * 100,
+                2,
             )
         else:
             pull_requests_merge_percentage = 0

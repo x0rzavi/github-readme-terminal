@@ -3,6 +3,7 @@ from gifos.utils.schemas.github_user_rank import GithubUserRank
 
 """This module contains a utility function for calculating a GitHub user's rank."""
 
+
 def exponential_cdf(x):
     return 1 - 2**-x
 
@@ -81,7 +82,10 @@ def calc_github_rank(
     )
 
     level = LEVELS[
-        next((i for i, t in enumerate(THRESHOLDS) if rank * 100 <= t), len(LEVELS) - 1)
+        next(
+            (i for i, t in enumerate(THRESHOLDS) if rank * 100 <= t),
+            len(LEVELS) - 1,
+        )
     ]
     percentile = round(rank * 100, 2)
     return GithubUserRank(level, percentile)

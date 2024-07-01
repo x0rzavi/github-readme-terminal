@@ -8,6 +8,7 @@ The effects module contains various effects that can be applied to the Terminal 
 
 The utils module contains various utility functions that can be used.
 """
+
 from gifos.gifos import Terminal
 from gifos import effects
 from gifos import utils

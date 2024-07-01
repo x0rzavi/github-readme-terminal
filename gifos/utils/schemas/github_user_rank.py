@@ -11,6 +11,7 @@ class GithubUserRank:
     Attributes:     level: A string that represents the user's rank level.
     percentile: A float that represents the user's percentile rank.
     """
+
     __slots__ = ["level", "percentile"]
     level: str
     percentile: float
