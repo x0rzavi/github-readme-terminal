@@ -46,7 +46,7 @@ def load_toml(file_name: str) -> dict:
                             env_var_value = int(
                                 env_var_value
                             )  # convert string values to int
-                        except TypeError:
+                        except ValueError:
                             pass
                     config[key] = env_var_value
                     print(
