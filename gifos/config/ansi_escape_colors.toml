@@ -247,3 +247,29 @@
         magenta = "#AB9DF2"
         cyan = "#78DCE8"
         white = "#FCFCFA"
+
+[everblush]
+        [everblush.default_colors]
+        fg = "#141b1e"
+        bg = "#dadada"
+
+        [everblush.normal_colors]
+        black = "#232a2d"
+        red = "#e57474"
+        green = "#8ccf7e"
+        yellow = "#e5c76b"
+        blue = "#67b0e8"
+        magenta = "#c47fd5"
+        cyan = "#6cbfbf"
+        white = "#b3b9b8"
+
+        [everblush.bright_colors]
+        black = "#2d3437"
+        red = "#ef7e7e"
+        green = "#96d988"
+        yellow = "#f4d67a"
+        blue = "#71baf2"
+        magenta = "#ce89df"
+        cyan = "#67cbe7"
+        white = "#bdc3c2"
+
