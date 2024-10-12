@@ -250,8 +250,8 @@
 
 [everblush]
         [everblush.default_colors]
-        fg = "#141b1e"
-        bg = "#dadada"
+        fg = "#dadada"
+        bg = "#141b1e"
 
         [everblush.normal_colors]
         black = "#232a2d"
