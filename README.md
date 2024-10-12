@@ -171,6 +171,7 @@ Optional API keys for modules must be present in `.env` file or declared as envi
 - [catppuccin-latte](https://github.com/catppuccin/catppuccin)
 - [onedark](https://github.com/navarasu/onedark.nvim)
 - [monokai](https://monokai.pro/)
+- [everblush](https://github.com/Everblush)
 
 ## 📃 Roadmap
 
